@@ -62,6 +62,9 @@ import java_cup.runtime.Symbol;
 	   ...
 	   break;
 	*/
+    case COMMENT:
+        System.err.println("EOF in comment.");
+
     }
     return new Symbol(TokenConstants.EOF);
 %eofval}
@@ -69,15 +72,66 @@ import java_cup.runtime.Symbol;
 %class CoolLexer
 %cup
 
+
+%state COMMENT
+
+
+DIGIT = [0-9] 
+LETTER = [A-Za-z]
+
 %%
 
-<YYINITIAL>"=>"			{ /* Sample lexical rule for "=>" arrow.
-                                     Further lexical rules should be defined
-                                     here, after the last %% separator */
-                                  return new Symbol(TokenConstants.DARROW); }
+<YYINITIAL> "class"     { return new Symbol(TokenConstants.CLASS);}
+<YYINITIAL> "else"      { return new Symbol(TokenConstants.ELSE);}
+<YYINITIAL> "fi" 		{ return new Symbol(TokenConstants.FI);}
+<YYINITIAL> "if"        { return new Symbol(TokenConstants.IF);}
+<YYINITIAL> "in"        { return new Symbol(TokenConstants.IN);}
+<YYINITIAL> "inherits"  { return new Symbol(TokenConstants.INHERITS);}
+<YYINITIAL> "isvoid"    { return new Symbol(TokenConstants.ISVOID);}
+<YYINITIAL> "let"       { return new Symbol(TokenConstants.LET);}
+<YYINITIAL> "loop"      { return new Symbol(TokenConstants.LOOP);}
+<YYINITIAL> "pool"      { return new Symbol(TokenConstants.POOL);}
+<YYINITIAL> "then"      { return new Symbol(TokenConstants.THEN);}
+<YYINITIAL> "while"     { return new Symbol(TokenConstants.WHILE);}
+<YYINITIAL> "case"      { return new Symbol(TokenConstants.CASE);}
+<YYINITIAL> "esac"      { return new Symbol(TokenConstants.ESAC);}
+<YYINITIAL> "new"       { return new Symbol(TokenConstants.NEW);}
+<YYINITIAL> "of"        { return new Symbol(TokenConstants.OF);}
+<YYINITIAL> "not"       { return new Symbol(TokenConstants.NOT);}
 
-.                               { /* This rule should be the very last
-                                     in your lexical specification and
-                                     will match match everything not
-                                     matched by other lexical rules. */
-                                  System.err.println("LEXER BUG - UNMATCHED: " + yytext()); }
+
+
+<YYINITIAL> "(*"   {
+    System.out.println("\nbegin ccomment:");
+    yybegin(COMMENT);
+}    
+
+
+
+<COMMENT> "*)"    {
+    System.out.println("\nend comment\n");yybegin(YYINITIAL);
+}
+
+
+
+<COMMENT> .|\n    {
+    System.out.print(yytext());
+}
+
+
+ 
+
+
+.       {/* This rule should be the very last
+                in your lexical specification and
+                will match match everything not
+                matched by other lexical rules. */
+                System.err.println("LEXER BUG - UNMATCHEDs: " + yytext()); }
+
+
+
+
+
+
+
+
