@@ -78,6 +78,8 @@ import java_cup.runtime.Symbol;
 
 DIGIT = [0-9] 
 LETTER = [A-Za-z]
+WHITESPACE = [\t\n ]+
+CLASSNAME = [A-Z][A-Za-z]*
 
 %%
 
@@ -99,6 +101,8 @@ LETTER = [A-Za-z]
 <YYINITIAL> "of"        { return new Symbol(TokenConstants.OF);}
 <YYINITIAL> "not"       { return new Symbol(TokenConstants.NOT);}
 
+<YYINITIAL> {WHITESPACE}    { }
+
 
 
 <YYINITIAL> "(*"   {
@@ -109,7 +113,8 @@ LETTER = [A-Za-z]
 
 
 <COMMENT> "*)"    {
-    System.out.println("\nend comment\n");yybegin(YYINITIAL);
+    System.out.println("\nend comment\n");
+    yybegin(YYINITIAL);
 }
 
 
