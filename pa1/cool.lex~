@@ -82,7 +82,7 @@ import java_cup.runtime.Symbol;
 DIGIT = [0-9] 
 ULETTER = [A-Z]
 LLETTER = [a-z]
-WHITESPACE = [\t ]+
+WHITESPACE = [\t\n ]+
 CLASSNAME = ([A-Z][A-Za-z0-9]*)|("SELF_TYPE")
 OBJECTNAME = [a-z][A-Za-z0-9_]*
 INTEGER = [0-9]+ /*What about 00003*/
