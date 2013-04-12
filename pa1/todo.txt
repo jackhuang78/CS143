@@ -1,0 +1,20 @@
+- symbols left to match:
+  public static final int STR_CONST = 40;
+  public static final int EOF = 0;
+  public static final int error = 1;
+  public static final int ERROR = 23;
+  public static final int DARROW = 17;
+  public static final int LET_STMT = 9;
+  public static final int BOOL_CONST = 42;
+
+- collapse all rules under the same state
+- match true/false as BOOL_CONST instread of keyword
+
+- implement STRING state
+- catch EOF during STRING state
+
+- more...
+
+
+
+

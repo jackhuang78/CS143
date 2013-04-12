@@ -33,6 +33,8 @@ import java_cup.runtime.Symbol;
     AbstractSymbol curr_filename() {
 	return filename;
     }
+
+    
 %}
 
 %init{
@@ -74,12 +76,16 @@ import java_cup.runtime.Symbol;
 
 
 %state COMMENT
+%state STRING
 
 
 DIGIT = [0-9] 
-LETTER = [A-Za-z]
+ULETTER = [A-Z]
+LLETTER = [a-z]
 WHITESPACE = [\t\n ]+
-CLASSNAME = [A-Z][A-Za-z0-9]*
+CLASSNAME = ([A-Z][A-Za-z0-9]*)|("SELF_TYPE")
+OBJECTNAME = [a-z][A-Za-z0-9_]*
+INTEGER = [0-9]+
 
 %%
 
@@ -103,27 +109,62 @@ CLASSNAME = [A-Z][A-Za-z0-9]*
 
 <YYINITIAL> {WHITESPACE}    { }
 <YYINITIAL> {CLASSNAME} { 
-    //System.out.println(yytext());
-    return new Symbol(TokenConstants.TYPEID);}
-
+    return new Symbol(TokenConstants.TYPEID, 
+        AbstractTable.idtable.addString(yytext()));
+}
+<YYINITIAL> {OBJECTNAME} { 
+    return new Symbol(TokenConstants.OBJECTID, 
+        AbstractTable.idtable.addString(yytext()));
+}
+<YYINITIAL> {INTEGER} { 
+    return new Symbol(TokenConstants.INT_CONST, 
+        AbstractTable.inttable.addString(yytext()));
+}
 
 
 <YYINITIAL> "(*"   {
-    System.out.println("\nbegin ccomment:");
+    System.out.println("\nbegin comment:");
     yybegin(COMMENT);
-}    
+}  
+
+<YYINITIAL> "\""    {
+    System.out.println("\nbegin string:");
+    yybegin(STRING);
+}
+
+
+<YYINITIAL> ":"     { return new Symbol(TokenConstants.COLON);}
+<YYINITIAL> ";"     { return new Symbol(TokenConstants.SEMI);}
+<YYINITIAL> ","     { return new Symbol(TokenConstants.COMMA);}
+<YYINITIAL> "."     { return new Symbol(TokenConstants.DOT);}
+<YYINITIAL> "@"     { return new Symbol(TokenConstants.AT);}
+<YYINITIAL> "~"     { return new Symbol(TokenConstants.NEG);}
+<YYINITIAL> "*"     { return new Symbol(TokenConstants.MULT);}
+<YYINITIAL> "/"     { return new Symbol(TokenConstants.DIV);}
+<YYINITIAL> "+"     { return new Symbol(TokenConstants.PLUS);}
+<YYINITIAL> "-"     { return new Symbol(TokenConstants.MINUS);}
+<YYINITIAL> "<="    { return new Symbol(TokenConstants.LE);}
+<YYINITIAL> "<-"    { return new Symbol(TokenConstants.ASSIGN);}
+<YYINITIAL> "<"     { return new Symbol(TokenConstants.LT);}
+<YYINITIAL> "="     { return new Symbol(TokenConstants.EQ);}
+<YYINITIAL> "("     { return new Symbol(TokenConstants.LPAREN);}
+<YYINITIAL> ")"     { return new Symbol(TokenConstants.RPAREN);}
+<YYINITIAL> "{"     { return new Symbol(TokenConstants.LBRACE);}
+<YYINITIAL> "}"     { return new Symbol(TokenConstants.RBRACE);}
 
 
 
 <COMMENT> "*)"    {
-    System.out.println("\nend comment\n");
+    System.out.println("end comment\n");
     yybegin(YYINITIAL);
 }
-
-
-
 <COMMENT> .|\n    {
     System.out.print(yytext());
+}
+
+<STRING> "\""   {
+    System.out.println("end string\n");
+    yybegin(YYINITIAL);
 }
 
 
