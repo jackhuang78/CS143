@@ -79,7 +79,7 @@ import java_cup.runtime.Symbol;
 DIGIT = [0-9] 
 LETTER = [A-Za-z]
 WHITESPACE = [\t\n ]+
-CLASSNAME = [A-Z][A-Za-z]*
+CLASSNAME = [A-Z][A-Za-z0-9]*
 
 %%
 
@@ -102,6 +102,9 @@ CLASSNAME = [A-Z][A-Za-z]*
 <YYINITIAL> "not"       { return new Symbol(TokenConstants.NOT);}
 
 <YYINITIAL> {WHITESPACE}    { }
+<YYINITIAL> {CLASSNAME} { 
+    //System.out.println(yytext());
+    return new Symbol(TokenConstants.TYPEID);}
 
 
 
