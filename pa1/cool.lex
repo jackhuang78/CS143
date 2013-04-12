@@ -66,6 +66,10 @@ import java_cup.runtime.Symbol;
 	*/
     case COMMENT:
         System.err.println("EOF in comment.");
+        break;
+    case STRING:
+	System.err.println("EOF in string constant.");
+        break;
 
     }
     return new Symbol(TokenConstants.EOF);
@@ -82,7 +86,9 @@ import java_cup.runtime.Symbol;
 DIGIT = [0-9] 
 ULETTER = [A-Z]
 LLETTER = [a-z]
-WHITESPACE = [\t ]+
+VTRUE = t(R|r)(U|u)(E|e)
+VFALSE = f(A|a)(L|l)(S|s)(E|e)
+WHITESPACE = [\t\f\v\r ]+
 CLASSNAME = ([A-Z][A-Za-z0-9]*)|("SELF_TYPE")
 OBJECTNAME = [a-z][A-Za-z0-9_]*
 INTEGER = [0-9]+ /*What about 00003*/
@@ -106,6 +112,8 @@ INTEGER = [0-9]+ /*What about 00003*/
 <YYINITIAL> "new"       { return new Symbol(TokenConstants.NEW);}
 <YYINITIAL> "of"        { return new Symbol(TokenConstants.OF);}
 <YYINITIAL> "not"       { return new Symbol(TokenConstants.NOT);}
+<YYINITIAL> {VTRUE}     { return new Symbol(TokenConstants.BOOL_CONST, true);} 
+<YYINITIAL> {VFALSE}    { return new Symbol(TokenConstants.BOOL_CONST, false);}
 
 <YYINITIAL> \n {this.curr_lineno += 1;}
 <YYINITIAL> {WHITESPACE} { }
@@ -139,6 +147,8 @@ INTEGER = [0-9]+ /*What about 00003*/
 }
 
 
+
+<YYINITIAL> "=>"    { return new Symbol(TokenConstants.DARROW);}
 <YYINITIAL> ":"     { return new Symbol(TokenConstants.COLON);}
 <YYINITIAL> ";"     { return new Symbol(TokenConstants.SEMI);}
 <YYINITIAL> ","     { return new Symbol(TokenConstants.COMMA);}
@@ -164,10 +174,25 @@ INTEGER = [0-9]+ /*What about 00003*/
     System.out.println("end comment\n");
     yybegin(YYINITIAL);
 }
-<COMMENT> .|\n    {
+<COMMENT> .  {
+    System.out.print(yytext());
+}
+<COMMENT> \n {
+    this.curr_lineno += 1;
     System.out.print(yytext());
 }
 
+<STRING> \0 {
+    System.out.println("String contains null character");
+    return new Symbol(TokenConstants.ERROR);
+}
+<STRING> [^\n\0"\""] {
+    System.out.print(yytext());
+}
+<STRING> \n {
+    this.curr_lineno += 1;
+    System.out.print(yytext());
+}
 <STRING> "\""   {
     System.out.println("end string\n");
     yybegin(YYINITIAL);
