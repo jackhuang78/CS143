@@ -142,7 +142,8 @@ INTEGER = [0-9]+ /*What about 00003*/
 } 
 
 <YYINITIAL> "\""    {
-    System.out.println("\nbegin string:");
+    //System.out.println("\nbegin string:");
+    string_buf = new StringBuffer();
     yybegin(STRING);
 }
 
@@ -182,21 +183,29 @@ INTEGER = [0-9]+ /*What about 00003*/
     System.out.print(yytext());
 }
 
+<STRING> "\""   {
+    //System.out.println("\nend string\n");
+    yybegin(YYINITIAL);
+    return new Symbol(TokenConstants.STR_CONST,
+        AbstractTable.stringtable.addString(string_buf.toString()));
+
+}
+
 <STRING> \0 {
     System.out.println("String contains null character");
     return new Symbol(TokenConstants.ERROR);
 }
 <STRING> [^\n\0"\""] {
+    string_buf.append(yytext());
     System.out.print(yytext());
 }
 <STRING> \n {
     this.curr_lineno += 1;
     System.out.print(yytext());
 }
-<STRING> "\""   {
-    System.out.println("end string\n");
-    yybegin(YYINITIAL);
-}
+
+
+
 
 
  

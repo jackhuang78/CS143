@@ -502,7 +502,8 @@ class CoolLexer implements java_cup.runtime.Scanner {
 						break;
 					case 11:
 						{
-    System.out.println("\nbegin string:");
+    //System.out.println("\nbegin string:");
+    string_buf = new StringBuffer();
     yybegin(STRING);
 }
 					case -12:
@@ -683,6 +684,7 @@ class CoolLexer implements java_cup.runtime.Scanner {
 						break;
 					case 52:
 						{
+    string_buf.append(yytext());
     System.out.print(yytext());
 }
 					case -53:
@@ -696,8 +698,10 @@ class CoolLexer implements java_cup.runtime.Scanner {
 						break;
 					case 54:
 						{
-    System.out.println("end string\n");
+    //System.out.println("\nend string\n");
     yybegin(YYINITIAL);
+    return new Symbol(TokenConstants.STR_CONST,
+        AbstractTable.stringtable.addString(string_buf.toString()));
 }
 					case -55:
 						break;
