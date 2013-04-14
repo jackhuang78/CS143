@@ -59,7 +59,10 @@ world"
 "hello \
 world"
 "hello (* world *)"
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/master
 
 (* test comment *)
 TEST_COMMENT___________
