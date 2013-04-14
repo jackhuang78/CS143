@@ -19,6 +19,9 @@ import java_cup.runtime.Symbol;
     // For assembling string constants
     StringBuffer string_buf = new StringBuffer();
 
+    // For remembering the comment type
+    boolean inline_comment;
+
     private int curr_lineno = 1;
     int get_curr_lineno() {
 	return curr_lineno;
@@ -68,7 +71,8 @@ import java_cup.runtime.Symbol;
 
     case COMMENT:
         yybegin(YYINITIAL);
-        return new Symbol(TokenConstants.ERROR, "EOF in comment");    
+        if(!inline_comment)
+            return new Symbol(TokenConstants.ERROR, "EOF in comment");    
 
     case STRING:
         yybegin(YYINITIAL);
@@ -94,10 +98,11 @@ ULETTER = [A-Z]
 LLETTER = [a-z]
 VTRUE = t(R|r)(U|u)(E|e)
 VFALSE = f(A|a)(L|l)(S|s)(E|e)
-WHITESPACE = [\t\f\v\r ]+
-CLASSNAME = ([A-Z][A-Za-z0-9]*)|("SELF_TYPE")
+NEWLINE = \n
+WHITESPACES = [\t\f\v\r ]+
+CLASSNAME = ([A-Z][A-Za-z0-9]*)|(SELF_TYPE)
 OBJECTNAME = [a-z][A-Za-z0-9_]*
-INTEGER = [0-9]+ /*What about 00003*/
+INTEGER = [0-9]+
 
 %%
 
@@ -118,11 +123,23 @@ INTEGER = [0-9]+ /*What about 00003*/
 <YYINITIAL> "new"       { return new Symbol(TokenConstants.NEW);}
 <YYINITIAL> "of"        { return new Symbol(TokenConstants.OF);}
 <YYINITIAL> "not"       { return new Symbol(TokenConstants.NOT);}
-<YYINITIAL> {VTRUE}     { return new Symbol(TokenConstants.BOOL_CONST, true);} 
-<YYINITIAL> {VFALSE}    { return new Symbol(TokenConstants.BOOL_CONST, false);}
 
-<YYINITIAL> \n {this.curr_lineno += 1;}
-<YYINITIAL> {WHITESPACE} { }
+
+<YYINITIAL> {VTRUE}     { 
+    return new Symbol(TokenConstants.BOOL_CONST, new Boolean(true));
+}
+<YYINITIAL> {VFALSE}    { 
+    return new Symbol(TokenConstants.BOOL_CONST, new Boolean(false));
+}
+
+<YYINITIAL> {NEWLINE}   {
+    this.curr_lineno += 1;
+}
+<YYINITIAL> {WHITESPACES}   { 
+    // ignore all other whitespaces
+    // note: WHITESPACES does not include '\n'
+}
+
 <YYINITIAL> {CLASSNAME} { 
     return new Symbol(TokenConstants.TYPEID, 
         AbstractTable.idtable.addString(yytext()));
@@ -137,7 +154,8 @@ INTEGER = [0-9]+ /*What about 00003*/
 }
 
 
-<YYINITIAL> "(*"   {
+<YYINITIAL> "(*"|"--"   {
+    inline_comment = yytext().equals("--");
     yybegin(COMMENT);
 }  
 
@@ -174,24 +192,33 @@ INTEGER = [0-9]+ /*What about 00003*/
 
 
 
+
+
 <COMMENT> "*)"    {
-    //System.out.println("end comment\n");
-    yybegin(YYINITIAL);
+    if(!inline_comment)
+        yybegin(YYINITIAL);
 }
-<COMMENT> .  {
-    //System.out.print(yytext());
-}
-<COMMENT> \n {
+<COMMENT> \n    {
     this.curr_lineno += 1;
-    //System.out.print(yytext());
+    if(inline_comment)
+        yybegin(YYINITIAL);
+}
+<COMMENT> .     {
+
 }
 
+
+
+
 <STRING> "\""   {
-    //System.out.println("\nend string\n");
     yybegin(YYINITIAL);
     return new Symbol(TokenConstants.STR_CONST,
         AbstractTable.stringtable.addString(string_buf.toString()));
+}
 
+<STRING> \\\n  {
+    this.curr_lineno += 1;
+    string_buf.append("\n");
 }
 
 <STRING> \0 {
@@ -205,17 +232,41 @@ INTEGER = [0-9]+ /*What about 00003*/
     return new Symbol(TokenConstants.ERROR, "Unterminated string constant");
 }
 
-<STRING> "\n"   { string_buf.append("\n");}
-<STRING> "\t"   { string_buf.append("\t");}
-<STRING> .      { string_buf.append(yytext());}
+
+<STRING> .|\\.     {
+
+    if(yytext().equals("\\n"))
+        string_buf.append("\n");
+    else if(yytext().equals("\\t"))
+        string_buf.append("\t");
+    else if(yytext().equals("\\f"))
+        string_buf.append("\f");
+    else if(yytext().equals("\\0"))
+        string_buf.append("0");
+    else if(yytext().length() > 1)
+        string_buf.append(yytext().charAt(1));
+    else
+        string_buf.append(yytext());
+
+    if(string_buf.length() > MAX_STR_CONST) {
+        yybegin(ILLEGAL_STRING);
+        return new Symbol(TokenConstants.ERROR, "String constant too long");
+    }        
+}
+
+
+
 
 <ILLEGAL_STRING> \n {
     this.curr_lineno += 1;
     yybegin(YYINITIAL);
 }
+<ILLEGAL_STRING> "\"" {
+    yybegin(YYINITIAL);
+}
 
 <ILLEGAL_STRING> . {
-    yybegin(YYINITIAL);
+    
 }
 
 
