@@ -59,7 +59,7 @@ world"
 "hello \
 world"
 "hello (* world *)"
-"斯坦福大学"
+
 
 (* test comment *)
 TEST_COMMENT___________
@@ -68,10 +68,12 @@ TEST_COMMENT___________
 test comment --
 -- -- -- --
 -- (* 
+-- *)
 (* -- *)
 (* test (* comment *) *)
 (* test (* comment *)
 (* test comment *) *)
+(* This is (* a valid comment *)? *)
 (* test
 comment *)
 unterminated *)
@@ -85,6 +87,12 @@ TEST_LONG_STRINGS___________
 "We26lJxSp9bGoNcZVsmH7Q5pHUIxNNPKgqzFhhlmzLrp7JUyF0VBNYxbR9SgM8daXeSFkDlblyZ6lgwobEsah3UWKNUzvmT9xOx25IqXVAK0wHDx3pDc45lwa6rIcpjfR6BnUn9fHqHI8co6O0YTh9PoPSEidKV6y5uVvnsqW4ISyuTJM5HvllCidjYHqV73SbKSBhgnHVquF0uz5yd8kmWqvMnPSypW0IrPQKKEgRinJ1LCMVJBnu1Ib88jApIW7IaHoXBRIcjqqOh3nMt739OwHcNGqr7T7myG8BgpzmEKUWOEih75um5AtxKwiqCFUhcDLDvooKk5bu6rg98H4bdRSyj9KfQSRUczN7NA6nrxVPvuS1fg4eBILhBFBUiOTQ2XrHSUR5mD8brdQMp7ayOLqVtiYrJjCFTTiAvp0HmRwhMDZF9iG3PSfL4yDwwLQ4XPKd4vmk2TO0rXxQemAW3GgTAbtuLWeGjX8T5r0y22yo9sOljJxycg2VusEmdJURQfHmdJ1lASxec5lpmaVAdE6om8o0p0SdibxGdtUHft1uiBWMG9fIKzG5IAuPuYxUWqzGOEBDiTVspUmPcjpoXt2tisYFjRxjEYLzngE15empE6AEwHlVLrzoWbFE3dcT5RqsXKdxGu2EeZrdK7UqjK2Jbp0oB6izL60Bv7ZWWwByEC3Fm1fCsxF6gSBl0yo4Aih1mx20zFyrLLTkvcJl88SezPbqg3YPJs20BCPQmwUZzxicTRv86b6vmkDORL3emkZkVMYFPSLItTwqfiD6ck9I8SGo4mFiK1Pe8UHYJtEMXZg1ZhnR9nsEr4aHhBzE7fzAYY93zGzzhV1LuCYtW83IQiK3GDM6oLGaj7888v2zjp8gXURgn5XlWoSWv832clJkR37vJmHvgiViAWxPFi0yqiYYXXj0zkhtHBEKBFtyu6HdhcVlk7n9FvWCK59d9zBQ6XnnoaanMNg2fMquwpZzsTU9bcRTuw3enekoC8r9AvX63WDTHj21WSK7IIpJ"
 
 
+(* remaining cases *)
+REMAINING_CASES________
+self
+SELF_TYPE
+
+"斯坦福大学"
 
 (* hhhhhdasdweqwe 
 " dasdasd
