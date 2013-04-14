@@ -68,13 +68,11 @@ import java_cup.runtime.Symbol;
 
     case COMMENT:
         yybegin(YYINITIAL);
-        return new Symbol(TokenConstants.ERROR,
-            AbstractTable.stringtable.addString("EOF in comment."));    
+        return new Symbol(TokenConstants.ERROR, "EOF in comment");    
 
     case STRING:
         yybegin(YYINITIAL);
-        return new Symbol(TokenConstants.ERROR,
-            AbstractTable.stringtable.addString("EOF in string constant."));
+        return new Symbol(TokenConstants.ERROR, "EOF in string constant");
 
     }
     return new Symbol(TokenConstants.EOF);

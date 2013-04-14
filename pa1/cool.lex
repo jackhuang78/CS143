@@ -68,16 +68,16 @@ import java_cup.runtime.Symbol;
 
     case COMMENT:
         yybegin(YYINITIAL);
-        return new Symbol(TokenConstants.ERROR,
-            AbstractTable.stringtable.addString("EOF in comment"));    
+        return new Symbol(TokenConstants.ERROR, "EOF in comment");    
 
     case STRING:
         yybegin(YYINITIAL);
-        return new Symbol(TokenConstants.ERROR,
-            AbstractTable.stringtable.addString("EOF in string constant."));
+        return new Symbol(TokenConstants.ERROR, "EOF in string constant");
 
     }
+
     return new Symbol(TokenConstants.EOF);
+
 %eofval}
 
 %class CoolLexer
@@ -138,13 +138,11 @@ INTEGER = [0-9]+ /*What about 00003*/
 
 
 <YYINITIAL> "(*"   {
-    //System.out.println("\nbegin comment:");
     yybegin(COMMENT);
 }  
 
 <YYINITIAL> "*)"   {
-    System.out.println("Unmatched *)");
-    return new Symbol(TokenConstants.ERROR);
+    return new Symbol(TokenConstants.ERROR, "Unmatched *)");
 } 
 
 <YYINITIAL> "\""    {
@@ -198,15 +196,13 @@ INTEGER = [0-9]+ /*What about 00003*/
 
 <STRING> \0 {
     yybegin(ILLEGAL_STRING);
-    return new Symbol(TokenConstants.ERROR,
-        AbstractTable.stringtable.addString("String contains null character"));
+    return new Symbol(TokenConstants.ERROR, "String contains null character");
 }
 
 <STRING> \n {
     this.curr_lineno += 1;
     yybegin(YYINITIAL);
-    return new Symbol(TokenConstants.ERROR,
-        AbstractTable.stringtable.addString("Unterminated string constant"));
+    return new Symbol(TokenConstants.ERROR, "Unterminated string constant");
 }
 
 <STRING> "\n"   { string_buf.append("\n");}
