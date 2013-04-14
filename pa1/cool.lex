@@ -57,19 +57,24 @@ import java_cup.runtime.Symbol;
 
     switch(yy_lexical_state) {
     case YYINITIAL:
-	/* nothing special to do in the initial state */
-	break;
+	    /* nothing special to do in the initial state */
+	    break;
+
 	/* If necessary, add code for other states here, e.g:
 	   case COMMENT:
 	   ...
 	   break;
 	*/
+
     case COMMENT:
-        System.err.println("EOF in comment.");
-        break;
+        yybegin(YYINITIAL);
+        return new Symbol(TokenConstants.ERROR,
+            AbstractTable.stringtable.addString("EOF in comment"));    
+
     case STRING:
-	System.err.println("EOF in string constant.");
-        break;
+        yybegin(YYINITIAL);
+        return new Symbol(TokenConstants.ERROR,
+            AbstractTable.stringtable.addString("EOF in string constant."));
 
     }
     return new Symbol(TokenConstants.EOF);
@@ -81,6 +86,7 @@ import java_cup.runtime.Symbol;
 
 %state COMMENT
 %state STRING
+%state ILLEGAL_STRING
 
 
 DIGIT = [0-9] 
@@ -97,7 +103,7 @@ INTEGER = [0-9]+ /*What about 00003*/
 
 <YYINITIAL> "class"     { return new Symbol(TokenConstants.CLASS);}
 <YYINITIAL> "else"      { return new Symbol(TokenConstants.ELSE);}
-<YYINITIAL> "fi" 	{ return new Symbol(TokenConstants.FI);}
+<YYINITIAL> "fi" 	    { return new Symbol(TokenConstants.FI);}
 <YYINITIAL> "if"        { return new Symbol(TokenConstants.IF);}
 <YYINITIAL> "in"        { return new Symbol(TokenConstants.IN);}
 <YYINITIAL> "inherits"  { return new Symbol(TokenConstants.INHERITS);}
@@ -132,7 +138,7 @@ INTEGER = [0-9]+ /*What about 00003*/
 
 
 <YYINITIAL> "(*"   {
-    System.out.println("\nbegin comment:");
+    //System.out.println("\nbegin comment:");
     yybegin(COMMENT);
 }  
 
@@ -142,7 +148,6 @@ INTEGER = [0-9]+ /*What about 00003*/
 } 
 
 <YYINITIAL> "\""    {
-    //System.out.println("\nbegin string:");
     string_buf = new StringBuffer();
     yybegin(STRING);
 }
@@ -172,15 +177,15 @@ INTEGER = [0-9]+ /*What about 00003*/
 
 
 <COMMENT> "*)"    {
-    System.out.println("end comment\n");
+    //System.out.println("end comment\n");
     yybegin(YYINITIAL);
 }
 <COMMENT> .  {
-    System.out.print(yytext());
+    //System.out.print(yytext());
 }
 <COMMENT> \n {
     this.curr_lineno += 1;
-    System.out.print(yytext());
+    //System.out.print(yytext());
 }
 
 <STRING> "\""   {
@@ -192,18 +197,30 @@ INTEGER = [0-9]+ /*What about 00003*/
 }
 
 <STRING> \0 {
-    System.out.println("String contains null character");
-    return new Symbol(TokenConstants.ERROR);
-}
-<STRING> [^\n\0"\""] {
-    string_buf.append(yytext());
-    System.out.print(yytext());
-}
-<STRING> \n {
-    this.curr_lineno += 1;
-    System.out.print(yytext());
+    yybegin(ILLEGAL_STRING);
+    return new Symbol(TokenConstants.ERROR,
+        AbstractTable.stringtable.addString("String contains null character"));
 }
 
+<STRING> \n {
+    this.curr_lineno += 1;
+    yybegin(YYINITIAL);
+    return new Symbol(TokenConstants.ERROR,
+        AbstractTable.stringtable.addString("Unterminated string constant"));
+}
+
+<STRING> "\n"   { string_buf.append("\n");}
+<STRING> "\t"   { string_buf.append("\t");}
+<STRING> .      { string_buf.append(yytext());}
+
+<ILLEGAL_STRING> \n {
+    this.curr_lineno += 1;
+    yybegin(YYINITIAL);
+}
+
+<ILLEGAL_STRING> . {
+    yybegin(YYINITIAL);
+}
 
 
 
@@ -211,11 +228,17 @@ INTEGER = [0-9]+ /*What about 00003*/
  
 
 
-.       {/* This rule should be the very last
-                in your lexical specification and
-                will match match everything not
-                matched by other lexical rules. */
-                System.err.println("LEXER BUG - UNMATCHEDs: " + yytext()); }
+.   {
+        /*  This rule should be the very last
+            in your lexical specification and
+            will match match everything not
+            matched by other lexical rules. */
+
+        return new Symbol(TokenConstants.ERROR,
+            AbstractTable.stringtable.addString(yytext()));
+
+                //System.err.println("LEXER BUG - UNMATCHEDs: " + yytext()); 
+}
 
 
 

@@ -10,11 +10,11 @@
 - collapse all rules under the same state
 - match true/false as BOOL_CONST instread of keyword
 
-- implement STRING state
-- catch EOF during STRING state
-
-- more...
+- report error using "return new Symbol(TokenConstants.ERROR...)". 
+    Specified in p.4 that lexer should not print anything. 
 
 
 
-
+UNCLEAR:
+- lineno at the beginning or the end? (e.g. multiple line string)
+- Handling EOF for string: what to we return in teh %eofval bracelet?
