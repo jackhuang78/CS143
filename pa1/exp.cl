@@ -59,7 +59,6 @@ world"
 "hello \
 world"
 "hello (* world *)"
-"斯坦福大学"
 
 (* test comment *)
 TEST_COMMENT___________

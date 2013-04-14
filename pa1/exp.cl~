@@ -68,6 +68,7 @@ TEST_COMMENT___________
 test comment --
 -- -- -- --
 -- (* 
+-- *)
 (* -- *)
 (* test (* comment *) *)
 (* test (* comment *)
