@@ -1,1 +1,1 @@
-"Ending in EOF
+B1"String ends in eof
