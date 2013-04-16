@@ -233,7 +233,7 @@ INTEGER = [0-9]+
 
 <STRING> \0 {
 	yybegin(ILLEGAL_STRING);
-	return new Symbol(TokenConstants.ERROR, "String contains null character");
+	return new Symbol(TokenConstants.ERROR, "String contains null character.");
 }
 
 <STRING> \n {
