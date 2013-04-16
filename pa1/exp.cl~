@@ -34,7 +34,8 @@ faLSe
 fAlse
 False
 
-TEST_INDENTIFIER________
+(* test identifier *)
+TEST_INDENTIFIER____________
 helloworld
 helloWorld
 hello_world
@@ -91,8 +92,9 @@ test comment --
 (* test (* comment *)
 (* test comment *) *)
 (* This is (* a valid comment *)? *)
-(* test
-comment *)
+(*(*(*(**)*)*)*)
+(*(*(*(*ax*)ax*)ax*)ax*)
+(*ax(*ax(*ax(**)*)*)*)
 unterminated *)
 
 TEST_LONG_STRINGS___________
@@ -108,3 +110,61 @@ TEST_LONG_STRINGS___________
 REMAINING_CASES________
 self
 SELF_TYPE
+
+(* multiline cases)
+
+
+(* keywords *)
+KEYWORDS________
+class
+else
+false
+fi
+if
+in
+inherits
+isvoid
+let
+loop
+pool
+then
+while
+case
+esac
+new
+of
+not
+true
+,
+.
+:
+"
+'
+[
+]
+{
+}
++
+=
+-
+(
+)
+*
+&
+^
+%
+$
+#
+@
+!
+`
+~
+\
+|
+/
+>
+<
+.
+?
+_
++
