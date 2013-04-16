@@ -7,12 +7,69 @@ TEST_NUMBER_____________
 0000002
 0.0004
 
+(* TEST ALPHABET *)
+TEST_ALPHA_________
+q
+w
+e
+r
+t
+y
+u
+i
+o
+p
+a
+s
+d
+f
+g
+h
+j
+k
+l
+z
+x
+c
+v
+b
+n
+m
+Q
+W
+E
+R
+T
+Y
+U
+I
+O
+P
+A
+S
+D
+F
+G
+H
+J
+K
+L
+Z
+X
+C
+V
+B
+N
+M
+
+
 (* test white space *)
 TEST_WHITE_SPACE_____________
 	
 
  
 \b
+\v
 \t
 \n
 \f
