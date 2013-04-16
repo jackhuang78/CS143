@@ -1,0 +1,6 @@
+@font-face {
+  font-family: 'Poly';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Poly-Regular'), url(http://themes.googleusercontent.com/static/fonts/poly/v4/L6-rFpUm19ssz17Z1FpSTfesZW2xOQ-xsNqO47m55DA.woff) format('woff');
+}
