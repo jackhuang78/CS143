@@ -22,6 +22,7 @@ TEST_WHITE_SPACE_____________
 \e
 \"
 \
+\b\t\n\f\\\c\d\e\"\
 
 (* test true false value  *)
 TEST_TRUE_FALSE____________
@@ -33,6 +34,23 @@ faLSe
 fAlse
 False
 
+TEST_INDENTIFIER________
+helloworld
+helloWorld
+hello_world
+hello-world
+HelloWorld
+hELLOWORLD
+_helloworld
+-helloworld
+1helloworld
+helloworld1
+1Helloworld
+Helloworld1
+helloworld!
+123h
+
+
 (* test string constructions *)
 TEST_STRING_CONSTRUCTION_________________
 'hello world'
@@ -43,7 +61,7 @@ TEST_STRING_CONSTRUCTION_________________
 "hello \f world"
 "hello \r world"
 "hello \v world"
-"hello world""
+"hello world""hello
 "hello world"""
 ""hello world"
 """hello world"
@@ -90,8 +108,3 @@ TEST_LONG_STRINGS___________
 REMAINING_CASES________
 self
 SELF_TYPE
-
-"斯坦福大学"
-
-(* hhhhhdasdweqwe 
-" dasdasd
