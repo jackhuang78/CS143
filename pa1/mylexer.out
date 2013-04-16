@@ -57,74 +57,74 @@
 #33 BOOL_CONST false
 #34 BOOL_CONST false
 #35 TYPEID False
-#37 TYPEID TEST_INDENTIFIER________
-#38 OBJECTID helloworld
-#39 OBJECTID helloWorld
-#40 OBJECTID hello_world
-#41 OBJECTID hello
-#41 '-'
-#41 OBJECTID world
-#42 TYPEID HelloWorld
-#43 OBJECTID hELLOWORLD
-#44 ERROR "_"
-#44 OBJECTID helloworld
-#45 '-'
+#38 TYPEID TEST_INDENTIFIER____________
+#39 OBJECTID helloworld
+#40 OBJECTID helloWorld
+#41 OBJECTID hello_world
+#42 OBJECTID hello
+#42 '-'
+#42 OBJECTID world
+#43 TYPEID HelloWorld
+#44 OBJECTID hELLOWORLD
+#45 ERROR "_"
 #45 OBJECTID helloworld
-#46 INT_CONST 1
+#46 '-'
 #46 OBJECTID helloworld
-#47 OBJECTID helloworld1
-#48 INT_CONST 1
-#48 TYPEID Helloworld
-#49 TYPEID Helloworld1
-#50 OBJECTID helloworld
-#50 ERROR "!"
-#51 INT_CONST 123
-#51 OBJECTID h
-#55 TYPEID TEST_STRING_CONSTRUCTION_________________
-#56 ERROR "'"
-#56 OBJECTID hello
-#56 OBJECTID world
-#56 ERROR "'"
-#57 STR_CONST "hello world"
+#47 INT_CONST 1
+#47 OBJECTID helloworld
+#48 OBJECTID helloworld1
+#49 INT_CONST 1
+#49 TYPEID Helloworld
+#50 TYPEID Helloworld1
+#51 OBJECTID helloworld
+#51 ERROR "!"
+#52 INT_CONST 123
+#52 OBJECTID h
+#56 TYPEID TEST_STRING_CONSTRUCTION_________________
+#57 ERROR "'"
+#57 OBJECTID hello
+#57 OBJECTID world
+#57 ERROR "'"
 #58 STR_CONST "hello world"
-#59 STR_CONST "hello \b world"
-#60 STR_CONST "hello \t world"
-#61 STR_CONST "hello \f world"
-#62 STR_CONST "hello r world"
-#63 STR_CONST "hello v world"
-#64 STR_CONST "hello world"
-#65 ERROR "Unterminated string constant"
+#59 STR_CONST "hello world"
+#60 STR_CONST "hello \b world"
+#61 STR_CONST "hello \t world"
+#62 STR_CONST "hello \f world"
+#63 STR_CONST "hello r world"
+#64 STR_CONST "hello v world"
 #65 STR_CONST "hello world"
-#65 STR_CONST ""
+#66 ERROR "Unterminated string constant"
+#66 STR_CONST "hello world"
 #66 STR_CONST ""
-#66 OBJECTID hello
-#66 OBJECTID world
-#67 ERROR "Unterminated string constant"
 #67 STR_CONST ""
-#67 STR_CONST "hello world"
-#68 STR_CONST "hello \n world"
-#69 STR_CONST "hello 0 world"
-#70 STR_CONST "hello \t world"
-#71 STR_CONST "hello\tworld"
-#72 STR_CONST "hello 'yes' world"
-#73 STR_CONST "hello \"yes"
-#73 OBJECTID world
-#74 ERROR "Unterminated string constant"
-#74 STR_CONST "hello \\n world"
-#76 ERROR "Unterminated string constant"
-#76 OBJECTID world
+#67 OBJECTID hello
+#67 OBJECTID world
+#68 ERROR "Unterminated string constant"
+#68 STR_CONST ""
+#68 STR_CONST "hello world"
+#69 STR_CONST "hello \n world"
+#70 STR_CONST "hello 0 world"
+#71 STR_CONST "hello \t world"
+#72 STR_CONST "hello\tworld"
+#73 STR_CONST "hello 'yes' world"
+#74 STR_CONST "hello \"yes"
+#74 OBJECTID world
+#75 ERROR "Unterminated string constant"
+#75 STR_CONST "hello \\n world"
 #77 ERROR "Unterminated string constant"
-#78 STR_CONST "hello \nworld"
-#79 STR_CONST "hello (* world *)"
-#82 TYPEID TEST_COMMENT___________
-#85 OBJECTID test
-#85 OBJECTID comment
-#96 OBJECTID unterminated
-#96 ERROR "Unmatched *)"
-#98 TYPEID TEST_LONG_STRINGS___________
-#100 STR_CONST "xy6IzAeELTIc5CxeJW5UmeJMKZrWNOaXrZ8oHbArV8YfLgZUmrNlU4ZdKfAL89R9yzzS6iQ0SoC9zoHEzKOYcMUsRXigp08DCEdt0T1sf6Ub8haUHpU4n4plA53bxuMkX4IczRBcyu6gzha5sOvgEa2oGCKc9Ttcw0ZHkvFg9AHahZryrEox9iluEWSX5iQ5r1kCQefdUX2Lp3oSfFS3zuQp5MMbx0gA8ibxxri3VNBeLNL9EikMOP16lfGM2miA3n3newlexPoXnT7qoArXGkJJd7oBMeFJz39O7BXE6jkLogUL2I2BiLGoEC1ZwLszpUl1N8NPn2G54AFu9YxgRIuB4YLqow5ZcpMFGWyCf5ocYuENt3tNSEKaQk9JLKBPDOxMqL78s2PlNRpcW30wd9x8EaMt0W2qCiPKQJHtrQbFboGQUP0w85jwwodDicLHvhmvN1D9fDZjwrKx5pQPm8UHAr6SACYJIdkBNJflWfqaZX00u2WJ8n9umVQK0JW6JLFJm9NCJ1I97IgaNS1mMsSmTEWpPacMmqqtSXdquwQfQUJXCpbBVgutSGDTZKtkTHsnyQlLxUoZAjcntPfkWz2c84FnbVNJa19dTMo13mJfY8UlJA19ezMgIkgfrgqheY4MIUAPNF7UeAqcdg6AgBqN76vwjFVyhpggABub2WJE1GZIPxYuJKuHHLg7fOXY5sPcLB98WDEEFm0sGSIatBRdC5truzIlx8SXjwt03KSykMdvc6Ysf7x6xnB4OtSZkA3CD3PWfvXGpYYJmzPZ15D7iADg4pXb6lOLj0HvqWAvXCQ8mBadylM922U7xOiZEqf0uN9WrkAolMoqdC8OYcrvjN0o6DgpDDg3eBsR3lhOvbCtjaT918Y8PW5WWUCDDKiCbYW6RpJyaMA0qxyAomsePy4dhrNIEZRI4HOLg5WfeTjtHDUC7SD1Zjtnr1o9T7pMCqFRIgh1bxCCB6XQXL16usBX3ayZbt3WpPp7fHU34wr1mMwOMVj9zAumJ1Bx"
-#102 ERROR "String constant too long"
-#104 ERROR "String constant too long"
-#108 TYPEID REMAINING_CASES________
-#109 OBJECTID self
-#110 TYPEID SELF_TYPE
+#77 OBJECTID world
+#78 ERROR "Unterminated string constant"
+#79 STR_CONST "hello \nworld"
+#80 STR_CONST "hello (* world *)"
+#83 TYPEID TEST_COMMENT___________
+#86 OBJECTID test
+#86 OBJECTID comment
+#100 OBJECTID unterminated
+#100 ERROR "Unmatched *)"
+#102 TYPEID TEST_LONG_STRINGS___________
+#104 STR_CONST "xy6IzAeELTIc5CxeJW5UmeJMKZrWNOaXrZ8oHbArV8YfLgZUmrNlU4ZdKfAL89R9yzzS6iQ0SoC9zoHEzKOYcMUsRXigp08DCEdt0T1sf6Ub8haUHpU4n4plA53bxuMkX4IczRBcyu6gzha5sOvgEa2oGCKc9Ttcw0ZHkvFg9AHahZryrEox9iluEWSX5iQ5r1kCQefdUX2Lp3oSfFS3zuQp5MMbx0gA8ibxxri3VNBeLNL9EikMOP16lfGM2miA3n3newlexPoXnT7qoArXGkJJd7oBMeFJz39O7BXE6jkLogUL2I2BiLGoEC1ZwLszpUl1N8NPn2G54AFu9YxgRIuB4YLqow5ZcpMFGWyCf5ocYuENt3tNSEKaQk9JLKBPDOxMqL78s2PlNRpcW30wd9x8EaMt0W2qCiPKQJHtrQbFboGQUP0w85jwwodDicLHvhmvN1D9fDZjwrKx5pQPm8UHAr6SACYJIdkBNJflWfqaZX00u2WJ8n9umVQK0JW6JLFJm9NCJ1I97IgaNS1mMsSmTEWpPacMmqqtSXdquwQfQUJXCpbBVgutSGDTZKtkTHsnyQlLxUoZAjcntPfkWz2c84FnbVNJa19dTMo13mJfY8UlJA19ezMgIkgfrgqheY4MIUAPNF7UeAqcdg6AgBqN76vwjFVyhpggABub2WJE1GZIPxYuJKuHHLg7fOXY5sPcLB98WDEEFm0sGSIatBRdC5truzIlx8SXjwt03KSykMdvc6Ysf7x6xnB4OtSZkA3CD3PWfvXGpYYJmzPZ15D7iADg4pXb6lOLj0HvqWAvXCQ8mBadylM922U7xOiZEqf0uN9WrkAolMoqdC8OYcrvjN0o6DgpDDg3eBsR3lhOvbCtjaT918Y8PW5WWUCDDKiCbYW6RpJyaMA0qxyAomsePy4dhrNIEZRI4HOLg5WfeTjtHDUC7SD1Zjtnr1o9T7pMCqFRIgh1bxCCB6XQXL16usBX3ayZbt3WpPp7fHU34wr1mMwOMVj9zAumJ1Bx"
+#106 ERROR "String constant too long"
+#108 ERROR "String constant too long"
+#112 TYPEID REMAINING_CASES________
+#113 OBJECTID self
+#114 TYPEID SELF_TYPE
