@@ -1,0 +1,1 @@
+B1--inline comment ends in eof
