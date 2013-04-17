@@ -135,6 +135,10 @@ TEST_STRING_CONSTRUCTION_________________
 world"
 "hello \
 world"
+"hello \ 
+world"
+"hello \a
+world"
 "hello (* world *)"
 
 (* test comment *)
