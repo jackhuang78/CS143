@@ -76,6 +76,10 @@ import java_cup.runtime.Symbol;
 	case COMMENT_INLINE:
 		/* this is a legal way of ending inline comment */
 		break;
+	
+	case ILLEGAL_STRING:
+		/* error already returned, so do nothing */
+		break;
 
 	case COMMENT_MULTI:
 		yybegin(YYINITIAL);
@@ -84,6 +88,8 @@ import java_cup.runtime.Symbol;
 	case STRING:
 		yybegin(YYINITIAL);
 		return new Symbol(TokenConstants.ERROR, "EOF in string constant");
+		
+
 
 	}
 

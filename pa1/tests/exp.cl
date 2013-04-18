@@ -140,6 +140,7 @@ world"
 "hello \a
 world"
 "hello (* world *)"
+"hello \"world\""
 
 (* test comment *)
 TEST_COMMENT___________
@@ -172,9 +173,6 @@ TEST_LONG_STRINGS___________
 REMAINING_CASES________
 self
 SELF_TYPE
-
-(* multiline cases)
-
 
 (* keywords *)
 KEYWORDS________
@@ -230,3 +228,36 @@ $
 ?
 _
 +
+\,
+\.
+\:
+\"
+\'
+\[
+\]
+\{
+\}
+\+
+\=
+\-
+\(
+\)
+\*
+\&
+\^
+\%
+\$
+\#
+\@
+\!
+\`
+\~
+\\
+\|
+\/
+\>
+\<
+\.
+\?
+\_
+\+
