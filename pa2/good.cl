@@ -1,5 +1,6 @@
 class A {
+	
 };
 
-Class BB__ inherits A {
+Class BB inherits A {
 };
