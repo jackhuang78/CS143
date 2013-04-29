@@ -78,6 +78,18 @@ nonterminal Cases _case_list;
 
 
 /* Precedence declarations go here. */
+precedence right ASSIGN; 
+precedence left NOT;
+precedence nonassoc LE, LT, EQ;
+precedence left PLUS, MINUS;
+precedence left MULT, DIV;
+/*precedence left ISVOID;
+precedence left INV;
+precedence left AT;
+precedence left DOT;*/
+
+
+/* Grammar below */
 
 program	
 	::= class_list:cl
@@ -102,20 +114,21 @@ class
 	| CLASS TYPEID:n INHERITS TYPEID:p LBRACE feature_list:f RBRACE SEMI
 	    {: RESULT = new class_c(curr_lineno(), n, p, f, curr_filename()); :}
 	;
-
+/*
 _case
 	::= DARROW
 	    {: RESULT = new Case(curr_lineno()); :}
 	;
 
 _case_list
-	/* single class */
+	// single class
 	::= _case:cs
 	    {: RESULT = (new Cases(curr_lineno())).appendElement(cs); :}
-	/* several classes */
+	// several classes 
 	| _case_list:csl _case:c
 	    {: RESULT = csl.appendElement(c); :}
 	;
+*/
 
 /* zero or more features */
 feature_list

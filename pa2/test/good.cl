@@ -34,10 +34,10 @@ class E {
 			x <- a / b;
 			x <- ~a;
 			
-			(* precedence 
+			(* integer precedence *)
 			x <- a + b * c - b / a;
 			x <- a * b + c / b - a;
-			x <- (a + b) * (c - b) / a;*)
+			x <- (a + b) * (c - b) / a;
 			
 			(* boolean expr *)
 			b1 <- true;

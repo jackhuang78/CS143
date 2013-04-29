@@ -10,468 +10,6 @@ Warning : Terminal "LET_STMT" was declared but never used
 Warning : Terminal "AT" was declared but never used
 Warning : Non terminal "_case_list" was declared but never used
 Warning : Non terminal "_case" was declared but never used
-Warning : *** Shift/Reduce conflict found in state #48
-  between expr ::= expr DIV expr (*) 
-  and     expr ::= expr (*) LE expr 
-  under symbol LE
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #48
-  between expr ::= expr DIV expr (*) 
-  and     expr ::= expr (*) PLUS expr 
-  under symbol PLUS
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #48
-  between expr ::= expr DIV expr (*) 
-  and     expr ::= expr (*) DIV expr 
-  under symbol DIV
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #48
-  between expr ::= expr DIV expr (*) 
-  and     expr ::= expr (*) MINUS expr 
-  under symbol MINUS
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #48
-  between expr ::= expr DIV expr (*) 
-  and     expr ::= expr (*) MULT expr 
-  under symbol MULT
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #48
-  between expr ::= expr DIV expr (*) 
-  and     expr ::= expr (*) EQ expr 
-  under symbol EQ
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #48
-  between expr ::= expr DIV expr (*) 
-  and     expr ::= expr (*) LT expr 
-  under symbol LT
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #51
-  between expr ::= expr PLUS expr (*) 
-  and     expr ::= expr (*) LE expr 
-  under symbol LE
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #51
-  between expr ::= expr PLUS expr (*) 
-  and     expr ::= expr (*) PLUS expr 
-  under symbol PLUS
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #51
-  between expr ::= expr PLUS expr (*) 
-  and     expr ::= expr (*) DIV expr 
-  under symbol DIV
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #51
-  between expr ::= expr PLUS expr (*) 
-  and     expr ::= expr (*) MINUS expr 
-  under symbol MINUS
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #51
-  between expr ::= expr PLUS expr (*) 
-  and     expr ::= expr (*) MULT expr 
-  under symbol MULT
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #51
-  between expr ::= expr PLUS expr (*) 
-  and     expr ::= expr (*) EQ expr 
-  under symbol EQ
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #51
-  between expr ::= expr PLUS expr (*) 
-  and     expr ::= expr (*) LT expr 
-  under symbol LT
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #55
-  between expr ::= NEG expr (*) 
-  and     expr ::= expr (*) LE expr 
-  under symbol LE
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #55
-  between expr ::= NEG expr (*) 
-  and     expr ::= expr (*) PLUS expr 
-  under symbol PLUS
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #55
-  between expr ::= NEG expr (*) 
-  and     expr ::= expr (*) DIV expr 
-  under symbol DIV
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #55
-  between expr ::= NEG expr (*) 
-  and     expr ::= expr (*) MINUS expr 
-  under symbol MINUS
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #55
-  between expr ::= NEG expr (*) 
-  and     expr ::= expr (*) MULT expr 
-  under symbol MULT
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #55
-  between expr ::= NEG expr (*) 
-  and     expr ::= expr (*) EQ expr 
-  under symbol EQ
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #55
-  between expr ::= NEG expr (*) 
-  and     expr ::= expr (*) LT expr 
-  under symbol LT
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #49
-  between expr ::= expr MINUS expr (*) 
-  and     expr ::= expr (*) LE expr 
-  under symbol LE
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #49
-  between expr ::= expr MINUS expr (*) 
-  and     expr ::= expr (*) PLUS expr 
-  under symbol PLUS
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #49
-  between expr ::= expr MINUS expr (*) 
-  and     expr ::= expr (*) DIV expr 
-  under symbol DIV
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #49
-  between expr ::= expr MINUS expr (*) 
-  and     expr ::= expr (*) MINUS expr 
-  under symbol MINUS
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #49
-  between expr ::= expr MINUS expr (*) 
-  and     expr ::= expr (*) MULT expr 
-  under symbol MULT
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #49
-  between expr ::= expr MINUS expr (*) 
-  and     expr ::= expr (*) EQ expr 
-  under symbol EQ
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #49
-  between expr ::= expr MINUS expr (*) 
-  and     expr ::= expr (*) LT expr 
-  under symbol LT
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #52
-  between expr ::= expr MULT expr (*) 
-  and     expr ::= expr (*) LE expr 
-  under symbol LE
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #52
-  between expr ::= expr MULT expr (*) 
-  and     expr ::= expr (*) PLUS expr 
-  under symbol PLUS
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #52
-  between expr ::= expr MULT expr (*) 
-  and     expr ::= expr (*) DIV expr 
-  under symbol DIV
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #52
-  between expr ::= expr MULT expr (*) 
-  and     expr ::= expr (*) MINUS expr 
-  under symbol MINUS
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #52
-  between expr ::= expr MULT expr (*) 
-  and     expr ::= expr (*) MULT expr 
-  under symbol MULT
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #52
-  between expr ::= expr MULT expr (*) 
-  and     expr ::= expr (*) EQ expr 
-  under symbol EQ
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #52
-  between expr ::= expr MULT expr (*) 
-  and     expr ::= expr (*) LT expr 
-  under symbol LT
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #59
-  between expr ::= OBJECTID ASSIGN expr (*) 
-  and     expr ::= expr (*) LE expr 
-  under symbol LE
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #59
-  between expr ::= OBJECTID ASSIGN expr (*) 
-  and     expr ::= expr (*) PLUS expr 
-  under symbol PLUS
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #59
-  between expr ::= OBJECTID ASSIGN expr (*) 
-  and     expr ::= expr (*) DIV expr 
-  under symbol DIV
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #59
-  between expr ::= OBJECTID ASSIGN expr (*) 
-  and     expr ::= expr (*) MINUS expr 
-  under symbol MINUS
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #59
-  between expr ::= OBJECTID ASSIGN expr (*) 
-  and     expr ::= expr (*) MULT expr 
-  under symbol MULT
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #59
-  between expr ::= OBJECTID ASSIGN expr (*) 
-  and     expr ::= expr (*) EQ expr 
-  under symbol EQ
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #59
-  between expr ::= OBJECTID ASSIGN expr (*) 
-  and     expr ::= expr (*) LT expr 
-  under symbol LT
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #60
-  between expr ::= ISVOID expr (*) 
-  and     expr ::= expr (*) LE expr 
-  under symbol LE
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #60
-  between expr ::= ISVOID expr (*) 
-  and     expr ::= expr (*) PLUS expr 
-  under symbol PLUS
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #60
-  between expr ::= ISVOID expr (*) 
-  and     expr ::= expr (*) DIV expr 
-  under symbol DIV
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #60
-  between expr ::= ISVOID expr (*) 
-  and     expr ::= expr (*) MINUS expr 
-  under symbol MINUS
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #60
-  between expr ::= ISVOID expr (*) 
-  and     expr ::= expr (*) MULT expr 
-  under symbol MULT
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #60
-  between expr ::= ISVOID expr (*) 
-  and     expr ::= expr (*) EQ expr 
-  under symbol EQ
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #60
-  between expr ::= ISVOID expr (*) 
-  and     expr ::= expr (*) LT expr 
-  under symbol LT
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #50
-  between expr ::= expr LE expr (*) 
-  and     expr ::= expr (*) LE expr 
-  under symbol LE
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #50
-  between expr ::= expr LE expr (*) 
-  and     expr ::= expr (*) PLUS expr 
-  under symbol PLUS
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #50
-  between expr ::= expr LE expr (*) 
-  and     expr ::= expr (*) DIV expr 
-  under symbol DIV
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #50
-  between expr ::= expr LE expr (*) 
-  and     expr ::= expr (*) MINUS expr 
-  under symbol MINUS
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #50
-  between expr ::= expr LE expr (*) 
-  and     expr ::= expr (*) MULT expr 
-  under symbol MULT
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #50
-  between expr ::= expr LE expr (*) 
-  and     expr ::= expr (*) EQ expr 
-  under symbol EQ
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #50
-  between expr ::= expr LE expr (*) 
-  and     expr ::= expr (*) LT expr 
-  under symbol LT
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #56
-  between expr ::= NOT expr (*) 
-  and     expr ::= expr (*) LE expr 
-  under symbol LE
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #56
-  between expr ::= NOT expr (*) 
-  and     expr ::= expr (*) PLUS expr 
-  under symbol PLUS
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #56
-  between expr ::= NOT expr (*) 
-  and     expr ::= expr (*) DIV expr 
-  under symbol DIV
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #56
-  between expr ::= NOT expr (*) 
-  and     expr ::= expr (*) MINUS expr 
-  under symbol MINUS
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #56
-  between expr ::= NOT expr (*) 
-  and     expr ::= expr (*) MULT expr 
-  under symbol MULT
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #56
-  between expr ::= NOT expr (*) 
-  and     expr ::= expr (*) EQ expr 
-  under symbol EQ
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #56
-  between expr ::= NOT expr (*) 
-  and     expr ::= expr (*) LT expr 
-  under symbol LT
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #53
-  between expr ::= expr LT expr (*) 
-  and     expr ::= expr (*) LE expr 
-  under symbol LE
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #53
-  between expr ::= expr LT expr (*) 
-  and     expr ::= expr (*) PLUS expr 
-  under symbol PLUS
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #53
-  between expr ::= expr LT expr (*) 
-  and     expr ::= expr (*) DIV expr 
-  under symbol DIV
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #53
-  between expr ::= expr LT expr (*) 
-  and     expr ::= expr (*) MINUS expr 
-  under symbol MINUS
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #53
-  between expr ::= expr LT expr (*) 
-  and     expr ::= expr (*) MULT expr 
-  under symbol MULT
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #53
-  between expr ::= expr LT expr (*) 
-  and     expr ::= expr (*) EQ expr 
-  under symbol EQ
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #53
-  between expr ::= expr LT expr (*) 
-  and     expr ::= expr (*) LT expr 
-  under symbol LT
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #54
-  between expr ::= expr EQ expr (*) 
-  and     expr ::= expr (*) LE expr 
-  under symbol LE
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #54
-  between expr ::= expr EQ expr (*) 
-  and     expr ::= expr (*) PLUS expr 
-  under symbol PLUS
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #54
-  between expr ::= expr EQ expr (*) 
-  and     expr ::= expr (*) DIV expr 
-  under symbol DIV
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #54
-  between expr ::= expr EQ expr (*) 
-  and     expr ::= expr (*) MINUS expr 
-  under symbol MINUS
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #54
-  between expr ::= expr EQ expr (*) 
-  and     expr ::= expr (*) MULT expr 
-  under symbol MULT
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #54
-  between expr ::= expr EQ expr (*) 
-  and     expr ::= expr (*) EQ expr 
-  under symbol EQ
-  Resolved in favor of shifting.
-
-Warning : *** Shift/Reduce conflict found in state #54
-  between expr ::= expr EQ expr (*) 
-  and     expr ::= expr (*) LT expr 
-  under symbol LT
-  Resolved in favor of shifting.
-
 ===== Terminals =====
 [0]EOF [1]error [2]CLASS [3]ELSE [4]FI 
 [5]IF [6]IN [7]INHERITS [8]LET [9]LET_STMT 
@@ -2350,73 +1888,73 @@ From state #47
 From state #48
  [term 3:REDUCE(with prod 26)] [term 4:REDUCE(with prod 26)]
  [term 10:REDUCE(with prod 26)] [term 11:REDUCE(with prod 26)]
- [term 12:REDUCE(with prod 26)] [term 22:SHIFT(to state 45)]
- [term 24:SHIFT(to state 44)] [term 25:SHIFT(to state 47)]
- [term 26:SHIFT(to state 46)] [term 27:SHIFT(to state 42)]
- [term 28:SHIFT(to state 40)] [term 29:SHIFT(to state 41)]
+ [term 12:REDUCE(with prod 26)] [term 22:REDUCE(with prod 26)]
+ [term 24:REDUCE(with prod 26)] [term 25:REDUCE(with prod 26)]
+ [term 26:REDUCE(with prod 26)] [term 27:REDUCE(with prod 26)]
+ [term 28:REDUCE(with prod 26)] [term 29:REDUCE(with prod 26)]
  [term 33:REDUCE(with prod 26)] [term 36:REDUCE(with prod 26)]
  [term 39:REDUCE(with prod 26)]
 From state #49
  [term 3:REDUCE(with prod 24)] [term 4:REDUCE(with prod 24)]
  [term 10:REDUCE(with prod 24)] [term 11:REDUCE(with prod 24)]
- [term 12:REDUCE(with prod 24)] [term 22:SHIFT(to state 45)]
- [term 24:SHIFT(to state 44)] [term 25:SHIFT(to state 47)]
- [term 26:SHIFT(to state 46)] [term 27:SHIFT(to state 42)]
- [term 28:SHIFT(to state 40)] [term 29:SHIFT(to state 41)]
+ [term 12:REDUCE(with prod 24)] [term 22:REDUCE(with prod 24)]
+ [term 24:REDUCE(with prod 24)] [term 25:SHIFT(to state 47)]
+ [term 26:REDUCE(with prod 24)] [term 27:SHIFT(to state 42)]
+ [term 28:REDUCE(with prod 24)] [term 29:REDUCE(with prod 24)]
  [term 33:REDUCE(with prod 24)] [term 36:REDUCE(with prod 24)]
  [term 39:REDUCE(with prod 24)]
 From state #50
  [term 3:REDUCE(with prod 29)] [term 4:REDUCE(with prod 29)]
  [term 10:REDUCE(with prod 29)] [term 11:REDUCE(with prod 29)]
- [term 12:REDUCE(with prod 29)] [term 22:SHIFT(to state 45)]
+ [term 12:REDUCE(with prod 29)] [term 22:NONASSOC]
  [term 24:SHIFT(to state 44)] [term 25:SHIFT(to state 47)]
  [term 26:SHIFT(to state 46)] [term 27:SHIFT(to state 42)]
- [term 28:SHIFT(to state 40)] [term 29:SHIFT(to state 41)]
+ [term 28:NONASSOC] [term 29:NONASSOC]
  [term 33:REDUCE(with prod 29)] [term 36:REDUCE(with prod 29)]
  [term 39:REDUCE(with prod 29)]
 From state #51
  [term 3:REDUCE(with prod 23)] [term 4:REDUCE(with prod 23)]
  [term 10:REDUCE(with prod 23)] [term 11:REDUCE(with prod 23)]
- [term 12:REDUCE(with prod 23)] [term 22:SHIFT(to state 45)]
- [term 24:SHIFT(to state 44)] [term 25:SHIFT(to state 47)]
- [term 26:SHIFT(to state 46)] [term 27:SHIFT(to state 42)]
- [term 28:SHIFT(to state 40)] [term 29:SHIFT(to state 41)]
+ [term 12:REDUCE(with prod 23)] [term 22:REDUCE(with prod 23)]
+ [term 24:REDUCE(with prod 23)] [term 25:SHIFT(to state 47)]
+ [term 26:REDUCE(with prod 23)] [term 27:SHIFT(to state 42)]
+ [term 28:REDUCE(with prod 23)] [term 29:REDUCE(with prod 23)]
  [term 33:REDUCE(with prod 23)] [term 36:REDUCE(with prod 23)]
  [term 39:REDUCE(with prod 23)]
 From state #52
  [term 3:REDUCE(with prod 25)] [term 4:REDUCE(with prod 25)]
  [term 10:REDUCE(with prod 25)] [term 11:REDUCE(with prod 25)]
- [term 12:REDUCE(with prod 25)] [term 22:SHIFT(to state 45)]
- [term 24:SHIFT(to state 44)] [term 25:SHIFT(to state 47)]
- [term 26:SHIFT(to state 46)] [term 27:SHIFT(to state 42)]
- [term 28:SHIFT(to state 40)] [term 29:SHIFT(to state 41)]
+ [term 12:REDUCE(with prod 25)] [term 22:REDUCE(with prod 25)]
+ [term 24:REDUCE(with prod 25)] [term 25:REDUCE(with prod 25)]
+ [term 26:REDUCE(with prod 25)] [term 27:REDUCE(with prod 25)]
+ [term 28:REDUCE(with prod 25)] [term 29:REDUCE(with prod 25)]
  [term 33:REDUCE(with prod 25)] [term 36:REDUCE(with prod 25)]
  [term 39:REDUCE(with prod 25)]
 From state #53
  [term 3:REDUCE(with prod 28)] [term 4:REDUCE(with prod 28)]
  [term 10:REDUCE(with prod 28)] [term 11:REDUCE(with prod 28)]
- [term 12:REDUCE(with prod 28)] [term 22:SHIFT(to state 45)]
+ [term 12:REDUCE(with prod 28)] [term 22:NONASSOC]
  [term 24:SHIFT(to state 44)] [term 25:SHIFT(to state 47)]
  [term 26:SHIFT(to state 46)] [term 27:SHIFT(to state 42)]
- [term 28:SHIFT(to state 40)] [term 29:SHIFT(to state 41)]
+ [term 28:NONASSOC] [term 29:NONASSOC]
  [term 33:REDUCE(with prod 28)] [term 36:REDUCE(with prod 28)]
  [term 39:REDUCE(with prod 28)]
 From state #54
  [term 3:REDUCE(with prod 30)] [term 4:REDUCE(with prod 30)]
  [term 10:REDUCE(with prod 30)] [term 11:REDUCE(with prod 30)]
- [term 12:REDUCE(with prod 30)] [term 22:SHIFT(to state 45)]
+ [term 12:REDUCE(with prod 30)] [term 22:NONASSOC]
  [term 24:SHIFT(to state 44)] [term 25:SHIFT(to state 47)]
  [term 26:SHIFT(to state 46)] [term 27:SHIFT(to state 42)]
- [term 28:SHIFT(to state 40)] [term 29:SHIFT(to state 41)]
+ [term 28:NONASSOC] [term 29:NONASSOC]
  [term 33:REDUCE(with prod 30)] [term 36:REDUCE(with prod 30)]
  [term 39:REDUCE(with prod 30)]
 From state #55
  [term 3:REDUCE(with prod 27)] [term 4:REDUCE(with prod 27)]
  [term 10:REDUCE(with prod 27)] [term 11:REDUCE(with prod 27)]
- [term 12:REDUCE(with prod 27)] [term 22:SHIFT(to state 45)]
- [term 24:SHIFT(to state 44)] [term 25:SHIFT(to state 47)]
- [term 26:SHIFT(to state 46)] [term 27:SHIFT(to state 42)]
- [term 28:SHIFT(to state 40)] [term 29:SHIFT(to state 41)]
+ [term 12:REDUCE(with prod 27)] [term 22:REDUCE(with prod 27)]
+ [term 24:REDUCE(with prod 27)] [term 25:REDUCE(with prod 27)]
+ [term 26:REDUCE(with prod 27)] [term 27:REDUCE(with prod 27)]
+ [term 28:REDUCE(with prod 27)] [term 29:REDUCE(with prod 27)]
  [term 33:REDUCE(with prod 27)] [term 36:REDUCE(with prod 27)]
  [term 39:REDUCE(with prod 27)]
 From state #56
@@ -2449,10 +1987,10 @@ From state #59
 From state #60
  [term 3:REDUCE(with prod 22)] [term 4:REDUCE(with prod 22)]
  [term 10:REDUCE(with prod 22)] [term 11:REDUCE(with prod 22)]
- [term 12:REDUCE(with prod 22)] [term 22:SHIFT(to state 45)]
- [term 24:SHIFT(to state 44)] [term 25:SHIFT(to state 47)]
- [term 26:SHIFT(to state 46)] [term 27:SHIFT(to state 42)]
- [term 28:SHIFT(to state 40)] [term 29:SHIFT(to state 41)]
+ [term 12:REDUCE(with prod 22)] [term 22:REDUCE(with prod 22)]
+ [term 24:REDUCE(with prod 22)] [term 25:REDUCE(with prod 22)]
+ [term 26:REDUCE(with prod 22)] [term 27:REDUCE(with prod 22)]
+ [term 28:REDUCE(with prod 22)] [term 29:REDUCE(with prod 22)]
  [term 33:REDUCE(with prod 22)] [term 36:REDUCE(with prod 22)]
  [term 39:REDUCE(with prod 22)]
 From state #61
@@ -2750,12 +2288,12 @@ From state #93
 From state #94
 -----------------------------
 ------- CUP v0.11a beta 20060608 Parser Generation Summary -------
-  0 errors and 89 warnings
+  0 errors and 12 warnings
   45 terminals, 11 non-terminals, and 37 productions declared, 
   producing 95 unique parse states.
   12 terminals declared but not used.
   0 non-terminals declared but not used.
   0 productions never reduced.
-  77 conflicts detected (10000 expected).
+  0 conflicts detected (10000 expected).
   Code written to "CoolParser.java", and "TokenConstants.java".
 ---------------------------------------------------- (v0.11a beta 20060608)
