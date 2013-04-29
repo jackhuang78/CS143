@@ -225,9 +225,11 @@ expr
 
 	|	WHILE expr:e1 LOOP expr:e2 POOL
 		{: RESULT = new loop(curr_lineno(),e1,e2); :}
+<<<<<<< HEAD
 	
 	|	LBRACE expr_list_geq1:el RBRACE 
 		{: RESULT = new block(curr_lineno(), el); :}
+=======
 
 	|	LET OBJECTID:id COLON TYPEID:p expr_list:el IN expr:e
 		{: :}
@@ -240,6 +242,7 @@ expr
 
 	|	LET OBJECTID:id COLON TYPEID:p IN expr:e
 		{: :}
+>>>>>>> 8df400548a9d065efa888bd45568f1d300aa2749
 		
 	|	NEW TYPEID:id
 		{: RESULT = new new_(curr_lineno(),id); :}
