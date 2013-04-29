@@ -84,7 +84,7 @@ class F {
 
 class G {
 	myfunc() : Int{
-		let a: Int , b : Int <- 2, z: Int <- 999, c: String <- "abc" in
+		let a: Int , b : Int <- 2, c: String <- "abc" in
 		{
 			a <- a + b;
 		}
