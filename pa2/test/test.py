@@ -10,7 +10,9 @@ for arg in sys.argv[1:]:
 	os.system('rm -f parser.out myparser.out parser_noline.out myparser_noline.out')
 	
 	# run our implementation and the reference 
+	print 'running reference...' 
 	os.system('/usr/class/cs143/bin/coolc -k ' + arg + ' &> /dev/null')
+	print 'running our implementation'
 	os.system('../lexer ' + arg + ' | ../parser > myparser.out')
 	
 	# remove line numbers from parser.out and myparser.out
@@ -22,11 +24,11 @@ for arg in sys.argv[1:]:
 			fout.write(re.sub('\s*#[0-9]+\n', '', line))
 		
 	# compare results
-	res = os.system("diff parser_noline.out myparser_noline.out")
+	res = os.system('diff parser_noline.out myparser_noline.out')
 	if res == 0:
-		print "PASS"
+		print 'PASS'
 	else:
-		print "FAIL"
+		print 'FAIL'
 
 
 

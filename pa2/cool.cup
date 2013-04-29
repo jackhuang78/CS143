@@ -71,7 +71,7 @@ nonterminal Features feature_list;
 nonterminal Feature feature;
 nonterminal Formals formal_list;
 nonterminal formalc formal;
-nonterminal Expressions expr_list;
+nonterminal Expressions expr_list_geq1;
 nonterminal Expression expr;
 
 
@@ -148,11 +148,23 @@ formal
 	::= OBJECTID:obj COLON TYPEID:type
 		{: RESULT = new formalc(curr_lineno(), obj, type); :}
 	;
-
+/*
 expr_list
-	::= /*empty */
+	::= //empty
 		{: RESULT = new Expressions(curr_lineno()); :}
 	|	expr_list:el expr:e
+		{: RESULT = el.appendElement(e); :}
+	;
+*/
+
+/* one or more expressions, each followed by a SEMI */
+expr_list_geq1
+	// one expression
+	::= expr:e SEMI
+		{: RESULT = new Expressions(curr_lineno()).appendElement(e); :}
+		
+	// multiple expressions
+	|	expr_list_geq1:el expr:e SEMI
 		{: RESULT = el.appendElement(e); :}
 	;
 	
@@ -165,6 +177,9 @@ expr
 		
 	|	WHILE expr:e1 LOOP expr:e2 POOL
 		{: RESULT = new loop(curr_lineno(),e1,e2); :}
+	
+	|	LBRACE expr_list_geq1:el RBRACE 
+		{: RESULT = new block(curr_lineno(), el); :}
 		
 	|	NEW TYPEID:id
 		{: RESULT = new new_(curr_lineno(),id); :}
