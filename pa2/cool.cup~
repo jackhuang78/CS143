@@ -103,19 +103,6 @@ class
 	    {: RESULT = new class_c(curr_lineno(), n, p, f, curr_filename()); :}
 	;
 
-_case
-	::= DARROW
-	    {: RESULT = new Case(curr_lineno()); :}
-	;
-
-_case_list
-	/* single class */
-	::= _case:cs
-	    {: RESULT = (new Cases(curr_lineno())).appendElement(cs); :}
-	/* several classes */
-	| _case_list:csl _case:c
-	    {: RESULT = csl.appendElement(c); :}
-	;
 
 /* zero or more features */
 feature_list
@@ -208,28 +195,26 @@ expr
 	::= OBJECTID:id ASSIGN expr:e
 		{: RESULT = new assign(curr_lineno(),id,e); :}
 
-	|	expr:e DOT OBJECTID:id LPAREN RPAREN
-		{: RESULT =  new static_dispatch(curr_lineno(), AbstractTable.idtable.addString("Object"), id, (new Expressions(curr_lineno()))); :}
+/*	|	expr:e DOT OBJECTID:id LPAREN RPAREN
+		{: RESULT =  new static_dispatch(curr_lineno(), AbstractTable.idtable.addString("Object"), id, (new Expressions(curr_lineno()))); :} */
 
-	|	expr:e AT TYPEID:p DOT OBJECTID:id LPAREN RPAREN
-		{: RESULT =  new static_dispatch(curr_lineno(), p, id, (new Expressions(curr_lineno()))); :}
+/*	|	expr:e AT TYPEID:p DOT OBJECTID:id LPAREN RPAREN
+		{: RESULT =  new static_dispatch(curr_lineno(), p, id, (new Expressions(curr_lineno()))); :}*/
 
-	|	expr:e AT TYPEID:p DOT OBJECTID:id LPAREN expr_list:el RPAREN
+/*	|	expr:e AT TYPEID:p DOT OBJECTID:id LPAREN expr_list:el RPAREN
 		{: RESULT =  new static_dispatch(curr_lineno(), p, id, el); :}
 
 	|	expr:e DOT OBJECTID:id LPAREN expr_list:el RPAREN
-		{: RESULT =  new static_dispatch(curr_lineno(), AbstractTable.idtable.addString("Object"), id, el); :}
+		{: RESULT =  new static_dispatch(curr_lineno(), AbstractTable.idtable.addString("Object"), id, el); :}*/
 
 	|	IF expr:e1 THEN expr:e2 ELSE expr:e3 FI
 		{: RESULT = new cond(curr_lineno(),e1,e2,e3); :}
 
 	|	WHILE expr:e1 LOOP expr:e2 POOL
 		{: RESULT = new loop(curr_lineno(),e1,e2); :}
-<<<<<<< HEAD
 	
 	|	LBRACE expr_list_geq1:el RBRACE 
 		{: RESULT = new block(curr_lineno(), el); :}
-=======
 
 	|	LET OBJECTID:id COLON TYPEID:p expr_list:el IN expr:e
 		{: :}
@@ -242,7 +227,6 @@ expr
 
 	|	LET OBJECTID:id COLON TYPEID:p IN expr:e
 		{: :}
->>>>>>> 8df400548a9d065efa888bd45568f1d300aa2749
 		
 	|	NEW TYPEID:id
 		{: RESULT = new new_(curr_lineno(),id); :}
