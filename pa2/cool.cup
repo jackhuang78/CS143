@@ -77,11 +77,24 @@ nonterminal Expressions expr_list_comma;
 nonterminal Expressions expr_list_darrow;
 nonterminal Expressions expr_list_assign;
 nonterminal Expression expr;
-nonterminal Case _case;
-nonterminal Cases _case_list;
+nonterminal typcase case;
+nonterminal Cases casebr_list;
+nonterminal branch casebr;
 
 
 /* Precedence declarations go here. */
+precedence right ASSIGN; 
+precedence left NOT;
+precedence nonassoc LE, LT, EQ;
+precedence left PLUS, MINUS;
+precedence left MULT, DIV;
+precedence left ISVOID;
+precedence left NEG;
+precedence left AT;
+precedence left DOT;
+
+
+/* Grammars below */
 
 program	
 	::= class_list:cl
@@ -106,21 +119,6 @@ class
 	| CLASS TYPEID:n INHERITS TYPEID:p LBRACE feature_list:f RBRACE SEMI
 	    {: RESULT = new class_c(curr_lineno(), n, p, f, curr_filename()); :}
 	;
-/*
-_case
-	::= DARROW
-	    {: RESULT = new Case(curr_lineno()); :}
-	;
-
-_case_list
-	// single class
-	::= _case:cs
-	    {: RESULT = (new Cases(curr_lineno())).appendElement(cs); :}
-	// several classes 
-	| _case_list:csl _case:c
-	    {: RESULT = csl.appendElement(c); :}
-	;
-*/
 
 /* zero or more features */
 feature_list
@@ -180,42 +178,19 @@ expr_list_comma
 		{: RESULT = el.appendElement(e); :}
 	;
 
-/*
-expr_list_darrow
-	// no expression
-	::=	
-		{: RESULT = new Expressions(curr_lineno()); :}
-	// one expression
-	|	COMMA expr:e
-		{: RESULT = new Expressions(curr_lineno()).appendElement(e); :}
-		
-	// multiple expressions
-	|	expr_list_comma:el COMMA expr:e
-		{: RESULT = el.appendElement(e); :}
-	;
-*/
-/* 
-expr_list_assign
-	// no expression
-	::=	
-		{: RESULT = new Expressions(curr_lineno()); :}
-	// one expression
-	|	COMMA OBJECTID:obj COLON TYPEID:p
-		{: RESULT = new Expressions(curr_lineno()).appendElement(e); :}
-		
-	// one expressions
-	|	COMMA OBJECTID:obj COLON TYPEID:p ASSIGN expr:e
-		{: RESULT = el.appendElement(e); :}
-	// multiple expression
-	|	expr_list_assign:el COMMA OBJECTID:obj COLON TYPEID:p
-		{: RESULT = new Expressions(curr_lineno()).appendElement(e); :}
-		
-	// multiple expressions
-	|	expr_list_assign:el COMMA OBJECTID:obj COLON TYPEID:p ASSIGN expr:e
-		{: RESULT = el.appendElement(e); :}
-	;
-*/
 
+/* case constructs */	
+casebr_list
+	::= casebr:c
+		{: RESULT = new Cases(curr_lineno()).appendElement(c); :}
+	|	casebr_list:cl casebr:c
+		{: RESULT = cl.appendElement(c); :}
+	;
+
+casebr
+	::= OBJECTID:obj COLON TYPEID:type DARROW expr:e SEMI
+		{: RESULT = new branch(curr_lineno(), obj, type, e); :}
+	;
 
 /* one or more expressions, each followed by a SEMI */
 expr_list_geq1
@@ -264,6 +239,9 @@ expr
 	
 	|	LBRACE expr_list_geq1:el RBRACE 
 		{: RESULT = new block(curr_lineno(), el); :}
+
+	|	CASE expr:e OF casebr_list:cl ESAC
+		{: RESULT = new typcase(curr_lineno(), e, cl); :}
 		
 	|	NEW TYPEID:id
 		{: RESULT = new new_(curr_lineno(),id); :}

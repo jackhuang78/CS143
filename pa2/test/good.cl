@@ -34,10 +34,10 @@ class E {
 			x <- a / b;
 			x <- ~a;
 			
-			(* precedence 
+			(* integer precedence *)
 			x <- a + b * c - b / a;
 			x <- a * b + c / b - a;
-			x <- (a + b) * (c - b) / a;*)
+			x <- (a + b) * (c - b) / a;
 			
 			(* boolean expr *)
 			b1 <- true;
@@ -49,8 +49,33 @@ class E {
 			b1 <- x = y;
 			
 			
+			(* if construct *)
+			if true then 1 else 2 fi;
+			if b1 then x <- 1 else x <-2 fi;
+			if b1 = b2 then x <- 1 else x <- 2 fi;
 			
+			if if b2 then true else false fi 
+			then if b1 then 3 else 4 fi
+			else if b1 then 5 else 6 fi
+			fi;
 			
+			(* while construct *)
+			while b1 loop x <- x + 1 pool;
+			while while b2 loop false pool 
+			loop while x < 10 loop x <- x + 1 pool
+			pool;
+			
+			(* case construct *)
+			case new E of
+				b1 : String => true;
+			esac;
+			
+			case x of
+				y : Object => 1;
+				y : Int => 2;
+			esac;
+			
+
 		}
 	};
 
