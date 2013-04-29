@@ -64,6 +64,18 @@ class E {
 			while while b2 loop false pool 
 			loop while x < 10 loop x <- x + 1 pool
 			pool;
+			
+			(* case construct *)
+			case new E of
+				b1 : String => true;
+			esac;
+			
+			case x of
+				y : Object => 1;
+				y : Int => 2;
+			esac;
+			
+
 		}
 	};
 
