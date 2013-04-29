@@ -164,34 +164,6 @@ formal
 	::= OBJECTID:obj COLON TYPEID:type
 		{: RESULT = new formalc(curr_lineno(), obj, type); :}
 	;
-/*
-expr_list
-	::= //empty
-		{: RESULT = new Expressions(curr_lineno()); :}
-	|	expr:e
-		{: RESULT = new Expressions(curr_lineno()).appendElement(e); :}
-	|	expr:e SEMI
-		{: RESULT = new Expressions(curr_lineno()).appendElement(e); :}
-	|	expr_list:el expr:e SEMI
-		{: RESULT = el.appendElement(e); :}
-	|	COMMA expr:e
-		{: RESULT = new Expressions(curr_lineno()).appendElement(e); :}
-	|	expr_list:el COMMA expr:e
-		{: RESULT = el.appendElement(e); :}
-	|	COMMA OBJECTID:id COLON TYPEID:p 
-		{: RESULT= new formalc(curr_lineno(), id, type); :}
-	|	COMMA OBJECTID:id COLON TYPEID:p ASSIGN expr:e
-		{: RESULT= new assign(curr_lineno(), p, type); :}
-	|	expr_list:el COMMA OBJECTID:id COLON TYPEID:p
-		{: RESULT= el.appendElement(new formalc(curr_lineno(), id, type)); :}
-	|	expr_list:el COMMA OBJECTID:id COLON TYPEID:p ASSIGN expr:e
-		{: RESULT= el.appendElement(new assign(curr_lineno(), p, type)); :}
-	|	OBJECTID:id COLON TYPEID:p _case:cs expr:e SEMI
-		{: RESULT= :}
-	|	expr_list:el OBJECTID:id COLON TYPEID:p _case:cs expr:e SEMI
-		{: RESULT= :}
-	;
-*/
 
 /* one or more expressions, each followed by a SEMI */
 expr_list_geq1
@@ -208,6 +180,7 @@ expr
 	::= OBJECTID:id ASSIGN expr:e
 		{: RESULT = new assign(curr_lineno(),id,e); :}
 
+/*
 	|	expr:e DOT OBJECTID:id LPAREN RPAREN
 		{: RESULT =  new static_dispatch(curr_lineno(), AbstractTable.idtable.addString("Object"), id, (new Expressions(curr_lineno()))); :}
 
@@ -219,30 +192,15 @@ expr
 
 	|	expr:e DOT OBJECTID:id LPAREN expr_list:el RPAREN
 		{: RESULT =  new static_dispatch(curr_lineno(), AbstractTable.idtable.addString("Object"), id, el); :}
-
+*/
 	|	IF expr:e1 THEN expr:e2 ELSE expr:e3 FI
 		{: RESULT = new cond(curr_lineno(),e1,e2,e3); :}
 
 	|	WHILE expr:e1 LOOP expr:e2 POOL
 		{: RESULT = new loop(curr_lineno(),e1,e2); :}
-<<<<<<< HEAD
 	
 	|	LBRACE expr_list_geq1:el RBRACE 
 		{: RESULT = new block(curr_lineno(), el); :}
-=======
-
-	|	LET OBJECTID:id COLON TYPEID:p expr_list:el IN expr:e
-		{: :}
-
-	|	LET OBJECTID:id COLON TYPEID:p ASSIGN expr:e1 expr_list:el IN expr:e2
-		{: :}
-
-	|	LET OBJECTID:id COLON TYPEID:p ASSIGN expr:e1 IN expr:e
-		{: :}
-
-	|	LET OBJECTID:id COLON TYPEID:p IN expr:e
-		{: :}
->>>>>>> 8df400548a9d065efa888bd45568f1d300aa2749
 		
 	|	NEW TYPEID:id
 		{: RESULT = new new_(curr_lineno(),id); :}
