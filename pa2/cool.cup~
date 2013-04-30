@@ -67,7 +67,7 @@ terminal AbstractSymbol TYPEID, OBJECTID;
 nonterminal programc program;
 nonterminal Classes class_list;
 nonterminal class_c class;
-nonterminal Features feature_list;
+nonterminal Features feature_list, let_list;
 nonterminal Feature feature;
 nonterminal Formals formal_list;
 nonterminal formalc formal;
@@ -80,6 +80,7 @@ nonterminal Expression expr;
 nonterminal typcase case;
 nonterminal Cases casebr_list;
 nonterminal branch casebr;
+nonterminal let letbr;
 
 
 /* Precedence declarations go here. */
@@ -131,6 +132,10 @@ feature_list
 		{: RESULT = fl.appendElement(f); :}
     ;
     
+
+			
+		
+    
 /* feature includes attribute and method */
 feature
 	// attribute without inital value
@@ -168,7 +173,6 @@ formal
 		{: RESULT = new formalc(curr_lineno(), obj, type); :}
 	;
 
-<<<<<<< HEAD
 /* one or more expressions, delimited by by comma */
 expr_list_comma
 	// one expression
@@ -179,43 +183,10 @@ expr_list_comma
 		{: RESULT = el.appendElement(e); :}
 	;
 
-/*
-expr_list_darrow
-	// no expression
-	::=	
-		{: RESULT = new Expressions(curr_lineno()); :}
-	// one expression
-	|	COMMA expr:e
-		{: RESULT = new Expressions(curr_lineno()).appendElement(e); :}
-		
-	// multiple expressions
-	|	expr_list_comma:el COMMA expr:e
-		{: RESULT = el.appendElement(e); :}
-	;
-*/
-/* 
-expr_list_assign
-	// no expression
-	::=	
-		{: RESULT = new Expressions(curr_lineno()); :}
-	// one expression
-	|	COMMA OBJECTID:obj COLON TYPEID:p
-		{: RESULT = new Expressions(curr_lineno()).appendElement(e); :}
-		
-	// one expressions
-	|	COMMA OBJECTID:obj COLON TYPEID:p ASSIGN expr:e
-		{: RESULT = el.appendElement(e); :}
-	// multiple expression
-	|	expr_list_assign:el COMMA OBJECTID:obj COLON TYPEID:p
-		{: RESULT = new Expressions(curr_lineno()).appendElement(e); :}
-		
-	// multiple expressions
-	|	expr_list_assign:el COMMA OBJECTID:obj COLON TYPEID:p ASSIGN expr:e
-		{: RESULT = el.appendElement(e); :}
-	;
-*/
 
-=======
+
+
+
 /* case constructs */	
 casebr_list
 	::= casebr:c
@@ -228,7 +199,22 @@ casebr
 	::= OBJECTID:obj COLON TYPEID:type DARROW expr:e SEMI
 		{: RESULT = new branch(curr_lineno(), obj, type, e); :}
 	;
->>>>>>> origin/master
+	
+/* let constructs */
+letbr
+	::= OBJECTID:obj COLON TYPEID:type IN expr:e	
+		{: RESULT = new let(curr_lineno(), obj, type, new no_expr(curr_lineno()), e); :}
+		
+	|	OBJECTID:obj COLON TYPEID:type ASSIGN expr:init IN expr:e
+		{: RESULT = new let(curr_lineno(), obj, type, init, e); :}
+	
+	|	OBJECTID:obj COLON TYPEID:type IN letbr:l	
+		{: RESULT = new let(curr_lineno(), obj, type, new no_expr(curr_lineno()), l); :}
+		
+	|	OBJECTID:obj COLON TYPEID:type ASSIGN expr:init IN letbr:l	
+		{: RESULT = new let(curr_lineno(), obj, type, init, l); :}
+	;
+
 
 /* one or more expressions, each followed by a SEMI */
 expr_list_geq1
@@ -263,12 +249,6 @@ expr
 	|	OBJECTID:obj LPAREN expr_list_comma:el RPAREN
 		{: RESULT =  new dispatch(curr_lineno(), new object(curr_lineno(),AbstractTable.idtable.addString("self")), obj, el); :}
 
-	|	LET OBJECTID:obj COLON TYPEID:p IN expr:e2
-		{: RESULT = new let(curr_lineno(), obj, p, new no_expr(curr_lineno()), e2); :}
-
-	|	LET OBJECTID:obj COLON TYPEID:p ASSIGN expr:e1 IN expr:e2
-		{: RESULT = new let(curr_lineno(), obj, p, e1, e2); :}
-
 	|	IF expr:e1 THEN expr:e2 ELSE expr:e3 FI
 		{: RESULT = new cond(curr_lineno(),e1,e2,e3); :}
 
@@ -277,6 +257,9 @@ expr
 	
 	|	LBRACE expr_list_geq1:el RBRACE 
 		{: RESULT = new block(curr_lineno(), el); :}
+		
+	|	LET let_list:ll IN expr:e
+		{:		:}
 
 	|	CASE expr:e OF casebr_list:cl ESAC
 		{: RESULT = new typcase(curr_lineno(), e, cl); :}
