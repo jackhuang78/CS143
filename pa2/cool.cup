@@ -121,6 +121,10 @@ class
 	    {: RESULT = new class_c(curr_lineno(), n, p, f, curr_filename()); :}
 
 	// error cases
+	| CLASS TYPEID:n LBRACE feature_list:f error SEMI
+	    {: :}
+	| CLASS TYPEID:n INHERITS TYPEID:p LBRACE feature_list:f error SEMI
+	    {: :}
 	| CLASS error LBRACE feature_list:f RBRACE SEMI
 	    {: :}
 	| CLASS error INHERITS TYPEID:p LBRACE feature_list:f RBRACE SEMI
@@ -129,6 +133,7 @@ class
 	    {: :}
 	| CLASS TYPEID:n INHERITS TYPEID:p LBRACE error RBRACE SEMI
 	    {: :}
+		
 	;
 
 /* zero or more features */
@@ -140,7 +145,11 @@ feature_list
 	// one or more features
 	| 	feature_list:fl feature:f SEMI
 		{: RESULT = fl.appendElement(f); :}
-    ;
+	// one or more features error case
+	| 	feature_list:fl error SEMI
+		{: :}
+   	;
+
     
 
 			
@@ -245,6 +254,9 @@ expr_list_geq1
 	// one expression
 	::= expr:e SEMI
 		{: RESULT = new Expressions(curr_lineno()).appendElement(e); :}
+	// error case
+	|	error SEMI
+		{: :}
 		
 	// multiple expressions
 	|	expr_list_geq1:el expr:e SEMI
@@ -254,6 +266,12 @@ expr_list_geq1
 expr
 	::= OBJECTID:id ASSIGN expr:e
 		{: RESULT = new assign(curr_lineno(),id,e); :}
+
+	|	expr:e ERROR
+		{: :}
+
+	|	ERROR expr:e
+		{: :}
 
 	|	expr:e DOT OBJECTID:obj LPAREN RPAREN
 		{: RESULT =  new dispatch(curr_lineno(), e, obj, new Expressions(curr_lineno())); :}
@@ -326,7 +344,7 @@ expr
 		{: RESULT = new comp(curr_lineno(),e); :}
 		
 	|	LPAREN expr:e RPAREN	
-		{: RESULT = e; /* TODO */:}
+		{: RESULT = e; :}
 		
 	|	OBJECTID:id
 		{: RESULT = new object(curr_lineno(),id); :}

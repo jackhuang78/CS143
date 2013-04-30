@@ -43,6 +43,10 @@ Class b inherits A {
 
 (* error:  a is not a type identifier *)
 Class C inherits a {
+	func() : Int{
+		while 100 > 34 loop 
+		pool
+	}
 };
 
 (* error:  keyword inherits is misspelled *)
@@ -67,8 +71,11 @@ class F {
 			asd qwe 3;
 		}
 	};
-	init2(obj:F, b: Int) : Int { 
-		(new F).init2(new F,2)
+	init2(obj:F, b: Int) : Int {
+		let a : Int <- 1 in		
+		let b : Int <- , c : Int in 
+		let d : Int <- 3 a : Int <- 4 in a 	
+	
 	};
 	init4(obj:F, b: Int, d: Bool) : Int { 
 		(new F) @E .init4(new F,2,false)
@@ -78,6 +85,6 @@ class F {
 
 
 (* error:  closing brace is missing *)
-Class E inherits A {
+Class e inherits A {
 ;
 *)
