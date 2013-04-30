@@ -12,7 +12,7 @@ for arg in sys.argv[1:]:
 	
 	# run our implementation and the reference 
 	print 'running reference...' 
-	os.system('/usr/class/cs143/bin/coolc -k ' + arg + ' 2> parser.err')
+	os.system('/usr/class/cs143/bin/.coolref/lexer ' + arg + ' | /usr/class/cs143/bin/.coolref/parser > parser.out 2> parser.err')
 	print 'running our implementation...'
 	os.system('../lexer ' + arg + ' | ../parser > myparser.out 2> myparser.err')
 	
@@ -23,17 +23,18 @@ for arg in sys.argv[1:]:
 	with open('myparser.out', 'r') as fin, open('myparser_noline.out', 'w') as fout: 
 		for line in fin:
 			fout.write(re.sub('\s*#[0-9]+\n', '', line))
-
-	size = os.path.getsize('parser.out')
 		
 	# compare results (out and err)
-	res = os.system('diff parser_noline.out myparser_noline.out')
-	if res != 0:
-		print 'FAIL'
-	elif size == 0:
-		print 'Empty parser output; check parser.err and myparser.err' 
+	res1 = os.system('diff parser_noline.out myparser_noline.out')
+	res2 = os.system('diff parser.err myparser.err')
+	if res1 != 0:
+		print 'FAIL out'
 	else:
-		print 'PASS'	
+		print 'PASS out'	
+	if res2 != 0:
+		print 'FAIL err'
+	else:
+		print 'PASS err'
 
 
 
