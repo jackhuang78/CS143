@@ -168,7 +168,6 @@ formal
 		{: RESULT = new formalc(curr_lineno(), obj, type); :}
 	;
 
-<<<<<<< HEAD
 /* one or more expressions, delimited by by comma */
 expr_list_comma
 	// one expression
@@ -179,43 +178,7 @@ expr_list_comma
 		{: RESULT = el.appendElement(e); :}
 	;
 
-/*
-expr_list_darrow
-	// no expression
-	::=	
-		{: RESULT = new Expressions(curr_lineno()); :}
-	// one expression
-	|	COMMA expr:e
-		{: RESULT = new Expressions(curr_lineno()).appendElement(e); :}
-		
-	// multiple expressions
-	|	expr_list_comma:el COMMA expr:e
-		{: RESULT = el.appendElement(e); :}
-	;
-*/
-/* 
-expr_list_assign
-	// no expression
-	::=	
-		{: RESULT = new Expressions(curr_lineno()); :}
-	// one expression
-	|	COMMA OBJECTID:obj COLON TYPEID:p
-		{: RESULT = new Expressions(curr_lineno()).appendElement(e); :}
-		
-	// one expressions
-	|	COMMA OBJECTID:obj COLON TYPEID:p ASSIGN expr:e
-		{: RESULT = el.appendElement(e); :}
-	// multiple expression
-	|	expr_list_assign:el COMMA OBJECTID:obj COLON TYPEID:p
-		{: RESULT = new Expressions(curr_lineno()).appendElement(e); :}
-		
-	// multiple expressions
-	|	expr_list_assign:el COMMA OBJECTID:obj COLON TYPEID:p ASSIGN expr:e
-		{: RESULT = el.appendElement(e); :}
-	;
-*/
 
-=======
 /* case constructs */	
 casebr_list
 	::= casebr:c
@@ -228,7 +191,6 @@ casebr
 	::= OBJECTID:obj COLON TYPEID:type DARROW expr:e SEMI
 		{: RESULT = new branch(curr_lineno(), obj, type, e); :}
 	;
->>>>>>> origin/master
 
 /* one or more expressions, each followed by a SEMI */
 expr_list_geq1
