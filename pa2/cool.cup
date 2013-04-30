@@ -145,7 +145,11 @@ feature_list
 	// one or more features
 	| 	feature_list:fl feature:f SEMI
 		{: RESULT = fl.appendElement(f); :}
-    ;
+	// one or more features error case
+	| 	feature_list:fl error SEMI
+		{: :}
+   	;
+
     
 
 			
