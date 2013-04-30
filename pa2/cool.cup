@@ -234,6 +234,8 @@ letbr
 	// error case
 	|	error COMMA letbr:l	
 		{:  :}
+	|	error letbr:l	
+		{:  :}
 		
 	;
 
