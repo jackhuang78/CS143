@@ -33,7 +33,7 @@ Class D inherts A {
 };
 
 
-(*
+
 class F {
 	init0() : Int { 
 		{
@@ -52,7 +52,8 @@ class F {
 	init2(obj:F, b: Int) : Int {
 		let a : Int <- 1 in		
 		let b : Int <- , c : Int in 
-		let d : Int <- 3 a : Int <- 4 in a 	
+		let d : Int <- 3 a : Int <- 4 in a 
+	
 	
 	};
 	init4(obj:F, b: Int, d: Bool) : Int { 
@@ -65,4 +66,4 @@ class F {
 (* error:  closing brace is missing *)
 Class e inherits A {
 ;
-*)
+
