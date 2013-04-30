@@ -242,13 +242,8 @@ letbr
 	|	OBJECTID:obj COLON TYPEID:type ASSIGN expr:init COMMA letbr:l	
 		{: RESULT = new let(curr_lineno(), obj, type, init, l); :}
 
-	// error case
-	/*
 	|	error COMMA letbr:l	
-		{:  :}
-	|	error letbr:l	
-		{:  :}
-	*/
+		{: RESULT = l; :}	
 		
 	;
 
@@ -271,14 +266,6 @@ expr_list_geq1
 expr
 	::= OBJECTID:id ASSIGN expr:e
 		{: RESULT = new assign(curr_lineno(),id,e); :}
-
-	/*
-	|	expr:e ERROR
-		{: :}
-
-	|	ERROR expr:e
-		{: :}
-	*/
 
 	|	expr:e DOT OBJECTID:obj LPAREN RPAREN
 		{: RESULT =  new dispatch(curr_lineno(), e, obj, new Expressions(curr_lineno())); :}
