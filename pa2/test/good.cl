@@ -36,6 +36,7 @@ class E {
 			x <- a + b * c - b / a;
 			x <- a * b + c / b - a;
 			x <- (a + b) * (c - b) / a;
+			x <- ((a + b)) * ((c - b)) / a;
 			
 			(* boolean expr *)
 			b1 <- true;
@@ -72,7 +73,13 @@ class E {
 				y : Int => 2;
 			esac;
 			
+
+			(* let construct *)
+			let a : Int, b : Int <- 2 in
+			let c : String <- "c" in
+			let d : Bool in "let";			
 			
+			let a : Int <- (let b : Int <- 10 in 10) in 20;
 
 		}
 	};
