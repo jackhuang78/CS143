@@ -119,6 +119,12 @@ class
 				   f, curr_filename()); :}
 	| CLASS TYPEID:n INHERITS TYPEID:p LBRACE feature_list:f RBRACE SEMI
 	    {: RESULT = new class_c(curr_lineno(), n, p, f, curr_filename()); :}
+
+	// error cases
+	| CLASS TYPEID:n LBRACE error RBRACE SEMI
+	    {: :}
+	| CLASS TYPEID:n INHERITS TYPEID:p LBRACE error RBRACE SEMI
+	    {: :}
 	;
 
 /* zero or more features */
@@ -153,7 +159,14 @@ feature
 	// method with arguments
 	|	OBJECTID:obj LPAREN formal_list:fl RPAREN COLON TYPEID:type LBRACE expr:e RBRACE
 		{: RESULT = new method(curr_lineno(), obj, fl, type, e); :}
-	
+	// method without argument error case
+	|	OBJECTID:obj LPAREN RPAREN COLON TYPEID:type LBRACE error RBRACE
+		{:  :}
+		
+	// method with arguments error case
+	|	OBJECTID:obj LPAREN formal_list:fl RPAREN COLON TYPEID:type LBRACE error RBRACE
+		{:  :}
+		
 	;
 
 /* one or more formals */	
@@ -213,6 +226,11 @@ letbr
 		
 	|	OBJECTID:obj COLON TYPEID:type ASSIGN expr:init COMMA letbr:l	
 		{: RESULT = new let(curr_lineno(), obj, type, init, l); :}
+
+	// error case
+	|	error COMMA letbr:l	
+		{:  :}
+		
 	;
 
 
@@ -257,6 +275,10 @@ expr
 	
 	|	LBRACE expr_list_geq1:el RBRACE 
 		{: RESULT = new block(curr_lineno(), el); :}
+
+	// error cases
+	|	LBRACE error RBRACE 
+		{:  :}
 		
 	|	LET letbr:l
 		{: RESULT = l; :}
