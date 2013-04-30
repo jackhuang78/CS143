@@ -144,22 +144,32 @@ feature_list
 	
 	// one or more features
 	| 	feature_list:fl feature:f SEMI
-		{: RESULT = fl.appendElement(f); :}
+		{: RESULT = fl.appendElement(f);
+System.out.println("Feature_list append:" + fl); :}
 	// one or more features error case
 	| 	feature_list:fl error SEMI
 		{: :}
+	| 	error feature:f SEMI
+		{: :}
+	| 	error SEMI
+		{: :}
    	;
 
-    
-
-			
-		
     
 /* feature includes attribute and method */
 feature
 	// attribute without inital value
 	::=	OBJECTID:obj COLON TYPEID:type
 		{: RESULT = new attr(curr_lineno(), obj, type, new no_expr(curr_lineno())); :}
+
+	|	error COLON TYPEID:type
+		{: :}
+
+	|	OBJECTID:obj COLON error
+		{: :}
+
+	|	OBJECTID:obj error
+		{: :}
 	
 	// attribute with initial value
 	|	OBJECTID:obj COLON TYPEID:type ASSIGN expr:e
