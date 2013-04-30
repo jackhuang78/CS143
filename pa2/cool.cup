@@ -121,6 +121,7 @@ class
 	    {: RESULT = new class_c(curr_lineno(), n, p, f, curr_filename()); :}
 
 	// error cases
+	/*
 	| CLASS TYPEID:n LBRACE feature_list:f error SEMI
 	    {: :}
 	| CLASS TYPEID:n INHERITS TYPEID:p LBRACE feature_list:f error SEMI
@@ -133,6 +134,7 @@ class
 	    {: :}
 	| CLASS TYPEID:n INHERITS TYPEID:p LBRACE error RBRACE SEMI
 	    {: :}
+	*/
 		
 	;
 
@@ -144,15 +146,11 @@ feature_list
 	
 	// one or more features
 	| 	feature_list:fl feature:f SEMI
-		{: RESULT = fl.appendElement(f);
-System.out.println("Feature_list append:" + fl); :}
-	// one or more features error case
+		{: RESULT = fl.appendElement(f); :}
+	
+	// recover from error in feature	
 	| 	feature_list:fl error SEMI
-		{: :}
-	| 	error feature:f SEMI
-		{: :}
-	| 	error SEMI
-		{: :}
+		{: RESULT = fl; :}
    	;
 
     
@@ -162,15 +160,6 @@ feature
 	::=	OBJECTID:obj COLON TYPEID:type
 		{: RESULT = new attr(curr_lineno(), obj, type, new no_expr(curr_lineno())); :}
 
-	|	error COLON TYPEID:type
-		{: :}
-
-	|	OBJECTID:obj COLON error
-		{: :}
-
-	|	OBJECTID:obj error
-		{: :}
-	
 	// attribute with initial value
 	|	OBJECTID:obj COLON TYPEID:type ASSIGN expr:e
 		{: RESULT = new attr(curr_lineno(), obj, type, e); :}
@@ -182,6 +171,8 @@ feature
 	// method with arguments
 	|	OBJECTID:obj LPAREN formal_list:fl RPAREN COLON TYPEID:type LBRACE expr:e RBRACE
 		{: RESULT = new method(curr_lineno(), obj, fl, type, e); :}
+
+/*
 	// method without argument error case
 	|	OBJECTID:obj LPAREN RPAREN COLON TYPEID:type LBRACE error RBRACE
 		{:  :}
@@ -189,6 +180,7 @@ feature
 	// method with arguments error case
 	|	OBJECTID:obj LPAREN formal_list:fl RPAREN COLON TYPEID:type LBRACE error RBRACE
 		{:  :}
+*/
 		
 	;
 
@@ -251,10 +243,12 @@ letbr
 		{: RESULT = new let(curr_lineno(), obj, type, init, l); :}
 
 	// error case
+	/*
 	|	error COMMA letbr:l	
 		{:  :}
 	|	error letbr:l	
 		{:  :}
+	*/
 		
 	;
 
@@ -264,24 +258,27 @@ expr_list_geq1
 	// one expression
 	::= expr:e SEMI
 		{: RESULT = new Expressions(curr_lineno()).appendElement(e); :}
-	// error case
-	|	error SEMI
-		{: :}
 		
 	// multiple expressions
 	|	expr_list_geq1:el expr:e SEMI
 		{: RESULT = el.appendElement(e); :}
+		
+	// recovery from error
+	|	expr_list_geq1:el error SEMI
+		{: RESULT = el; :}
 	;
 	
 expr
 	::= OBJECTID:id ASSIGN expr:e
 		{: RESULT = new assign(curr_lineno(),id,e); :}
 
+	/*
 	|	expr:e ERROR
 		{: :}
 
 	|	ERROR expr:e
 		{: :}
+	*/
 
 	|	expr:e DOT OBJECTID:obj LPAREN RPAREN
 		{: RESULT =  new dispatch(curr_lineno(), e, obj, new Expressions(curr_lineno())); :}
@@ -310,10 +307,6 @@ expr
 	|	LBRACE expr_list_geq1:el RBRACE 
 		{: RESULT = new block(curr_lineno(), el); :}
 
-	// error cases
-	|	LBRACE error RBRACE 
-		{:  :}
-		
 	|	LET letbr:l
 		{: RESULT = l; :}
 
@@ -369,9 +362,3 @@ expr
 		{: RESULT = new bool_const(curr_lineno(),b); :}
 		
 	;
-/* 
-expr
-	::= INT_CONST:val
-		{: RESULT = new int_const(curr_lineno(), val); :}
-	;
-*/

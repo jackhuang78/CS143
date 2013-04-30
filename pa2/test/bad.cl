@@ -7,29 +7,7 @@
  *  generates
  *)
 
-class FeatureError {
-	a1 : Int;
-	b : ;
-	a2 : Int;
-	c Int;
-	a3 : Int;
-	: Int;
-	a4:Int;
-	d ;
-	a5:Int;
-	: ;
-	a6:Int;
-	Int ;
-	a7:Int;
-	e : Int;
-	a8:Int;
-	f g : Int;
-	a9:Int;
-};
 
-class LetError {
-	
-}
 
 
 
