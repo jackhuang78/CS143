@@ -4,10 +4,8 @@ class A {
 class B inherits A {
 };
 class C {
-	a : Int;
 };
 class D inherits C {
-	a : Int;
 };
 	
 
@@ -61,7 +59,7 @@ class E {
 			
 			(* while construct *)
 			while b1 loop x <- x + 1 pool;
-			while while b2 loop false pool 
+			while if b1 then true else false fi 
 			loop while x < 10 loop x <- x + 1 pool
 			pool;
 			
@@ -69,11 +67,11 @@ class E {
 			case new E of
 				b1 : String => true;
 			esac;
-			
 			case x of
 				y : Object => 1;
 				y : Int => 2;
 			esac;
+			
 			
 
 		}
@@ -101,7 +99,7 @@ class F {
 	init2(obj:F, b: Int) : Int { 
 		(new F).init2(new F,2)
 	};
-	init4(obj:F, b: Int, d: Boolean) : Int { 
+	init4(obj:F, b: Int, d: Bool) : Int { 
 		(new F) @E .init4(new F,2,false)
 	};
 
