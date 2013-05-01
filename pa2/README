@@ -135,3 +135,93 @@ Instructions
 
 Write-up for PA2J
 -----------------
+
+===================
+>>>>> User ID <<<<<
+===================
+user: yh3483
+user: borui
+
+=======================================
+>>>>> Non terminal Defined <<<<<
+=======================================
+nonterminal programc program;
+nonterminal Classes class_list;
+nonterminal class_c class;
+nonterminal Features feature_list, let_list;
+nonterminal Feature feature;
+nonterminal Formals formal_list;
+nonterminal formalc formal;
+nonterminal Expressions expr_list_empty;
+nonterminal Expressions expr_list_geq1;
+nonterminal Expressions expr_list_comma;
+nonterminal Expressions expr_list_darrow;
+nonterminal Expressions expr_list_assign;
+nonterminal Expression expr;
+nonterminal typcase case;
+nonterminal Cases casebr_list;
+nonterminal branch casebr;
+nonterminal let letbr;
+
+=======================================
+>>>>> Precedence Defined <<<<<
+=======================================
+precedence right ASSIGN; 
+precedence left NOT;
+precedence nonassoc LE, LT, EQ;
+precedence left PLUS, MINUS;
+precedence left MULT, DIV;
+precedence left ISVOID;
+precedence left NEG;
+precedence left AT;
+precedence left DOT;
+
+========================
+>>>>> Design decisions <<<<<
+========================
+
+We used COOL's parsing action table in the COOL Manual to build the parser. 
+Specifically, our non terminals include the LFSs in the parsing table. In case 
+of multiple concatenations of object classes, we use lists of expressions, 
+formals, features, and cases to handle the objects. For certain special cases 
+of expression concatenations (comma delimited, darrow), we use expr_list_comma 
+and expr_list_assign to handle these cases. Similarly, we use casebr_list to 
+handle branching, and letbr to handle multiple LET expressions. For LET 
+expression, we construct a let object as the return value for the previously 
+concatenated let assignment to handle multiple variable assignments in LET.
+
+For error handling, we detect errors and make sure the parser recovers from 
+them and keeps running starting from the next valid block of code while parsing 
+lists of classes, features, expressions, and the consecutive LET assignments. 
+We used the standard way of using the "error" keyword to handle errors as 
+suggested in JAVA CUP's manual. Finally, we use precedence declarations to 
+handle ambiguity in parsing (see defined precedence above.)
+
+========================
+>>>>> Testing <<<<<
+========================
+
+We used a test driven development approach to make sure the robustness of our 
+parser and its ability to recover from errors. We used test.cl from the previous 
+assignment, and crafted our own good.cl and bad.cl for testing. We wrote a 
+simple diff script to compare the result of our output and result of the 
+reference parser's output. In good.cl, we wrote cases for each parsing actions 
+for our parser to test its robustness. Similarly, in bad.cl we wrote cases for 
+possible error conditions in lists of classes, features, expressions and let 
+assignments for testing. There are some misalignment in terms of line number in 
+the error output between our parser and the reference. We manually checked the 
+correctness of the error output if that happens.
+
+The test files are located at:
+test/test.cl
+test/good.cl
+test/bad.cl
+test/let_error.cl
+test/prec_error.cl
+
+The above test input files covers all the cases we can conceive of. Our 
+implementation behaves the same (aside from the line numbers) as the reference 
+under no parser error condition. With parser error, our implementation fails to 
+catch as many errors as the reference in some corner cases with let and block 
+construct. In the case when error spans over multiple line, our implementation
+might produce the error message on a different token of the same error.

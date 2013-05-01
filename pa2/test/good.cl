@@ -80,6 +80,9 @@ class E {
 			let d : Bool in "let";			
 			
 			let a : Int <- (let b : Int <- 10 in 10) in 20;
+			
+			let a : Int <- 0, a : Int <-1 in
+			let a : Int <- 2, a : Int <- let a : Int <- 3 in a, a : Int <- 4 in a;
 
 		}
 	};

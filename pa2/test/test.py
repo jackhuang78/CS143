@@ -3,6 +3,9 @@
 import os, sys, re
 
 print '\n>>> CS143 PA2 Testing Script <<<'
+
+os.system('cd .. && make && cd test')
+
 for arg in sys.argv[1:]:
 
 	# initialization

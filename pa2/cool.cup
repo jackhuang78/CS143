@@ -67,17 +67,13 @@ terminal AbstractSymbol TYPEID, OBJECTID;
 nonterminal programc program;
 nonterminal Classes class_list;
 nonterminal class_c class;
-nonterminal Features feature_list, let_list;
+nonterminal Features feature_list;
 nonterminal Feature feature;
 nonterminal Formals formal_list;
 nonterminal formalc formal;
-nonterminal Expressions expr_list_empty;
 nonterminal Expressions expr_list_geq1;
 nonterminal Expressions expr_list_comma;
-nonterminal Expressions expr_list_darrow;
-nonterminal Expressions expr_list_assign;
 nonterminal Expression expr;
-nonterminal typcase case;
 nonterminal Cases casebr_list;
 nonterminal branch casebr;
 nonterminal let letbr;
@@ -93,6 +89,8 @@ precedence left ISVOID;
 precedence left NEG;
 precedence left AT;
 precedence left DOT;
+precedence left COMMA;
+precedence left SEMI;
 
 
 /* Grammars below */
@@ -159,16 +157,6 @@ feature
 	|	OBJECTID:obj LPAREN formal_list:fl RPAREN COLON TYPEID:type LBRACE expr:e RBRACE
 		{: RESULT = new method(curr_lineno(), obj, fl, type, e); :}
 
-/*
-	// method without argument error case
-	|	OBJECTID:obj LPAREN RPAREN COLON TYPEID:type LBRACE error RBRACE
-		{:  :}
-		
-	// method with arguments error case
-	|	OBJECTID:obj LPAREN formal_list:fl RPAREN COLON TYPEID:type LBRACE error RBRACE
-		{:  :}
-*/
-		
 	;
 
 /* one or more formals */	
@@ -228,11 +216,8 @@ letbr
 		
 	|	OBJECTID:obj COLON TYPEID:type ASSIGN expr:init COMMA letbr:l	
 		{: RESULT = new let(curr_lineno(), obj, type, init, l); :}
-
+		
 	|	error COMMA letbr:l	
-		{: RESULT = l; :}
-
-	|	error letbr:l	
 		{: RESULT = l; :}
 	
 	;
