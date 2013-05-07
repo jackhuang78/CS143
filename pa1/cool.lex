@@ -251,7 +251,7 @@ OBJECTNAME = [a-z][A-Za-z0-9_]*
 	return new Symbol(TokenConstants.ERROR, "String contains null character.");
 }
 
-<STRING> \n|\r|\x0d {
+<STRING> \n {
 	// newline char before closing quote or backslash
 	this.curr_lineno += 1;
 	yybegin(YYINITIAL);
