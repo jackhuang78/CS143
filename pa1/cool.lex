@@ -110,7 +110,7 @@ INTEGER = [0-9]+
 VTRUE = t(R|r)(U|u)(E|e)
 VFALSE = f(A|a)(L|l)(S|s)(E|e)
 NEWLINE = \n
-WHITESPACES = [\b\t\f\r\v ]+
+WHITESPACES = [\b\t\f\r ]+
 CLASSNAME = ([A-Z][A-Za-z0-9_]*)|(SELF_TYPE)
 OBJECTNAME = [a-z][A-Za-z0-9_]*
 
@@ -260,11 +260,8 @@ OBJECTNAME = [a-z][A-Za-z0-9_]*
 
 
 <STRING> .|\\.	 {
-
 	// match all single character
 	// or all escaped characters that need special action
-
-//	System.out.println(yytext());
 
 	if(yytext().length() == 1) {
 		// all single character
