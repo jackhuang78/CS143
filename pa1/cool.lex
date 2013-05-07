@@ -110,30 +110,30 @@ INTEGER = [0-9]+
 VTRUE = t(R|r)(U|u)(E|e)
 VFALSE = f(A|a)(L|l)(S|s)(E|e)
 NEWLINE = \n
-WHITESPACES = [\b\t\f\r ]+
+WHITESPACES = [\b\t\f\r\v ]+
 CLASSNAME = ([A-Z][A-Za-z0-9_]*)|(SELF_TYPE)
 OBJECTNAME = [a-z][A-Za-z0-9_]*
 
 
 %%
 
-<YYINITIAL> "class"		{ return new Symbol(TokenConstants.CLASS);}
-<YYINITIAL> "else"		{ return new Symbol(TokenConstants.ELSE);}
-<YYINITIAL> "fi"		{ return new Symbol(TokenConstants.FI);}
-<YYINITIAL> "if"		{ return new Symbol(TokenConstants.IF);}
-<YYINITIAL> "in"		{ return new Symbol(TokenConstants.IN);}
-<YYINITIAL> "inherits"	{ return new Symbol(TokenConstants.INHERITS);}
-<YYINITIAL> "isvoid"	{ return new Symbol(TokenConstants.ISVOID);}
-<YYINITIAL> "let"		{ return new Symbol(TokenConstants.LET);}
-<YYINITIAL> "loop"		{ return new Symbol(TokenConstants.LOOP);}
-<YYINITIAL> "pool"		{ return new Symbol(TokenConstants.POOL);}
-<YYINITIAL> "then"		{ return new Symbol(TokenConstants.THEN);}
-<YYINITIAL> "while"		{ return new Symbol(TokenConstants.WHILE);}
-<YYINITIAL> "case"		{ return new Symbol(TokenConstants.CASE);}
-<YYINITIAL> "esac"		{ return new Symbol(TokenConstants.ESAC);}
-<YYINITIAL> "new"		{ return new Symbol(TokenConstants.NEW);}
-<YYINITIAL> "of"		{ return new Symbol(TokenConstants.OF);}
-<YYINITIAL> "not"		{ return new Symbol(TokenConstants.NOT);}
+<YYINITIAL> [cC][lL][aA][sS][sS]		{ return new Symbol(TokenConstants.CLASS);}
+<YYINITIAL> [eE][lL][sS][eE]		{ return new Symbol(TokenConstants.ELSE);}
+<YYINITIAL> [fF][iI]		{ return new Symbol(TokenConstants.FI);}
+<YYINITIAL> [iI][fF]		{ return new Symbol(TokenConstants.IF);}
+<YYINITIAL> [iI][nN]		{ return new Symbol(TokenConstants.IN);}
+<YYINITIAL> [iI][nN][hH][eE][rR][iI][tT][sS]	{ return new Symbol(TokenConstants.INHERITS);}
+<YYINITIAL> [iI][sS][vV][oO][iI][dD]	{ return new Symbol(TokenConstants.ISVOID);}
+<YYINITIAL> [lL][eE][tT]		{ return new Symbol(TokenConstants.LET);}
+<YYINITIAL> [lL][oO][oO][pP]		{ return new Symbol(TokenConstants.LOOP);}
+<YYINITIAL> [pP][oO][oO][lL]		{ return new Symbol(TokenConstants.POOL);}
+<YYINITIAL> [tT][hH][eE][nN]		{ return new Symbol(TokenConstants.THEN);}
+<YYINITIAL> [wW][hH][iI][lL][eE]		{ return new Symbol(TokenConstants.WHILE);}
+<YYINITIAL> [cC][aA][sS][eE]		{ return new Symbol(TokenConstants.CASE);}
+<YYINITIAL> [eE][sS][aA][cC]		{ return new Symbol(TokenConstants.ESAC);}
+<YYINITIAL> [nN][eE][wW]		{ return new Symbol(TokenConstants.NEW);}
+<YYINITIAL> [oO][fF]		{ return new Symbol(TokenConstants.OF);}
+<YYINITIAL> [nN][oO][tT]		{ return new Symbol(TokenConstants.NOT);}
 
 <YYINITIAL> {VTRUE} { 
 	return new Symbol(TokenConstants.BOOL_CONST, new Boolean(true));
@@ -251,7 +251,7 @@ OBJECTNAME = [a-z][A-Za-z0-9_]*
 	return new Symbol(TokenConstants.ERROR, "String contains null character.");
 }
 
-<STRING> \n {
+<STRING> \n|\r|\x0d {
 	// newline char before closing quote or backslash
 	this.curr_lineno += 1;
 	yybegin(YYINITIAL);
@@ -263,6 +263,8 @@ OBJECTNAME = [a-z][A-Za-z0-9_]*
 
 	// match all single character
 	// or all escaped characters that need special action
+
+//	System.out.println(yytext());
 
 	if(yytext().length() == 1) {
 		// all single character
@@ -295,7 +297,9 @@ OBJECTNAME = [a-z][A-Za-z0-9_]*
 }
 
 
-
+<ILLEGAL_STRING> \\\n  {
+	this.curr_lineno += 1;
+}
 <ILLEGAL_STRING> \n {
 	// the newline char in the unclosed illegal string
 	this.curr_lineno += 1;
