@@ -9,6 +9,7 @@
 import java.util.Enumeration;
 import java.io.PrintStream;
 import java.util.Vector;
+import java.util.*;
 
 
 /** Defines simple phylum Program */
@@ -265,9 +266,39 @@ class programc extends Program {
 	public void semant() {
 		/* ClassTable constructor may do some semantic analysis */
 		ClassTable classTable = new ClassTable(classes);
+
+
+		System.out.println("semant!");
 		
 		/* some semantic analysis code may go here */
-		System.out.println("semant!");
+		TypeTree typeTree = new TypeTree(AbstractTable.idtable.lookup("Object"));
+				
+		HashSet<class_c> classSet = new HashSet<class_c>();
+		for(int i = 0; i < classes.getLength(); i++)
+			classSet.add((class_c) classes.getNth(i));
+		
+		LinkedList<AbstractSymbol> queue = new LinkedList<AbstractSymbol>();
+		queue.addLast(AbstractTable.idtable.lookup("Object"));
+		
+		while(!queue.isEmpty()) {
+			AbstractSymbol parent = queue.removeFirst();
+			for(Iterator<class_c> itor = classSet.iterator(); itor.hasNext();) {
+				class_c c = itor.next();
+				if(c.getParent() == parent) {
+					typeTree.add(parent, c.getName());
+					queue.addLast(c.getName());
+					itor.remove();
+				}
+			}					
+		}
+		
+		System.out.println("TypeTree:");
+		System.out.println(typeTree);
+		
+		if(!classSet.isEmpty()) {
+			System.out.println("ERROR!!!! " + classSet.size());
+			//System.out.println(classSet);
+		}
 
 		if (classTable.errors()) {
 			System.err.println("Compilation halted due to static semantic errors.");
@@ -1402,6 +1433,92 @@ class object extends Expression {
 		dump_type(out, n);
 	}
 
+}
+
+class TypeTree {
+
+	private Node root;
+	public TypeTree(AbstractSymbol rootSym) {
+		root = new Node(rootSym);
+	}
+	
+	public boolean add(AbstractSymbol parent, AbstractSymbol child) {
+		ArrayList<Node> path = find(child);
+		if(!path.isEmpty())
+			return false;	// the chil we want to add already exists!
+	
+		path = find(parent);
+		if(path.isEmpty())
+			return false;	// the parent we want to add the child to does not exist
+	
+		path.get(path.size() - 1).children.add(new Node(child));		
+		return true;
+	}
+	
+	public ArrayList<AbstractSymbol> children(AbstractSymbol parent) {
+		return null;
+	}
+	
+	public AbstractSymbol lub(AbstractSymbol sym1, AbstractSymbol sym2) {
+		// TODO
+		return null;
+	}
+	
+	public boolean le(AbstractSymbol sym1, AbstractSymbol sym2) {
+		// TODO
+		return false;
+	} 
+	
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		toString(root, 0, sb);
+		return sb.toString();
+	}
+	private void toString(Node node, int lv, StringBuffer sb) {
+		for(int i = 0; i < lv; i++)
+			sb.append("\t");
+		sb.append(node.sym + "\n");
+		
+		for(Node n : node.children)
+			toString(n, lv + 1, sb);
+	}
+	
+	public ArrayList<Node> find(AbstractSymbol target) {
+		ArrayList<Node> path = new ArrayList<Node>();
+		dfs(root, target, path);	
+		return path;	
+	}
+	
+	private boolean dfs(Node node, AbstractSymbol target, ArrayList<Node> path) {
+		path.add(node);
+		if(node.sym == target)
+			return true;
+
+
+		for(Node n : node.children) {
+			if(dfs(n, target, path)) {
+				return true;
+			}
+		}
+		
+		path.remove(path.size() - 1);
+		return false;
+	}
+	
+	
+	
+	
+	
+	
+	private class Node {
+		public AbstractSymbol sym;
+		public ArrayList<Node> children;
+
+		public Node(AbstractSymbol sym) {	
+			this.sym = sym;
+			children = new ArrayList<Node>();
+		}
+	}
 }
 
 
