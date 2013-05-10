@@ -10,6 +10,9 @@ os.system('gmake semant')
 for arg in sys.argv[1:]:
 
 	print 'Input file: ' + arg
+	
+	print 'Remove previous output files...'
+	os.system('rm -f semant.out semant.err mysemant.out mysemant.err')
 
 	# run our implementation and the reference 
 	print 'Running reference...' 
@@ -19,11 +22,11 @@ for arg in sys.argv[1:]:
 	
 	print 'Running our implementation...'
 	#os.system('../mysemant ' + arg + ' > mysemant.out 2> mysemant.err')
-	os.system('./lexer ' + arg + 
+	os.system('./lexer ' + arg +
 		' | ./parser ' + arg + 
-		' | ./semant ' + arg)
+		' | ./semant ' + arg + ' > mysemant.out 2> mysemant.err')
 	
-	exit(0)
+
 	
 
 	# compare outputs
