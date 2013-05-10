@@ -1,0 +1,4 @@
+in_test_bad6.cl:23: Class F cannot inherit class Int.
+in_test_bad6.cl:19: Class E cannot inherit class String.
+in_test_bad6.cl:15: Class D cannot inherit class Bool.
+Compilation halted due to static semantic errors.

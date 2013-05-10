@@ -1,0 +1,10 @@
+"bad.cl", line 19: syntax error at or near OBJECTID = b
+"bad.cl", line 23: syntax error at or near OBJECTID = a
+"bad.cl", line 31: syntax error at or near OBJECTID = inherts
+"bad.cl", line 41: syntax error at or near OBJECTID = qwe
+"bad.cl", line 47: syntax error at or near ERROR = "["
+"bad.cl", line 48: syntax error at or near NEW
+"bad.cl", line 54: syntax error at or near ','
+"bad.cl", line 55: syntax error at or near OBJECTID = a
+"bad.cl", line 67: syntax error at or near OBJECTID = e
+Compilation halted due to lex and parse errors

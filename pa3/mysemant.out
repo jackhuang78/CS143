@@ -1,0 +1,53 @@
+semant!
+#1
+_program
+  #1
+  _class
+    C
+    Main
+    "in_test_bad6.cl"
+    (
+    )
+  #5
+  _class
+    Main
+    Object
+    "in_test_bad6.cl"
+    (
+    #6
+    _method
+      main
+      C
+      #7
+      _new
+        C
+      : _no_type
+    )
+  #11
+  _class
+    Def
+    Object
+    "in_test_bad6.cl"
+    (
+    )
+  #15
+  _class
+    D
+    Bool
+    "in_test_bad6.cl"
+    (
+    )
+  #19
+  _class
+    E
+    String
+    "in_test_bad6.cl"
+    (
+    )
+  #23
+  _class
+    F
+    Int
+    "in_test_bad6.cl"
+    (
+    )
