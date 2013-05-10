@@ -5,49 +5,63 @@ _program
   _class
     C
     Main
-    "in_test_bad6.cl"
+    "in_test_good.cl"
     (
     )
   #5
   _class
     Main
     Object
-    "in_test_bad6.cl"
+    "in_test_good.cl"
     (
     #6
+    _attr
+      a
+      Int
+      #0
+      _no_expr
+      C
+    #7
+    _attr
+      b
+      Bool
+      #0
+      _no_expr
+      C
+    #8
     _method
       main
       C
-      #7
+      #9
       _new
         C
-      : _no_type
+      C
     )
-  #11
+  #13
   _class
     Def
     Object
-    "in_test_bad6.cl"
+    "in_test_good.cl"
     (
     )
-  #15
+  #17
   _class
     D
-    Bool
-    "in_test_bad6.cl"
+    Def
+    "in_test_good.cl"
     (
     )
-  #19
+  #21
   _class
-    E
-    String
-    "in_test_bad6.cl"
+    X
+    D
+    "in_test_good.cl"
     (
     )
-  #23
+  #25
   _class
-    F
-    Int
-    "in_test_bad6.cl"
+    S
+    Object
+    "in_test_good.cl"
     (
     )

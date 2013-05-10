@@ -24,7 +24,4 @@ Class S inherits Object{
 
 };
 
-Class Int inherits S{
-
-};
 

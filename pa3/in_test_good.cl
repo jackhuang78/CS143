@@ -3,6 +3,8 @@ class C inherits Main{
 };
 
 Class Main {
+	a : Int;
+	b : Bool;
 	main():C {
 		new C
 	};

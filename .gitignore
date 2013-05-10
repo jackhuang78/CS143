@@ -1,5 +1,7 @@
 *.class
-
+*.err
+*.out
+*~
 # Package Files #
 *.jar
 *.war
