@@ -16,8 +16,6 @@ Class D {
 
 };
 
-
-
 Class Def inherits D{
 
 };

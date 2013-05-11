@@ -11,6 +11,7 @@ class ClassTable {
 	// PA3
 	private Node treeRoot;
 	private Map<AbstractSymbol, Node> nodeMap;
+	private class_c curClass;
 
 	/** Creates data structures representing basic Cool classes (Object,
 	 * IO, Int, Bool, String).  Please note: as is this method does not
@@ -174,15 +175,12 @@ class ClassTable {
 		 
 		// PA3
 		treeRoot = new Node(Object_class);
-		addNode(treeRoot, Int_class);
-		addNode(treeRoot, Bool_class);
-		addNode(treeRoot, Str_class);
-		addNode(treeRoot, IO_class);
-		
- 		
- 		
-
-	
+		nodeMap = new HashMap<AbstractSymbol, Node>();
+		nodeMap.put(Int_class.getName(), add(treeRoot, Int_class));
+		nodeMap.put(Bool_class.getName(), add(treeRoot, Bool_class));
+		nodeMap.put(Str_class.getName(), add(treeRoot, Str_class));
+		nodeMap.put(IO_class.getName(), add(treeRoot, IO_class));
+		curClass = null;
 	}
 		
 
@@ -192,32 +190,54 @@ class ClassTable {
 		errorStream = System.err;
 		
 		/* fill this in */
-		installBasicClasses();
 		
-		if(Flags.semant_debug)
+		// initalizatoin
+		installBasicClasses();
+		if(Flags.semant_debug) {
 			System.out.println(this);
+			System.out.println(nodeMap);
+		}
+		
+		// add classes into tree
+		for(int i = 0; i < cls.getLength(); i++) {
+			class_c c = (class_c)cls.getNth(i);
+			if(nodeMap.containsKey(c.getName()))
+				semantError(c).println("Class " + c.getName() + " was previously defined.");
+			else
+				nodeMap.put(c.getName(), add(treeRoot, c));
+
+		}
+		
+		if(Flags.semant_debug) {
+			System.out.println(this);
+			System.out.println(nodeMap);
+		}
+			
 	}
 	
-	private boolean addNode(Node n, class_c c) {
+	private Node add(Node n, class_c c) {
 	
 		// if the parent of c is this in n, add c as n's child
-		// and return success
 		if(n.value.getName() == c.getParent()) {
-			n.children.add(new Node(c));
-			return true;
+			Node child = new Node(c);
+			n.children.add(child);
+			return child;
 			
 		} else {
 		
-			// else, if we can successfully add c to any of n's child,
-			// return success
-			for(Node child : n.children) 
-				if(addNode(child, c))
-					return true;
+			// else, if we can successfully add c to any of n's child
+			for(Node child : n.children) {
+				Node newNode = add(child, c);
+				if(newNode != null)
+					return newNode;
+			}
 		
-			// else, return failure
-			return false;
+			// else, add fail and return null
+			return null;
 		}
 	}
+	
+
 	
 	public String toString() {
 		return nodeToString(treeRoot, 0, new StringBuffer()).toString();
@@ -226,7 +246,7 @@ class ClassTable {
 	private StringBuffer nodeToString(Node node, int lv, StringBuffer sb) {
 		for(int i = 0; i < lv; i++)
 			sb.append("\t");
-		sb.append("|--- ");
+		sb.append("|------ ");
 		
 		sb.append(node.value.getName() + "\n");
 		
@@ -236,22 +256,77 @@ class ClassTable {
 		return sb;
 	}
 	
+	private LinkedList<AbstractSymbol> path(Node node, AbstractSymbol target, LinkedList<AbstractSymbol> list) {
+		list.addLast(node.value.getName());
+		if(node.value.getName() == target) {
+			return list;
+			
+		} else {
+			for(Node child : node.children) {
+				if(path(child, target, list) != null)
+					return list;				
+			} 
+			
+			list.removeLast();
+			return null;			
+		}
+	}
+	
 	
 	public AbstractSymbol lub(AbstractSymbol t1, AbstractSymbol t2) {
-		// TODO
-		return AbstractTable.idtable.lookup("Object");
+		if(!nodeMap.containsKey(t1) || !nodeMap.containsKey(t2))
+			return null;
+			
+		LinkedList<AbstractSymbol> p1 = path(treeRoot, t1, new LinkedList<AbstractSymbol>());
+		LinkedList<AbstractSymbol> p2 = path(treeRoot, t2, new LinkedList<AbstractSymbol>());		
+		
+		AbstractSymbol common = p1.removeFirst();
+		while(!p1.isEmpty() && p2.contains(p1.getFirst()))
+			common = p1.removeFirst();
+			
+			
+		return common;
 	}
 	
 	public boolean le(AbstractSymbol t1, AbstractSymbol t2) {
-		// TODO
-		return true;
+		if(!nodeMap.containsKey(t1) || !nodeMap.containsKey(t2))
+			return false;
+			
+		return path(treeRoot, t1, new LinkedList<AbstractSymbol>()).contains(t2);
 	}
 	
 	public List<AbstractSymbol> getFunctionParams(AbstractSymbol c, AbstractSymbol f) {
-		// TODO
+		if(!nodeMap.containsKey(c))
+			return null;
+		
+		List<AbstractSymbol> list = new ArrayList<AbstractSymbol>();
+		Features featList = nodeMap.get(c).value.getFeatures();
+		for(int i = 0; i < featList.getLength(); i++) {
+			Feature feat = (Feature)featList.getNth(i);
+			if(feat instanceof method) {
+				method meth = (method)feat;
+				if(meth.getName() == f) {
+					Formals formList = meth.getFormals();
+					for(int j = 0; j < formList.getLength(); j++)
+						list.add(((formalc)formList.getNth(i)).getType());
+					list.add(meth.getRet());
+					return list;
+				}
+			}
+		}
+		
+			
 		return null;
 	}
-
+	
+	public void setCurrentClass(class_c c) {
+		curClass = c;
+	}
+	
+	public class_c getCurrentClass() {
+		return curClass;
+	}
+	
 	/** Prints line number and file name of the given class.
 	 *
 	 * Also increments semantic error count.
@@ -303,6 +378,9 @@ class ClassTable {
 		public Node(class_c value) {
 			this.value = value;
 			children = new ArrayList<Node>();
+		}
+		public String toString() {
+			return "<" + value.getName() + " | " + value.getParent() + ">";
 		}
 	}
 }
