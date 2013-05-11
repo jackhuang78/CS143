@@ -390,6 +390,7 @@ class method extends Feature {
 	// PA3
 	public AbstractSymbol getName() { return name; }
 	public Formals getFormals() { return formals; }
+	public AbstractSymbol getRet() { return return_type; }
 
 
 }

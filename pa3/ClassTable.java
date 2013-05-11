@@ -301,8 +301,19 @@ class ClassTable {
 		
 		List<AbstractSymbol> list = new ArrayList<AbstractSymbol>();
 		Features featList = nodeMap.get(c).value.getFeatures();
-		//for(int i = 0; i < featList.getLength(); i++)
-		//	Feature feat = featList.getNth().
+		for(int i = 0; i < featList.getLength(); i++) {
+			Feature feat = (Feature)featList.getNth(i);
+			if(feat instanceof method) {
+				method meth = (method)feat;
+				if(meth.getName() == f) {
+					Formals formList = meth.getFormals();
+					for(int j = 0; j < formList.getLength(); j++)
+						list.add(((formalc)formList.getNth(i)).getType());
+					list.add(meth.getRet());
+					return list;
+				}
+			}
+		}
 		
 			
 		return null;
