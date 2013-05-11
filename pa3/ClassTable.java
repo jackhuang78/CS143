@@ -11,6 +11,7 @@ class ClassTable {
 	// PA3
 	private Node treeRoot;
 	private Map<AbstractSymbol, Node> nodeMap;
+	private class_c curClass;
 
 	/** Creates data structures representing basic Cool classes (Object,
 	 * IO, Int, Bool, String).  Please note: as is this method does not
@@ -179,6 +180,7 @@ class ClassTable {
 		nodeMap.put(Bool_class.getName(), add(treeRoot, Bool_class));
 		nodeMap.put(Str_class.getName(), add(treeRoot, Str_class));
 		nodeMap.put(IO_class.getName(), add(treeRoot, IO_class));
+		curClass = null;
 	}
 		
 
@@ -287,15 +289,33 @@ class ClassTable {
 	}
 	
 	public boolean le(AbstractSymbol t1, AbstractSymbol t2) {
-		// TODO
-		return true;
+		if(!nodeMap.containsKey(t1) || !nodeMap.containsKey(t2))
+			return false;
+			
+		return path(treeRoot, t1, new LinkedList<AbstractSymbol>()).contains(t2);
 	}
 	
 	public List<AbstractSymbol> getFunctionParams(AbstractSymbol c, AbstractSymbol f) {
-		// TODO
+		if(!nodeMap.containsKey(c))
+			return null;
+		
+		List<AbstractSymbol> list = new ArrayList<AbstractSymbol>();
+		Features featList = nodeMap.get(c).value.getFeatures();
+		//for(int i = 0; i < featList.getLength(); i++)
+		//	Feature feat = featList.getNth().
+		
+			
 		return null;
 	}
-
+	
+	public void setCurrentClass(class_c c) {
+		curClass = c;
+	}
+	
+	public class_c getCurrentClass() {
+		return curClass;
+	}
+	
 	/** Prints line number and file name of the given class.
 	 *
 	 * Also increments semantic error count.
