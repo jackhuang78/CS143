@@ -315,15 +315,11 @@ class class_c extends Class_ {
 		features.dump(out, n+2);
 		dump_AbstractSymbol(out, n+2, filename);
 	}
-	
-	
 
 	
 	public AbstractSymbol getFilename() { return filename; }
 	public AbstractSymbol getName()	 { return name; }
 	public AbstractSymbol getParent()   { return parent; }
-	// PA3
-	public Features getFeatures() { return features; }
 
 	public void dump_with_types(PrintStream out, int n) {
 		dump_line(out, n);
@@ -387,12 +383,6 @@ class method extends Feature {
 		dump_AbstractSymbol(out, n + 2, return_type);
 		expr.dump_with_types(out, n + 2);
 	}
-	
-	// PA3
-	public AbstractSymbol getName() { return name; }
-	public Formals getFormals() { return formals; }
-	public AbstractSymbol getRet() { return return_type; }
-
 
 }
 
@@ -472,8 +462,6 @@ class formalc extends Formal {
 		dump_AbstractSymbol(out, n + 2, name);
 		dump_AbstractSymbol(out, n + 2, type_decl);
 	}
-	
-	public AbstractSymbol getType() { return type_decl; }
 
 }
 
@@ -600,7 +588,7 @@ class static_dispatch extends Expression {
 	                    if (Flags.semant_debug){
 	                        System.out.println("[143 debug] Invalid type for parameter " + i + " as type:" + curType);
 	                    }
-	                    class_table.semantError(class_table.getCurrentClass().getFilename(),this).println(Invalid type for parameter " + i + " as type:" + curType");
+	                    class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("Invalid type for parameter " + i + " as type:" + "curType");
 	                    ret = false;
 	                }
 	            }else{
@@ -1144,7 +1132,7 @@ class divide extends Expression {
 class neg extends Expression {
 	protected Expression e1;
 	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
-		if ((e1.check_types(class_table,symbol_table)) && e1.get_type() && (e1.get_type() != TreeConstants.Int)){
+		if ((e1.check_types(class_table,symbol_table)) && (e1.get_type() != TreeConstants.Int)){
 	        if (Flags.semant_debug){
 	            System.out.println("[143 debug] Assigning type " + e1.get_type() + " to Int");
 	        }
