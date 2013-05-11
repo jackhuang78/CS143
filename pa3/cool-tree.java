@@ -334,6 +334,9 @@ class class_c extends Class_ {
 		}
 		out.println(Utilities.pad(n + 2) + ")");
 	}
+	
+	// PA3
+	public Features getFeatures() { return features; }
 
 }
 
@@ -383,6 +386,11 @@ class method extends Feature {
 		dump_AbstractSymbol(out, n + 2, return_type);
 		expr.dump_with_types(out, n + 2);
 	}
+	
+	// PA3
+	public AbstractSymbol getName() { return name; }
+	public Formals getFormals() { return formals; }
+	public AbstractSymbol getRet() { return return_type; }
 
 }
 
@@ -462,6 +470,9 @@ class formalc extends Formal {
 		dump_AbstractSymbol(out, n + 2, name);
 		dump_AbstractSymbol(out, n + 2, type_decl);
 	}
+	
+	// PA3
+	public AbstractSymbol getType() { return type_decl; }
 
 }
 
