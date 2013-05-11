@@ -1,67 +1,93 @@
-semant!
+|--- Object
+	|--- Int
+	|--- Bool
+	|--- String
+	|--- IO
+
 #1
 _program
   #1
   _class
     C
-    Main
-    "in_test_good.cl"
-    (
-    )
-  #5
-  _class
-    Main
     Object
-    "in_test_good.cl"
+    "good.cl"
     (
-    #6
+    #2
     _attr
       a
       Int
       #0
       _no_expr
-      C
-    #7
+      : _no_type
+    #3
     _attr
       b
       Bool
       #0
       _no_expr
-      C
-    #8
+      : _no_type
+    #4
     _method
-      main
+      init
+      #4
+      _formal
+        x
+        Int
+      #4
+      _formal
+        y
+        Bool
       C
-      #9
-      _new
-        C
-      C
+      #5
+      _block
+        #6
+        _assign
+          a
+          #6
+          _object
+            x
+          : _no_type
+        : _no_type
+        #7
+        _assign
+          b
+          #7
+          _object
+            y
+          : _no_type
+        : _no_type
+        #8
+        _object
+          self
+        : _no_type
+      : _no_type
     )
   #13
   _class
-    Def
+    Main
     Object
-    "in_test_good.cl"
+    "good.cl"
     (
-    )
-  #17
-  _class
-    D
-    Def
-    "in_test_good.cl"
-    (
-    )
-  #21
-  _class
-    X
-    D
-    "in_test_good.cl"
-    (
-    )
-  #25
-  _class
-    S
-    Object
-    "in_test_good.cl"
-    (
+    #14
+    _method
+      main
+      C
+      #15
+      _dispatch
+        #15
+        _new
+          C
+        : _no_type
+        init
+        (
+        #15
+        _int
+          1
+        : _no_type
+        #15
+        _bool
+          1
+        : _no_type
+        )
+      : _no_type
     )

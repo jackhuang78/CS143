@@ -23,8 +23,8 @@ for arg in sys.argv[1:]:
 	print 'Running our implementation...'
 	#os.system('../mysemant ' + arg + ' > mysemant.out 2> mysemant.err')
 	os.system('./lexer ' + arg +
-		' | ./parser ' + arg + 
-		' | ./semant ' + arg + ' > mysemant.out 2> mysemant.err')
+		' | ./parser '
+		' | ./semant -s > mysemant.out 2> mysemant.err')
 	
 
 	

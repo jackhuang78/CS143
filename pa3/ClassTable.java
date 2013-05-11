@@ -1,4 +1,5 @@
 import java.io.PrintStream;
+import java.util.*;
 
 /** This class may be used to contain the semantic information such as
  * the inheritance graph.  You may use it or not as you like: it is only
@@ -6,6 +7,10 @@ import java.io.PrintStream;
 class ClassTable {
 	private int semantErrors;
 	private PrintStream errorStream;
+	
+	// PA3
+	private Node treeRoot;
+	private Map<AbstractSymbol, Node> nodeMap;
 
 	/** Creates data structures representing basic Cool classes (Object,
 	 * IO, Int, Bool, String).  Please note: as is this method does not
@@ -166,7 +171,18 @@ class ClassTable {
 
 		/* Do somethind with Object_class, IO_class, Int_class,
 		   Bool_class, and Str_class here */
+		 
+		// PA3
+		treeRoot = new Node(Object_class);
+		addNode(treeRoot, Int_class);
+		addNode(treeRoot, Bool_class);
+		addNode(treeRoot, Str_class);
+		addNode(treeRoot, IO_class);
+		
+ 		
+ 		
 
+	
 	}
 		
 
@@ -176,6 +192,64 @@ class ClassTable {
 		errorStream = System.err;
 		
 		/* fill this in */
+		installBasicClasses();
+		
+		if(Flags.semant_debug)
+			System.out.println(this);
+	}
+	
+	private boolean addNode(Node n, class_c c) {
+	
+		// if the parent of c is this in n, add c as n's child
+		// and return success
+		if(n.value.getName() == c.getParent()) {
+			n.children.add(new Node(c));
+			return true;
+			
+		} else {
+		
+			// else, if we can successfully add c to any of n's child,
+			// return success
+			for(Node child : n.children) 
+				if(addNode(child, c))
+					return true;
+		
+			// else, return failure
+			return false;
+		}
+	}
+	
+	public String toString() {
+		return nodeToString(treeRoot, 0, new StringBuffer()).toString();
+	}
+	
+	private StringBuffer nodeToString(Node node, int lv, StringBuffer sb) {
+		for(int i = 0; i < lv; i++)
+			sb.append("\t");
+		sb.append("|--- ");
+		
+		sb.append(node.value.getName() + "\n");
+		
+		for(Node n : node.children)
+			nodeToString(n, lv + 1, sb);
+		
+		return sb;
+	}
+	
+	
+	public AbstractSymbol lub(AbstractSymbol t1, AbstractSymbol t2) {
+		// TODO
+		return AbstractTable.idtable.lookup("Object");
+	}
+	
+	public boolean le(AbstractSymbol t1, AbstractSymbol t2) {
+		// TODO
+		return true;
+	}
+	
+	public List<AbstractSymbol> getFunctionParams(AbstractSymbol c, AbstractSymbol f) {
+		// TODO
+		return null;
 	}
 
 	/** Prints line number and file name of the given class.
@@ -221,6 +295,15 @@ class ClassTable {
 	/** Returns true if there are any static semantic errors. */
 	public boolean errors() {
 		return semantErrors != 0;
+	}
+	
+	private static class Node {
+		public class_c value;
+		public List<Node> children;
+		public Node(class_c value) {
+			this.value = value;
+			children = new ArrayList<Node>();
+		}
 	}
 }
 						  

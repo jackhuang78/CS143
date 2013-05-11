@@ -10,10 +10,12 @@ Class F inherits E{
 
 };
 
-Class Main inherits F{
+Class Main inherits G{
 	main():C {
-		SELF_TYPE
+		new C
 	};
 };
+
+
 
 
