@@ -2,6 +2,7 @@
 *.err
 *.out
 *~
+semant
 # Package Files #
 *.jar
 *.war
