@@ -16,6 +16,8 @@ Class Main inherits F{
 	};
 };
 
+Class G inherits F {
+};
 
 
 

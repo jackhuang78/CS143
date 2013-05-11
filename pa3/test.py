@@ -7,7 +7,12 @@ print '\n>>> CS143 PA3 Testing Script <<<'
 print 'Building semant...'
 os.system('gmake semant')
 
+debug=''
 for arg in sys.argv[1:]:
+
+	if arg == '-s':
+		debug = arg
+		continue
 
 	print 'Input file: ' + arg
 	
@@ -24,7 +29,7 @@ for arg in sys.argv[1:]:
 	#os.system('../mysemant ' + arg + ' > mysemant.out 2> mysemant.err')
 	os.system('./lexer ' + arg +
 		' | ./parser '
-		' | ./semant -s > mysemant.out 2> mysemant.err')
+		' | ./semant %s > mysemant.out 2> mysemant.err' % debug)
 	
 
 	

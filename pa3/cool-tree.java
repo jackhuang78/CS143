@@ -314,6 +314,8 @@ class class_c extends Class_ {
 		features.dump(out, n+2);
 		dump_AbstractSymbol(out, n+2, filename);
 	}
+	
+	
 
 	
 	public AbstractSymbol getFilename() { return filename; }
