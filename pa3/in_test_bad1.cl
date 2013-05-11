@@ -8,16 +8,20 @@ Class Main {
 	};
 };
 
+Class D inherits Def{
+
+};
+
 Class D {
 
 };
 
-Class Def{
+
+
+Class Def inherits D{
 
 };
 
-Class D inherits Def{
 
-};
 
 

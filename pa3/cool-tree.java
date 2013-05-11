@@ -9,6 +9,7 @@
 import java.util.Enumeration;
 import java.io.PrintStream;
 import java.util.Vector;
+import java.util.*;
 
 
 /** Defines simple phylum Program */
@@ -266,9 +267,11 @@ class programc extends Program {
 	public void semant() {
 		/* ClassTable constructor may do some semantic analysis */
 		ClassTable classTable = new ClassTable(classes);
-		
+
+
 		/* some semantic analysis code may go here */
-		System.out.println("semant!");
+		//System.out.println("Semant!");
+				
 
 		if (classTable.errors()) {
 			System.err.println("Compilation halted due to static semantic errors.");
@@ -555,7 +558,7 @@ class static_dispatch extends Expression {
 	protected AbstractSymbol name;
 	protected Expressions actual;
 	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
-		boolean ret = expr.check_types(symbol_table);
+		boolean ret = expr.check_types(class_table,symbol_table);
 	    if (ret){
 	        AbstractSymbol t0 = expr.get_type(); 
 	        ret = ret && class_table.le(type_name, t0);
@@ -572,7 +575,7 @@ class static_dispatch extends Expression {
 	        }
 	        boolean paramsTypeChecked = false;
 	        for (int i = 0; i< actual.getLength()-1; i++){
-	            paramsTypeChecked = actual.getNth(i).check_types(symbol_table);
+	            paramsTypeChecked = actual.getNth(i).check_types(class_table,symbol_table);
 	            if (paramsTypeChecked){
 	                AbstractSymbol curType = actual.getNth(i).get_type();
 	                if (curType == TreeConstants.SELF_TYPE){
@@ -1515,6 +1518,5 @@ class object extends Expression {
 	}
 
 }
-
 
 
