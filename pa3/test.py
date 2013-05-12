@@ -92,6 +92,13 @@ for arg in sys.argv[1:]:
 		print '# REF_ONLY on'
 		ref = True
 		continue
+	elif arg == '-h':
+		print 'Usage: ./test.py [options] <file/dir> [<file/dir> ...]'
+		print 'Options:'
+		print '\t-h\tshow this message'
+		print '\t-s\tturn on debug flag'
+		print '\t-r\trun the reference only'
+		exit(0)
 	
 	# Check if needs to compile	
 	elif not ref and not built:
