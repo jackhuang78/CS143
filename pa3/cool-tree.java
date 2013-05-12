@@ -337,6 +337,7 @@ class class_c extends Class_ {
 	
 	// PA3
 	public Features getFeatures() { return features; }
+	public String toString() { return "<" + getName() + "|" + getParent() + ">";	}
 
 }
 
