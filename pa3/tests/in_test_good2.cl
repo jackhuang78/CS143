@@ -1,0 +1,10 @@
+class I inherits Main{};
+class F inherits IO{};
+class B inherits Object{};
+class D inherits B{};
+class E inherits IO{};
+class G inherits H{};
+class A{};
+class H inherits A{};
+class Main inherits D{main():Int{0};};
+class C inherits B{};
