@@ -527,6 +527,27 @@ class assign extends Expression {
 	protected AbstractSymbol name;
 	protected Expression expr;
 	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
+		boolean ret = true;
+		AbstractSymbol type = (AbstractSymbol) symbol_table.lookup(name);
+		AbstractSymbol objType = type;
+		if(type == null){
+			class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("variable:" + name + " do not have a type");
+			return false;
+			//TODO: if type is NULL, check niherited features to see if the type exist
+		}else{
+			objType = type;
+		}
+		if (ret && (expr.check_types(class_table,symbol_table))){
+			AbstractSymbol expType = expr.get_type();
+			if (class_table.le(objType, expType)){
+				set_type(expr.get_type());
+				return true;
+			}else{
+				set_type(TreeConstants.Object_);
+				class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("Object type:" + objType + " is not super type of " + expType);
+				return false;
+			}
+		}
 		return false;
 	}
 	/** Creates "assign" AST node. 
@@ -571,47 +592,41 @@ class static_dispatch extends Expression {
 	protected Expressions actual;
 	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
 		boolean ret = expr.check_types(class_table,symbol_table);
-	    if (ret){
-	        AbstractSymbol t0 = expr.get_type(); 
-	        ret = ret && class_table.le(type_name, t0);
-	        List<AbstractSymbol> typeList = class_table.getFunctionParams(type_name, name);
-	        if (typeList.size() == 0){
-	            if (Flags.semant_debug){
-	                System.out.println("[143 debug] static_dispatch: No types found for " + type_name + ":" + name);
-	            }
-	            class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("static_dispatch: No types found for " + type_name + ":" + "name");
-	            set_type(TreeConstants.Object_);
-	            return false;
-	        }else{
-	            AbstractSymbol functionRetType = typeList.get(typeList.size() -1);
-	            set_type(functionRetType == TreeConstants.SELF_TYPE ? t0 : functionRetType);
-	        }
-	        boolean paramsTypeChecked = false;
-	        for (int i = 0; i< actual.getLength()-1; i++){
-	            paramsTypeChecked = ((Expression) actual.getNth(i)).check_types(class_table,symbol_table);
-	            if (paramsTypeChecked){
-	                AbstractSymbol curType = ((Expression) actual.getNth(i)).get_type();
-	                if (curType == TreeConstants.SELF_TYPE){
-	                    //curType = symbol_table.lookup(TreeConstants.SELF_TYPE)); // TODO: is this current?
-	                }
-	                if (class_table.le(typeList.get(i), curType)){
-	                	// this is good
-	                }else{
-	                    if (Flags.semant_debug){
-	                        System.out.println("[143 debug] Invalid type for parameter " + i + " as type:" + curType);
-	                    }
-	                    class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("Invalid type for parameter " + i + " as type:" + "curType");
-	                    ret = false;
-	                }
-	            }else{
-	                ret = false;
-	            }
-	            ret = ret && paramsTypeChecked;
-	        }
-	    }else{
-	        return false;
-	    }
-	    return ret;
+		if (ret){
+			AbstractSymbol t0 = expr.get_type(); 
+			ret = ret && class_table.le(type_name, t0);
+			List<AbstractSymbol> typeList = class_table.getFunctionParams(type_name, name);
+			if (typeList.size() == 0){
+				class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("static_dispatch: No types found for " + type_name + ":" + "name");
+				set_type(TreeConstants.Object_);
+				return false;
+			}else{
+				AbstractSymbol functionRetType = typeList.get(typeList.size() -1);
+				set_type(functionRetType == TreeConstants.SELF_TYPE ? t0 : functionRetType);
+			}
+			boolean paramsTypeChecked = false;
+			for (int i = 0; i< actual.getLength()-1; i++){
+				paramsTypeChecked = ((Expression) actual.getNth(i)).check_types(class_table,symbol_table);
+				if (paramsTypeChecked){
+					AbstractSymbol curType = ((Expression) actual.getNth(i)).get_type();
+					if (curType == TreeConstants.SELF_TYPE){
+						curType = (AbstractSymbol)symbol_table.lookup(TreeConstants.SELF_TYPE); // TODO: is this current?
+					}
+					if (class_table.le(typeList.get(i), curType)){
+						// this is good
+					}else{
+						class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("Invalid type for parameter " + i + " as type:" + "curType");
+						ret = false;
+					}
+				}else{
+					ret = false;
+				}
+				ret = ret && paramsTypeChecked;
+			}
+		}else{
+			return false;
+		}
+		return ret;
 	}
 	/** Creates "static_dispatch" AST node. 
 	  *
@@ -665,7 +680,44 @@ class dispatch extends Expression {
 	protected AbstractSymbol name;
 	protected Expressions actual;
 	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
-		return false;
+		boolean ret = expr.check_types(class_table,symbol_table);
+		if (ret){
+			AbstractSymbol t0 = expr.get_type();
+			if(t0 == TreeConstants.SELF_TYPE){
+				t0 = (AbstractSymbol)symbol_table.lookup(TreeConstants.SELF_TYPE); // TODO: is this correct?
+			}
+			List<AbstractSymbol> typeList = class_table.getFunctionParams(t0, name);
+			if (typeList.size() == 0){
+				class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("dispatch: No types found for " + t0 + ":" + "name");
+				set_type(TreeConstants.Object_);
+				return false;
+			}else{
+				AbstractSymbol functionRetType = typeList.get(typeList.size() -1);
+				set_type(functionRetType == TreeConstants.SELF_TYPE ? t0 : functionRetType);
+			}
+			boolean paramsTypeChecked = false;
+			for (int i = 0; i< actual.getLength()-1; i++){
+				paramsTypeChecked = ((Expression) actual.getNth(i)).check_types(class_table,symbol_table);
+				if (paramsTypeChecked){
+					AbstractSymbol curType = ((Expression) actual.getNth(i)).get_type();
+					if (curType == TreeConstants.SELF_TYPE){
+						curType = (AbstractSymbol)symbol_table.lookup(TreeConstants.SELF_TYPE); // TODO: is this current?
+					}
+					if (class_table.le(typeList.get(i), curType)){
+						// this is good
+					}else{
+						class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("Invalid type for parameter " + i + " as type:" + "curType");
+						ret = false;
+					}
+				}else{
+					ret = false;
+				}
+				ret = ret && paramsTypeChecked;
+			}
+		}else{
+			return false;
+		}
+		return ret;
 	}
 	/** Creates "dispatch" AST node. 
 	  *
@@ -715,7 +767,22 @@ class cond extends Expression {
 	protected Expression then_exp;
 	protected Expression else_exp;
 	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
-		return false;
+		boolean ret = true;
+	    ret = ret && (pred.check_types(class_table,symbol_table));
+	    if ( ret && pred.get_type() == TreeConstants.Bool){
+	        ret = ret && then_exp.check_types(class_table,symbol_table);
+	        ret = ret && else_exp.check_types(class_table,symbol_table);
+	        AbstractSymbol t2 = then_exp.get_type();
+	        AbstractSymbol t3 = else_exp.get_type();
+	        AbstractSymbol selfType = (AbstractSymbol) symbol_table.lookup(TreeConstants.SELF_TYPE); // TODO: necesary?
+	        t2 = ((t2 == TreeConstants.SELF_TYPE) ? selfType : t2);
+	        t3 = ((t3 == TreeConstants.SELF_TYPE) ? selfType : t3);
+	        set_type(class_table.lub(t2, t3));
+	    }else{
+	    	class_table.semantError(class_table.getCurrentClass().getFilename(),this).println(" condition pred is not a boolean");
+	        set_type(TreeConstants.Object_);
+	    }
+	    return ret;
 	}
 	/** Creates "cond" AST node. 
 	  *
@@ -760,7 +827,19 @@ class loop extends Expression {
 	protected Expression pred;
 	protected Expression body;
 	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
-		return false;
+		set_type(TreeConstants.Object_);
+		if (pred.check_types(class_table,symbol_table)){
+			if (pred.get_type() != TreeConstants.Bool){
+				class_table.semantError(class_table.getCurrentClass().getFilename(),this).println(" loop predication is not bool, type = " + pred.get_type());
+				return false;
+			}
+		}else{
+			return false;
+		}
+		if (!(body.check_types(class_table,symbol_table))){
+			return false;
+		}
+		return true;
 	}
 	/** Creates "loop" AST node. 
 	  *
@@ -801,6 +880,7 @@ class typcase extends Expression {
 	protected Expression expr;
 	protected Cases cases;
 	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
+		//TODO
 		return false;
 	}
 	/** Creates "typcase" AST node. 
@@ -843,7 +923,14 @@ class typcase extends Expression {
 class block extends Expression {
 	protected Expressions body;
 	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
-		return false;
+		boolean ret = true;
+	    for (int i = 0; i< body.getLength()-1; i++){
+	        if (!((Expression) body.getNth(i)).check_types(class_table,symbol_table)){
+	            ret = false;
+	        }
+	    }
+	    set_type(((Expression) body.getNth(body.getLength()-1)).get_type());
+	    return ret;
 	}
 	/** Creates "block" AST node. 
 	  *
@@ -884,7 +971,8 @@ class let extends Expression {
 	protected Expression init;
 	protected Expression body;
 	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
-		return false;
+		
+	    return false;
 	}
 	/** Creates "let" AST node. 
 	  *
@@ -934,18 +1022,15 @@ class plus extends Expression {
 	protected Expression e2;
 	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
 		boolean ret = e1.check_types(class_table,symbol_table);
-	    ret = ret && e2.check_types(class_table,symbol_table);
-	    if ( (e1.get_type() != TreeConstants.Int) || (e2.get_type() != TreeConstants.Int)){
-	        if (Flags.semant_debug){
-	            System.out.println("[143 debug] Arith plus type" + e1.get_type() + " or " + e2.get_type() + " is not Int");
-	        }
-	        set_type(TreeConstants.Int);
-	        class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("Arith plus type" + e1.get_type() + " or " + e2.get_type() + " is not Int");
-	        return false;
-	    }else{
-	        set_type(TreeConstants.Int);
-	    }
-	    return ret;
+		ret = ret && e2.check_types(class_table,symbol_table);
+		if ( (e1.get_type() != TreeConstants.Int) || (e2.get_type() != TreeConstants.Int)){
+			set_type(TreeConstants.Int);
+			class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("Arith plus type" + e1.get_type() + " or " + e2.get_type() + " is not Int");
+			return false;
+		}else{
+			set_type(TreeConstants.Int);
+		}
+		return ret;
 	}
 	/** Creates "plus" AST node. 
 	  *
@@ -987,18 +1072,15 @@ class sub extends Expression {
 	protected Expression e2;
 	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
 		boolean ret = e1.check_types(class_table,symbol_table);
-	    ret = ret && e2.check_types(class_table,symbol_table);
-	    if ( (e1.get_type() != TreeConstants.Int) || (e2.get_type() != TreeConstants.Int)){
-	        if (Flags.semant_debug){
-	            System.out.println("[143 debug] Arith sub type " + e1.get_type() + " or " + e2.get_type() + " is not Int");
-	        }
-	        set_type(TreeConstants.Int);
-	        class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("Arith sub type" + e1.get_type() + " or " + e2.get_type() + " is not Int");
-	        return false;
-	    }else{
-	        set_type(TreeConstants.Int);
-	    }
-	    return ret;
+		ret = ret && e2.check_types(class_table,symbol_table);
+		if ( (e1.get_type() != TreeConstants.Int) || (e2.get_type() != TreeConstants.Int)){
+			set_type(TreeConstants.Int);
+			class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("Arith sub type" + e1.get_type() + " or " + e2.get_type() + " is not Int");
+			return false;
+		}else{
+			set_type(TreeConstants.Int);
+		}
+		return ret;
 	}
 	/** Creates "sub" AST node. 
 	  *
@@ -1040,18 +1122,15 @@ class mul extends Expression {
 	protected Expression e2;
 	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
 		boolean ret = e1.check_types(class_table,symbol_table);
-	    ret = ret && e2.check_types(class_table,symbol_table);
-	    if ( (e1.get_type() != TreeConstants.Int) || (e2.get_type() != TreeConstants.Int)){
-	        if (Flags.semant_debug){
-	            System.out.println("[143 debug] Arith mul type  " + e1.get_type() + " or " + e2.get_type() + " is not Int");
-	        }
-	        set_type(TreeConstants.Int);
-	        class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("Arith mul type " + e1.get_type() + " or " + e2.get_type() + " is not Int");
-	        return false;
-	    }else{
-	        set_type(TreeConstants.Int);
-	    }
-	    return ret;
+		ret = ret && e2.check_types(class_table,symbol_table);
+		if ( (e1.get_type() != TreeConstants.Int) || (e2.get_type() != TreeConstants.Int)){
+			set_type(TreeConstants.Int);
+			class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("Arith mul type " + e1.get_type() + " or " + e2.get_type() + " is not Int");
+			return false;
+		}else{
+			set_type(TreeConstants.Int);
+		}
+		return ret;
 	}
 	/** Creates "mul" AST node. 
 	  *
@@ -1093,18 +1172,15 @@ class divide extends Expression {
 	protected Expression e2;
 	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
 		boolean ret = e1.check_types(class_table,symbol_table);
-	    ret = ret && e2.check_types(class_table,symbol_table);
-	    if ( (e1.get_type() != TreeConstants.Int) || (e2.get_type() != TreeConstants.Int)){
-	        if (Flags.semant_debug){
-	            System.out.println("[143 debug] Arith divide type " + e1.get_type() + " or " + e2.get_type() + " is not Int");
-	        }
-	        set_type(TreeConstants.Int);
-	        class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("Arith divide type" + e1.get_type() + " or " + e2.get_type() + " is not Int");
-	        return false;
-	    }else{
-	        set_type(TreeConstants.Int);
-	    }
-	    return ret;
+		ret = ret && e2.check_types(class_table,symbol_table);
+		if ( (e1.get_type() != TreeConstants.Int) || (e2.get_type() != TreeConstants.Int)){
+			set_type(TreeConstants.Int);
+			class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("Arith divide type" + e1.get_type() + " or " + e2.get_type() + " is not Int");
+			return false;
+		}else{
+			set_type(TreeConstants.Int);
+		}
+		return ret;
 	}
 	/** Creates "divide" AST node. 
 	  *
@@ -1145,16 +1221,13 @@ class neg extends Expression {
 	protected Expression e1;
 	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
 		if ((e1.check_types(class_table,symbol_table)) && (e1.get_type() != TreeConstants.Int)){
-	        if (Flags.semant_debug){
-	            System.out.println("[143 debug] Assigning type " + e1.get_type() + " to Int");
-	        }
-	        class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("Assigning type " + e1.get_type() + " to Int");
-	        set_type(TreeConstants.Object_);
-	        return false;
-	    }else{
-	        set_type(TreeConstants.Int);
-	    }
-	    return true;
+			class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("Assigning type " + e1.get_type() + " to Int");
+			set_type(TreeConstants.Object_);
+			return false;
+		}else{
+			set_type(TreeConstants.Int);
+		}
+		return true;
 	}
 	/** Creates "neg" AST node. 
 	  *
@@ -1192,13 +1265,13 @@ class lt extends Expression {
 	protected Expression e2;
 	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
 		boolean ret = e1.check_types(class_table, symbol_table);
-	    ret = ret && e2.check_types(class_table, symbol_table);
-	    set_type(TreeConstants.Bool);
-	    if ((e1.get_type() != TreeConstants.Int) || (e2.get_type() != TreeConstants.Int)){
-	    	class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("lt: variables to compare must be int");
-	        return false;
-	    }
-	    return ret;
+		ret = ret && e2.check_types(class_table, symbol_table);
+		set_type(TreeConstants.Bool);
+		if ((e1.get_type() != TreeConstants.Int) || (e2.get_type() != TreeConstants.Int)){
+			class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("lt: variables to compare must be int");
+			return false;
+		}
+		return ret;
 	}
 	/** Creates "lt" AST node. 
 	  *
@@ -1239,7 +1312,15 @@ class eq extends Expression {
 	protected Expression e1;
 	protected Expression e2;
 	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
-		return false;
+		boolean ret = e1.check_types(class_table,symbol_table);
+		ret = ret && e2.check_types(class_table,symbol_table);
+		set_type(TreeConstants.Bool);
+		if ((e1.get_type() == TreeConstants.Int) || (e1.get_type() == TreeConstants.Bool) || (e1.get_type() == TreeConstants.Str) || (e2.get_type() == TreeConstants.Int) || (e2.get_type() == TreeConstants.Bool) || (e2.get_type() == TreeConstants.Str)){
+				ret = ret && (e1.get_type() == e2.get_type());
+		}else{
+			return ret;
+		}
+		return ret;
 	}
 	/** Creates "eq" AST node. 
 	  *
@@ -1281,13 +1362,13 @@ class leq extends Expression {
 	protected Expression e2;
 	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
 		boolean ret = e1.check_types(class_table, symbol_table);
-	    ret = ret && e2.check_types(class_table, symbol_table);
-	    set_type(TreeConstants.Bool);
-	    if ((e1.get_type() != TreeConstants.Int) || (e2.get_type() != TreeConstants.Int)){
-	    	class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("leq: variables to compare must be int");
-	        return false;
-	    }
-	    return ret;
+		ret = ret && e2.check_types(class_table, symbol_table);
+		set_type(TreeConstants.Bool);
+		if ((e1.get_type() != TreeConstants.Int) || (e2.get_type() != TreeConstants.Int)){
+			class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("leq: variables to compare must be int");
+			return false;
+		}
+		return ret;
 	}
 	/** Creates "leq" AST node. 
 	  *
@@ -1328,8 +1409,8 @@ class comp extends Expression {
 	protected Expression e1;
 	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
 		boolean ret = e1.check_types(class_table, symbol_table);
-	    set_type(e1.get_type());
-	    return ret;
+		set_type(e1.get_type());
+		return ret;
 	}
 	/** Creates "comp" AST node. 
 	  *
@@ -1365,7 +1446,8 @@ class comp extends Expression {
 class int_const extends Expression {
 	protected AbstractSymbol token;
 	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
-		return false;
+		set_type(TreeConstants.Int);
+		return true;
 	}
 	/** Creates "int_const" AST node. 
 	  *
@@ -1401,7 +1483,8 @@ class int_const extends Expression {
 class bool_const extends Expression {
 	protected Boolean val;
 	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
-		return false;
+		set_type(TreeConstants.Bool);
+		return true;
 	}
 	/** Creates "bool_const" AST node. 
 	  *
@@ -1437,7 +1520,8 @@ class bool_const extends Expression {
 class string_const extends Expression {
 	protected AbstractSymbol token;
 	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
-		return false;
+		set_type(TreeConstants.Str);
+		return true;
 	}
 	/** Creates "string_const" AST node. 
 	  *
@@ -1475,7 +1559,9 @@ class string_const extends Expression {
 class new_ extends Expression {
 	protected AbstractSymbol type_name;
 	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
-		return false;
+		//set_type((type_name == TreeConstants.SELF_TYPE)? ((AbstractSymbol)symbol_table.lookup(TreeConstants.SELF_TYPE)) : type_name); // TODO: which one is currect?
+		set_type(type_name);
+		return true;
 	}
 	/** Creates "new_" AST node. 
 	  *
@@ -1511,7 +1597,12 @@ class new_ extends Expression {
 class isvoid extends Expression {
 	protected Expression e1;
 	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
-		return false;
+		set_type(TreeConstants.Bool);
+		if (! (e1.check_types(class_table,symbol_table))){
+			class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("isvoid: variables must be of type boolean");
+			return false;
+		}
+		return true;
 	}
 	/** Creates "isvoid" AST node. 
 	  *
@@ -1546,7 +1637,8 @@ class isvoid extends Expression {
 	See <a href="TreeNode.html">TreeNode</a> for full documentation. */
 class no_expr extends Expression {
 	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
-		return false;
+		set_type(TreeConstants.No_type);
+    	return true;
 	}
 	/** Creates "no_expr" AST node. 
 	  *
@@ -1578,7 +1670,13 @@ class no_expr extends Expression {
 class object extends Expression {
 	protected AbstractSymbol name;
 	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
-		return false;
+		AbstractSymbol sym =  (AbstractSymbol) symbol_table.lookup(name);
+	    if (sym != null){
+	        set_type(sym);
+	    }else{
+	        //TODO: check if it's defined in parent attribute list
+	    }
+	    return true;
 	}
 	/** Creates "object" AST node. 
 	  *
