@@ -4,42 +4,121 @@ import os, sys, re
 
 print '\n>>> CS143 PA3 Testing Script <<<'
 
-print 'Building semant...'
-os.system('gmake semant')
+debug=''
+ref=False
+built=False
+num=0
 
-for arg in sys.argv[1:]:
+files=[]
+outs=[]
+errs=[]
 
-	print 'Input file: ' + arg
+def dotest(arg):
+	global num, debug, ref, built
+
+	if not re.match('.*\.cl$', arg):
+		return
+
+	# Input file
+	print '\n---\n# Input file #%d: %s' % (num, arg)
+	num += 1
+	files.append(arg)
 	
-	print 'Remove previous output files...'
-	os.system('rm -f semant.out semant.err mysemant.out mysemant.err')
+	if ref:
+		# Run reference only and output to console...
+		print '# Run reference only and output to console...'
+		os.system('/usr/class/cs143/bin/.coolref/lexer ' + arg + 
+			' | /usr/class/cs143/bin/.coolref/parser'
+			' | /usr/class/cs143/bin/.coolref/semant')
+		return
+		
+	# Remove previous output files...
+	print '# Remove previous output files...'
+	os.system('rm -f lexer.out parser.out semant.out semant.err mysemant.out mysemant.err')
 
-	# run our implementation and the reference 
-	print 'Running reference...' 
-	os.system('/usr/class/cs143/bin/.coolref/lexer ' + arg + 
-		' | /usr/class/cs143/bin/.coolref/parser'
+
+
+	# Running reference...
+	print '# Running reference...' 
+	os.system('/usr/class/cs143/bin/.coolref/lexer ' + arg + ' 2> lexer.err'
+		' | /usr/class/cs143/bin/.coolref/parser 2> parser.err'
 		' | /usr/class/cs143/bin/.coolref/semant > semant.out 2> semant.err')
 	
-	print 'Running our implementation...'
-	#os.system('../mysemant ' + arg + ' > mysemant.out 2> mysemant.err')
+	# Check for lexer/parser error
+	if os.path.getsize('lexer.err') > 0 or os.path.getsize('parser.err') > 0:
+		print 'Lexer/parser ERROR!'
+		outs.append('Lexer/parser ERROR')
+		errs.append('')
+		return
+		
+	
+	# Running our implementation...
+	print '# Running our implementation...'
 	os.system('./lexer ' + arg +
-		' | ./parser ' + arg + 
-		' | ./semant ' + arg + ' > mysemant.out 2> mysemant.err')
+		' | ./parser '
+		' | ./semant %s > mysemant.out 2> mysemant.err' % debug)
 	
 
-	
 
-	# compare outputs
-	print 'Compare output...'
+	# Compare outputs...
+	print '# Compare output...'
 	if os.system('diff semant.out mysemant.out') == 0:
+		outs.append('p')
 		print 'PASS'
 	else:
+		outs.append('FAIL')
+		print 'FAIL'
+		
+	# Compare errors...
+	print '# Compare errors...'
+	if os.system('diff semant.err mysemant.err') == 0:
+		errs.append('p')
+		print 'PASS'
+	else:
+		errs.append('FAIL')
 		print 'FAIL'
 	
-	print 'Compare error...'
-	if os.system('diff semant.err mysemant.err') == 0:
-		print 'PASS'
+
+for arg in sys.argv[1:]:
+	
+	# Check if debug mode
+	if arg == '-s':
+		print '# DEBUG on'
+		debug = '-s';
+		continue
+		
+	# Check if ref_only mode
+	elif arg == '-r':
+		print '# REF_ONLY on'
+		ref = True
+		continue
+	elif arg == '-h':
+		print 'Usage: ./test.py [options] <file/dir> [<file/dir> ...]'
+		print 'Options:'
+		print '\t-h\tshow this message'
+		print '\t-s\tturn on debug flag'
+		print '\t-r\trun the reference only'
+		exit(0)
+	
+	# Check if needs to compile	
+	elif not ref and not built:
+		print '# Building semant...'
+		if os.system('gmake semant') != 0:
+			print 'Build error! Aborting...'
+			exit(-1);
+		else:
+			built = True
+	
+	# Run tests
+	if not os.path.isdir(arg):
+		dotest(arg);
 	else:
-		print 'FAIL'
+		for f in sorted(os.listdir(arg)):
+			dotest(arg + '/' + f);
+	
+# Display test summary
+print '\n# Summary:\n%-20s\tstdout\tstderr' % 'File'
+for f, o, e in zip(files, outs, errs):
+	print '%-20s\t%s\t%s' % (f, o, e)
 	
 

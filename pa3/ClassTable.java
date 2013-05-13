@@ -1,4 +1,5 @@
 import java.io.PrintStream;
+import java.util.*;
 
 /** This class may be used to contain the semantic information such as
  * the inheritance graph.  You may use it or not as you like: it is only
@@ -6,6 +7,11 @@ import java.io.PrintStream;
 class ClassTable {
 	private int semantErrors;
 	private PrintStream errorStream;
+	
+	// PA3
+	private Node treeRoot;
+	private Map<AbstractSymbol, Node> nodeMap;
+	private class_c curClass;
 
 	/** Creates data structures representing basic Cool classes (Object,
 	 * IO, Int, Bool, String).  Please note: as is this method does not
@@ -166,18 +172,233 @@ class ClassTable {
 
 		/* Do somethind with Object_class, IO_class, Int_class,
 		   Bool_class, and Str_class here */
-
-	}
+		 
+		// PA3
+		treeRoot = new Node(Object_class, null);
+		nodeMap = new HashMap<AbstractSymbol, Node>();
+		nodeMap.put(Object_class.getName(), treeRoot);
+		nodeMap.put(Int_class.getName(), new Node(Int_class, treeRoot));
+		nodeMap.put(Bool_class.getName(), new Node(Bool_class, treeRoot));
+		nodeMap.put(Str_class.getName(), new Node(Str_class, treeRoot));
+		nodeMap.put(IO_class.getName(), new Node(IO_class, treeRoot));
+		curClass = null;
 		
+		if(Flags.semant_debug) {
+			System.out.println("\nInitial tree: \n" + this);
+			System.out.println("\nInitial map:\n" + nodeMap);
+		}
+	}
 
-
+		
+	/*
+		1. Obtain a list of classes
+		2. Check for Main and redefinition of basic classes
+		3. Partition the list into two lists:
+			- List A: classes that inherit Object, IO, or other user-defined classes
+			- List B: classes that inherit undefined classes or {Int, Bool, String}; report each class
+		5. Build classes in List A into tree:
+			- Using Object as root
+			- Using each class in List B as root
+		6. Whatever classes left in List A that's not built into a tree, report each as cyclic inheritance
+	*/
+	
 	public ClassTable(Classes cls) {
 		semantErrors = 0;
 		errorStream = System.err;
 		
-		/* fill this in */
-	}
+		
+		// PA3
+		// initalizatoin
+		installBasicClasses();
+				
+		// add classes into tree
+		List<class_c> classList = new ArrayList<class_c>();
+		for(int i = 0; i < cls.getLength(); i++)
+			classList.add((class_c)cls.getNth(i));
+		if(Flags.semant_debug)
+			System.out.println("\nclassList: \n" + classList);
+		
+			
+		// 1. check for redefinition
+		for(class_c c : classList) {
+			
+			if(c.getName() == TreeConstants.Object_)
+				semantError(c).println("Redefinition of basic class Object.");
+				
+			else if(c.getName() == TreeConstants.Int)
+				semantError(c).println("Redefinition of basic class Int.");
+				
+			else if(c.getName() == TreeConstants.Bool)
+				semantError(c).println("Redefinition of basic class Bool.");
+			
+			else if(c.getName() == TreeConstants.Str)
+				semantError(c).println("Redefinition of basic class String.");
+				
+			else if(c.getName() == TreeConstants.IO) 
+				semantError(c).println("Redefinition of basic class IO.");
 
+			else if(nodeMap.containsKey(c.getName()))
+				semantError(c).println("Class " + c.getName() + " was previously defined.");
+			
+			else
+				nodeMap.put(c.getName(), null);
+		}
+		
+		// 2. check for inheriting basic class and inheriting undefined class
+		for(int i = classList.size() - 1; i >= 0; i--) {
+			class_c c = classList.get(i);
+			if(c.getParent() == TreeConstants.Int)
+				semantError(c).println("Class " + c.getName() + " cannot inherit class Int.");
+			else if(c.getParent() == TreeConstants.Bool)
+				semantError(c).println("Class " + c.getName() + " cannot inherit class Bool.");
+			else if(c.getParent() == TreeConstants.Str)
+				semantError(c).println("Class " + c.getName() + " cannot inherit class String.");
+			else if(!nodeMap.containsKey(c.getParent()))
+				semantError(c).println("Class " + c.getName() + " inherits from an undefined class " + c.getParent() + ".");
+		
+		}
+		
+		// if there has been any error, stop here
+		if(errors())
+			return;
+		
+		/*
+			At this point, there is...
+			- no redefining basic or user-defined class
+			- no inheriting from String, Int, or Bool
+			- no inheriting from undefined class
+			
+			We can build the tree and check for cyclic inheritance.		
+		*/
+		boolean update = true;
+		while(update) {
+			update = false;
+			for(Iterator<class_c> itor = classList.iterator(); itor.hasNext(); ) {
+				class_c c = itor.next();
+				if(nodeMap.get(c.getParent()) != null) {
+					nodeMap.put(c.getName(), new Node(c, nodeMap.get(c.getParent())));
+					itor.remove();
+					update = true;
+				}
+			}
+		}
+		
+		//buildTree(treeRoot, classList);
+		
+		// 3. checck for cyclic inheritance
+		for(int i = classList.size() - 1; i >= 0; i--) {
+			class_c c = classList.get(i);
+			semantError(c).println(
+				"Class " + c.getName() + ", or an ancestor of " + 
+				c.getName() + ", is involved in an inheritance cycle.");
+		}
+		
+		
+		if(errors())
+			return;
+		
+		// 4. check for absence of class Main or method main
+		if(!nodeMap.containsKey(TreeConstants.Main))
+			semantError().println("Class Main is not defined.");
+		else if(!nodeMap.get(TreeConstants.Main).methods.containsKey(TreeConstants.main_meth))
+			semantError(nodeMap.get(TreeConstants.Main).value).println("No 'main' method in class Main.");
+		
+		if(Flags.semant_debug) {
+			System.out.println("\nFinal class tree: \n" + this);
+			System.out.println("\nFinal node map:\n" + nodeMap);
+			
+			/*
+			System.out.println("LUB: " + lub(lookup("G"), lookup("C")));
+			System.out.println("LUB: " + lub(lookup("I"), lookup("Main")));
+			System.out.println("LUB: " + lub(lookup("I"), lookup("C")));
+			System.out.println("LUB: " + lub(lookup("F"), lookup("E")));
+			
+			System.out.println("LE: " + le(lookup("I"), lookup("B")));
+			System.out.println("LE: " + le(lookup("I"), lookup("Int")));
+			System.out.println("LE: " + le(lookup("B"), lookup("I")));
+			System.out.println("LE: " + le(lookup("G"), lookup("A")));
+			*/
+		}
+		
+			
+	}
+	
+	private AbstractSymbol lookup(String name) {
+		return AbstractTable.idtable.lookup(name);
+	}
+	
+	public String toString() {
+		return toString(treeRoot);
+	}
+	
+	public String toString(Node root) {
+		return nodeToString(root, 0, new StringBuffer()).toString();
+	}
+	
+	private StringBuffer nodeToString(Node node, int lv, StringBuffer sb) {
+		for(int i = 0; i < lv; i++)
+			sb.append("\t");
+		sb.append("\\______ ");
+		
+		sb.append("" + node.value.getName() + node.methods + "\n");
+		
+		for(Node n : node.children)
+			nodeToString(n, lv + 1, sb);
+		
+		return sb;
+	}
+	
+	private LinkedList<AbstractSymbol> path(AbstractSymbol target) {
+		LinkedList<AbstractSymbol> list = new LinkedList<AbstractSymbol>();
+		
+		Node n = nodeMap.get(target);
+		do {
+			list.addFirst(n.value.getName());
+			n = n.parent;
+		} while(n != null);
+		
+		return list;
+	}
+	
+	
+	public AbstractSymbol lub(AbstractSymbol t1, AbstractSymbol t2) {
+		if(!nodeMap.containsKey(t1) || !nodeMap.containsKey(t2))
+			return null;
+			
+		LinkedList<AbstractSymbol> p1 = path(t1);
+		LinkedList<AbstractSymbol> p2 = path(t2);		
+		
+		AbstractSymbol common = p1.removeFirst();
+		while(!p1.isEmpty() && p2.contains(p1.getFirst()))
+			common = p1.removeFirst();
+			
+			
+		return common;
+	}
+	
+	public boolean le(AbstractSymbol t1, AbstractSymbol t2) {
+		if(!nodeMap.containsKey(t1) || !nodeMap.containsKey(t2))
+			return false;
+			
+		return path(t1).contains(t2);
+	}
+	
+	public List<AbstractSymbol> getFunctionParams(AbstractSymbol c, AbstractSymbol f) {
+		if(!nodeMap.containsKey(c))
+			return null;
+		
+		return nodeMap.get(c).methods.get(f);
+		
+	}
+	
+	public void setCurrentClass(class_c c) {
+		curClass = c;
+	}
+	
+	public class_c getCurrentClass() {
+		return curClass;
+	}
+	
 	/** Prints line number and file name of the given class.
 	 *
 	 * Also increments semantic error count.
@@ -221,6 +442,40 @@ class ClassTable {
 	/** Returns true if there are any static semantic errors. */
 	public boolean errors() {
 		return semantErrors != 0;
+	}
+	
+	private static class Node {
+		public class_c value;
+		public Node parent;
+		public List<Node> children;
+		public Map<AbstractSymbol, List<AbstractSymbol>> methods;
+		public Node(class_c value, Node parent) {
+			this.value = value;
+			this.parent = parent;
+			children = new ArrayList<Node>();
+			if(parent != null)
+				parent.children.add(this);
+				
+			// retrieve method info
+			methods = new HashMap<AbstractSymbol, List<AbstractSymbol>>();
+			Features featList = value.getFeatures();
+			for(int i = 0; i < featList.getLength(); i++) {
+				Feature feat = (Feature)featList.getNth(i);
+				if(feat instanceof method) {
+					method meth = (method)feat;
+					Formals formList = meth.getFormals();
+					List<AbstractSymbol> types = new ArrayList<AbstractSymbol>();
+					for(int j = 0; j < formList.getLength(); j++)
+						types.add(((formalc)formList.getNth(j)).getType());
+					types.add(meth.getRet());
+					methods.put(meth.getName(), types);
+				}
+			}
+		}
+		
+		public String toString() {
+			return "<" + value.getName() + " | " + value.getParent() + ">";
+		}
 	}
 }
 						  
