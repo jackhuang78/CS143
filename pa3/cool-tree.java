@@ -9,6 +9,7 @@
 import java.util.Enumeration;
 import java.io.PrintStream;
 import java.util.Vector;
+import java.util.*;
 
 
 /** Defines simple phylum Program */
@@ -142,6 +143,7 @@ abstract class Expression extends TreeNode {
 	public AbstractSymbol get_type() { return type; }		   
 	public Expression set_type(AbstractSymbol s) { type = s; return this; } 
 	public abstract void dump_with_types(PrintStream out, int n);
+	public abstract boolean check_types(ClassTable class_table, SymbolTable symbol_table);
 	public void dump_type(PrintStream out, int n) {
 		if (type != null)
 			{ out.println(Utilities.pad(n) + ": " + type.getString()); }
@@ -265,9 +267,11 @@ class programc extends Program {
 	public void semant() {
 		/* ClassTable constructor may do some semantic analysis */
 		ClassTable classTable = new ClassTable(classes);
-		
+
+
 		/* some semantic analysis code may go here */
-		System.out.println("semant!");
+		//System.out.println("Semant!");
+				
 
 		if (classTable.errors()) {
 			System.err.println("Compilation halted due to static semantic errors.");
@@ -510,6 +514,9 @@ class branch extends Case {
 class assign extends Expression {
 	protected AbstractSymbol name;
 	protected Expression expr;
+	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
+		return false;
+	}
 	/** Creates "assign" AST node. 
 	  *
 	  * @param lineNumber the line in the source file from which this node came.
@@ -550,6 +557,50 @@ class static_dispatch extends Expression {
 	protected AbstractSymbol type_name;
 	protected AbstractSymbol name;
 	protected Expressions actual;
+	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
+		boolean ret = expr.check_types(class_table,symbol_table);
+	    if (ret){
+	        AbstractSymbol t0 = expr.get_type(); 
+	        ret = ret && class_table.le(type_name, t0);
+	        List<AbstractSymbol> typeList = class_table.getFunctionParams(type_name, name);
+	        if (typeList.size() == 0){
+	            if (Flags.semant_debug){
+	                System.out.println("[143 debug] static_dispatch: No types found for " + type_name + ":" + name);
+	            }
+	            class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("static_dispatch: No types found for " + type_name + ":" + "name");
+	            set_type(TreeConstants.Object_);
+	            return false;
+	        }else{
+	            AbstractSymbol functionRetType = typeList.get(typeList.size() -1);
+	            set_type(functionRetType == TreeConstants.SELF_TYPE ? t0 : functionRetType);
+	        }
+	        boolean paramsTypeChecked = false;
+	        for (int i = 0; i< actual.getLength()-1; i++){
+	            paramsTypeChecked = ((Expression) actual.getNth(i)).check_types(class_table,symbol_table);
+	            if (paramsTypeChecked){
+	                AbstractSymbol curType = ((Expression) actual.getNth(i)).get_type();
+	                if (curType == TreeConstants.SELF_TYPE){
+	                    //curType = symbol_table.lookup(TreeConstants.SELF_TYPE)); // TODO: is this current?
+	                }
+	                if (class_table.le(typeList.get(i), curType)){
+	                	// this is good
+	                }else{
+	                    if (Flags.semant_debug){
+	                        System.out.println("[143 debug] Invalid type for parameter " + i + " as type:" + curType);
+	                    }
+	                    class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("Invalid type for parameter " + i + " as type:" + "curType");
+	                    ret = false;
+	                }
+	            }else{
+	                ret = false;
+	            }
+	            ret = ret && paramsTypeChecked;
+	        }
+	    }else{
+	        return false;
+	    }
+	    return ret;
+	}
 	/** Creates "static_dispatch" AST node. 
 	  *
 	  * @param lineNumber the line in the source file from which this node came.
@@ -601,6 +652,9 @@ class dispatch extends Expression {
 	protected Expression expr;
 	protected AbstractSymbol name;
 	protected Expressions actual;
+	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
+		return false;
+	}
 	/** Creates "dispatch" AST node. 
 	  *
 	  * @param lineNumber the line in the source file from which this node came.
@@ -648,6 +702,9 @@ class cond extends Expression {
 	protected Expression pred;
 	protected Expression then_exp;
 	protected Expression else_exp;
+	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
+		return false;
+	}
 	/** Creates "cond" AST node. 
 	  *
 	  * @param lineNumber the line in the source file from which this node came.
@@ -690,6 +747,9 @@ class cond extends Expression {
 class loop extends Expression {
 	protected Expression pred;
 	protected Expression body;
+	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
+		return false;
+	}
 	/** Creates "loop" AST node. 
 	  *
 	  * @param lineNumber the line in the source file from which this node came.
@@ -728,6 +788,9 @@ class loop extends Expression {
 class typcase extends Expression {
 	protected Expression expr;
 	protected Cases cases;
+	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
+		return false;
+	}
 	/** Creates "typcase" AST node. 
 	  *
 	  * @param lineNumber the line in the source file from which this node came.
@@ -767,6 +830,9 @@ class typcase extends Expression {
 	See <a href="TreeNode.html">TreeNode</a> for full documentation. */
 class block extends Expression {
 	protected Expressions body;
+	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
+		return false;
+	}
 	/** Creates "block" AST node. 
 	  *
 	  * @param lineNumber the line in the source file from which this node came.
@@ -805,6 +871,9 @@ class let extends Expression {
 	protected AbstractSymbol type_decl;
 	protected Expression init;
 	protected Expression body;
+	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
+		return false;
+	}
 	/** Creates "let" AST node. 
 	  *
 	  * @param lineNumber the line in the source file from which this node came.
@@ -851,6 +920,21 @@ class let extends Expression {
 class plus extends Expression {
 	protected Expression e1;
 	protected Expression e2;
+	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
+		boolean ret = e1.check_types(class_table,symbol_table);
+	    ret = ret && e2.check_types(class_table,symbol_table);
+	    if ( (e1.get_type() != TreeConstants.Int) || (e2.get_type() != TreeConstants.Int)){
+	        if (Flags.semant_debug){
+	            System.out.println("[143 debug] Arith plus type" + e1.get_type() + " or " + e2.get_type() + " is not Int");
+	        }
+	        set_type(TreeConstants.Int);
+	        class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("Arith plus type" + e1.get_type() + " or " + e2.get_type() + " is not Int");
+	        return false;
+	    }else{
+	        set_type(TreeConstants.Int);
+	    }
+	    return ret;
+	}
 	/** Creates "plus" AST node. 
 	  *
 	  * @param lineNumber the line in the source file from which this node came.
@@ -889,6 +973,21 @@ class plus extends Expression {
 class sub extends Expression {
 	protected Expression e1;
 	protected Expression e2;
+	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
+		boolean ret = e1.check_types(class_table,symbol_table);
+	    ret = ret && e2.check_types(class_table,symbol_table);
+	    if ( (e1.get_type() != TreeConstants.Int) || (e2.get_type() != TreeConstants.Int)){
+	        if (Flags.semant_debug){
+	            System.out.println("[143 debug] Arith sub type " + e1.get_type() + " or " + e2.get_type() + " is not Int");
+	        }
+	        set_type(TreeConstants.Int);
+	        class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("Arith sub type" + e1.get_type() + " or " + e2.get_type() + " is not Int");
+	        return false;
+	    }else{
+	        set_type(TreeConstants.Int);
+	    }
+	    return ret;
+	}
 	/** Creates "sub" AST node. 
 	  *
 	  * @param lineNumber the line in the source file from which this node came.
@@ -927,6 +1026,21 @@ class sub extends Expression {
 class mul extends Expression {
 	protected Expression e1;
 	protected Expression e2;
+	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
+		boolean ret = e1.check_types(class_table,symbol_table);
+	    ret = ret && e2.check_types(class_table,symbol_table);
+	    if ( (e1.get_type() != TreeConstants.Int) || (e2.get_type() != TreeConstants.Int)){
+	        if (Flags.semant_debug){
+	            System.out.println("[143 debug] Arith mul type  " + e1.get_type() + " or " + e2.get_type() + " is not Int");
+	        }
+	        set_type(TreeConstants.Int);
+	        class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("Arith mul type " + e1.get_type() + " or " + e2.get_type() + " is not Int");
+	        return false;
+	    }else{
+	        set_type(TreeConstants.Int);
+	    }
+	    return ret;
+	}
 	/** Creates "mul" AST node. 
 	  *
 	  * @param lineNumber the line in the source file from which this node came.
@@ -965,6 +1079,21 @@ class mul extends Expression {
 class divide extends Expression {
 	protected Expression e1;
 	protected Expression e2;
+	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
+		boolean ret = e1.check_types(class_table,symbol_table);
+	    ret = ret && e2.check_types(class_table,symbol_table);
+	    if ( (e1.get_type() != TreeConstants.Int) || (e2.get_type() != TreeConstants.Int)){
+	        if (Flags.semant_debug){
+	            System.out.println("[143 debug] Arith divide type " + e1.get_type() + " or " + e2.get_type() + " is not Int");
+	        }
+	        set_type(TreeConstants.Int);
+	        class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("Arith divide type" + e1.get_type() + " or " + e2.get_type() + " is not Int");
+	        return false;
+	    }else{
+	        set_type(TreeConstants.Int);
+	    }
+	    return ret;
+	}
 	/** Creates "divide" AST node. 
 	  *
 	  * @param lineNumber the line in the source file from which this node came.
@@ -1002,6 +1131,19 @@ class divide extends Expression {
 	See <a href="TreeNode.html">TreeNode</a> for full documentation. */
 class neg extends Expression {
 	protected Expression e1;
+	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
+		if ((e1.check_types(class_table,symbol_table)) && (e1.get_type() != TreeConstants.Int)){
+	        if (Flags.semant_debug){
+	            System.out.println("[143 debug] Assigning type " + e1.get_type() + " to Int");
+	        }
+	        class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("Assigning type " + e1.get_type() + " to Int");
+	        set_type(TreeConstants.Object_);
+	        return false;
+	    }else{
+	        set_type(TreeConstants.Int);
+	    }
+	    return true;
+	}
 	/** Creates "neg" AST node. 
 	  *
 	  * @param lineNumber the line in the source file from which this node came.
@@ -1036,6 +1178,16 @@ class neg extends Expression {
 class lt extends Expression {
 	protected Expression e1;
 	protected Expression e2;
+	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
+		boolean ret = e1.check_types(class_table, symbol_table);
+	    ret = ret && e2.check_types(class_table, symbol_table);
+	    set_type(TreeConstants.Bool);
+	    if ((e1.get_type() != TreeConstants.Int) || (e2.get_type() != TreeConstants.Int)){
+	    	class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("lt: variables to compare must be int");
+	        return false;
+	    }
+	    return ret;
+	}
 	/** Creates "lt" AST node. 
 	  *
 	  * @param lineNumber the line in the source file from which this node came.
@@ -1074,6 +1226,9 @@ class lt extends Expression {
 class eq extends Expression {
 	protected Expression e1;
 	protected Expression e2;
+	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
+		return false;
+	}
 	/** Creates "eq" AST node. 
 	  *
 	  * @param lineNumber the line in the source file from which this node came.
@@ -1112,6 +1267,16 @@ class eq extends Expression {
 class leq extends Expression {
 	protected Expression e1;
 	protected Expression e2;
+	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
+		boolean ret = e1.check_types(class_table, symbol_table);
+	    ret = ret && e2.check_types(class_table, symbol_table);
+	    set_type(TreeConstants.Bool);
+	    if ((e1.get_type() != TreeConstants.Int) || (e2.get_type() != TreeConstants.Int)){
+	    	class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("leq: variables to compare must be int");
+	        return false;
+	    }
+	    return ret;
+	}
 	/** Creates "leq" AST node. 
 	  *
 	  * @param lineNumber the line in the source file from which this node came.
@@ -1149,6 +1314,11 @@ class leq extends Expression {
 	See <a href="TreeNode.html">TreeNode</a> for full documentation. */
 class comp extends Expression {
 	protected Expression e1;
+	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
+		boolean ret = e1.check_types(class_table, symbol_table);
+	    set_type(e1.get_type());
+	    return ret;
+	}
 	/** Creates "comp" AST node. 
 	  *
 	  * @param lineNumber the line in the source file from which this node came.
@@ -1182,6 +1352,9 @@ class comp extends Expression {
 	See <a href="TreeNode.html">TreeNode</a> for full documentation. */
 class int_const extends Expression {
 	protected AbstractSymbol token;
+	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
+		return false;
+	}
 	/** Creates "int_const" AST node. 
 	  *
 	  * @param lineNumber the line in the source file from which this node came.
@@ -1215,6 +1388,9 @@ class int_const extends Expression {
 	See <a href="TreeNode.html">TreeNode</a> for full documentation. */
 class bool_const extends Expression {
 	protected Boolean val;
+	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
+		return false;
+	}
 	/** Creates "bool_const" AST node. 
 	  *
 	  * @param lineNumber the line in the source file from which this node came.
@@ -1248,6 +1424,9 @@ class bool_const extends Expression {
 	See <a href="TreeNode.html">TreeNode</a> for full documentation. */
 class string_const extends Expression {
 	protected AbstractSymbol token;
+	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
+		return false;
+	}
 	/** Creates "string_const" AST node. 
 	  *
 	  * @param lineNumber the line in the source file from which this node came.
@@ -1283,6 +1462,9 @@ class string_const extends Expression {
 	See <a href="TreeNode.html">TreeNode</a> for full documentation. */
 class new_ extends Expression {
 	protected AbstractSymbol type_name;
+	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
+		return false;
+	}
 	/** Creates "new_" AST node. 
 	  *
 	  * @param lineNumber the line in the source file from which this node came.
@@ -1316,6 +1498,9 @@ class new_ extends Expression {
 	See <a href="TreeNode.html">TreeNode</a> for full documentation. */
 class isvoid extends Expression {
 	protected Expression e1;
+	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
+		return false;
+	}
 	/** Creates "isvoid" AST node. 
 	  *
 	  * @param lineNumber the line in the source file from which this node came.
@@ -1348,6 +1533,9 @@ class isvoid extends Expression {
 	<p>
 	See <a href="TreeNode.html">TreeNode</a> for full documentation. */
 class no_expr extends Expression {
+	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
+		return false;
+	}
 	/** Creates "no_expr" AST node. 
 	  *
 	  * @param lineNumber the line in the source file from which this node came.
@@ -1377,6 +1565,9 @@ class no_expr extends Expression {
 	See <a href="TreeNode.html">TreeNode</a> for full documentation. */
 class object extends Expression {
 	protected AbstractSymbol name;
+	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
+		return false;
+	}
 	/** Creates "object" AST node. 
 	  *
 	  * @param lineNumber the line in the source file from which this node came.
@@ -1403,5 +1594,4 @@ class object extends Expression {
 	}
 
 }
-
 
