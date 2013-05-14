@@ -66,7 +66,6 @@ abstract class Feature extends TreeNode {
 		super(lineNumber);
 	}
 	public abstract void dump_with_types(PrintStream out, int n);
-	public abstract boolean check_types(ClassTable class_table, SymbolTable symbol_table);
 
 }
 
@@ -351,38 +350,6 @@ class method extends Feature {
 	protected Formals formals;
 	protected AbstractSymbol return_type;
 	protected Expression expr;
-	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
-		
-	    ClassNameList nameList;
-	    for (int i = formals->first(); formals->more(i); i = formals->next(i)){
-	        Symbol type = formals->nth(i)->get_type();
-	        if (type == SELF_TYPE){
-	            if (semant_debug)
-	                cout << "SELF_TYPE in formal name in " << clsName << ":" << name << endl;
-	            return false;
-	        }
-
-	        Symbol curName = formals->nth(i)->get_name();
-	        if (curName == self){
-	            if (semant_debug)
-	                cout << "Self in formal name in " << clsName << ":" << name << endl;
-	            return false;
-	        }
-	        else if (std::find(nameList.begin(), nameList.end(), curName) == nameList.end()){
-	            clsTablePtr->collect_param_type(clsName, name, type);
-	            nameList.push_back(curName);
-	        }else{
-	            if (semant_debug)
-	                cout << "Duplicated formal name " << curName << " in " << clsName << ":" << name << endl;
-	            return false;
-	        }
-	    }
-	    //if (semant_debug)
-	    //    cout << "@@@@ return type for " << clsName << ":" << name 
-	    //        << " is " << return_type << endl;
-	    clsTablePtr->collect_param_type(clsName, name, return_type);
-	    return true;
-	}
 	/** Creates "method" AST node. 
 	  *
 	  * @param lineNumber the line in the source file from which this node came.
