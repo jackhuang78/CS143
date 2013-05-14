@@ -10,11 +10,12 @@ Class Main {
 	};
 };
 
-Class Def{
-
+Class Def inherits Main{
+	name : String;
 };
 
 Class D inherits Def{
+	
 
 };
 
