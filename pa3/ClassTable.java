@@ -326,8 +326,13 @@ class ClassTable {
 			*/
 		}
 		
+		// 5. Construct method/attr symbol tables for every class
+		
+		
 			
 	}
+	
+
 	
 	private AbstractSymbol lookup(String name) {
 		return AbstractTable.idtable.lookup(name);
@@ -494,6 +499,9 @@ class ClassTable {
 		public class_c value;
 		public Node parent;
 		public List<Node> children;
+		public SymbolTable attributeTable;
+		public SymbolTable methodTable;
+		
 		public Map<AbstractSymbol, AbstractSymbol> attributes;
 		public Map<AbstractSymbol, List<AbstractSymbol>> methods;
 		public Node(class_c value, Node parent) {
