@@ -306,8 +306,14 @@ class ClassTable {
 		if(Flags.semant_debug) {
 			System.out.println("\nFinal class tree: \n" + this);
 			System.out.println("\nFinal node map:\n" + nodeMap);
-			
 			/*
+			System.out.println(getAttribute(lookup("D"), lookup("b")));
+			System.out.println(getAttribute(lookup("D"), lookup("name")));
+			System.out.println(getAttribute(lookup("D"), lookup("X")));
+			System.out.println(getFunctionParams(lookup("D"), lookup("main")));
+			System.out.println(getFunctionParams(lookup("X"), lookup("Def")));			
+			
+			
 			System.out.println("LUB: " + lub(lookup("G"), lookup("C")));
 			System.out.println("LUB: " + lub(lookup("I"), lookup("Main")));
 			System.out.println("LUB: " + lub(lookup("I"), lookup("C")));
@@ -340,7 +346,7 @@ class ClassTable {
 			sb.append("\t");
 		sb.append("\\______ ");
 		
-		sb.append("" + node.value.getName() + node.methods + "\n");
+		sb.append("" + node.value.getName() + node.methods + node.attributes + "\n");
 		
 		for(Node n : node.children)
 			nodeToString(n, lv + 1, sb);
@@ -409,8 +415,9 @@ class ClassTable {
 		LinkedList<AbstractSymbol> list = path(c);
 		AbstractSymbol type = null;
 		do {
+			//System.out.println(list);
 			type = nodeMap.get(list.removeLast()).attributes.get(v);				
-		} while(!list.isEmpty() && type != null);
+		} while(!list.isEmpty() && type == null);
 		
 		return type;		
 	}
