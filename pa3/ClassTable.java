@@ -364,30 +364,69 @@ class ClassTable {
 	public AbstractSymbol lub(AbstractSymbol t1, AbstractSymbol t2) {
 		if(!nodeMap.containsKey(t1) || !nodeMap.containsKey(t2))
 			return null;
-			
-		LinkedList<AbstractSymbol> p1 = path(t1);
-		LinkedList<AbstractSymbol> p2 = path(t2);		
 		
-		AbstractSymbol common = p1.removeFirst();
-		while(!p1.isEmpty() && p2.contains(p1.getFirst()))
-			common = p1.removeFirst();
-			
-			
-		return common;
+		if(t1 == TreeConstants.SELF_TYPE && t2 == TreeConstants.SELF_TYPE)
+			return t1;
+
+		else if(t1 == TreeConstants.SELF_TYPE)
+			return lub(curClass.getName(), t2);
+		
+		else if(t2 == TreeConstants.SELF_TYPE)
+			return lub(t1, curClass.getName());
+		
+		else {
+			LinkedList<AbstractSymbol> p1 = path(t1);
+			LinkedList<AbstractSymbol> p2 = path(t2);		
+			AbstractSymbol common = p1.removeFirst();
+			while(!p1.isEmpty() && p2.contains(p1.getFirst()))
+				common = p1.removeFirst();	
+
+			return common;		
+		}	
 	}
 	
 	public boolean le(AbstractSymbol t1, AbstractSymbol t2) {
 		if(!nodeMap.containsKey(t1) || !nodeMap.containsKey(t2))
 			return false;
+		
+		if(t1 == TreeConstants.SELF_TYPE && t2 == TreeConstants.SELF_TYPE)
+			return true;
 			
-		return path(t1).contains(t2);
+		else if(t1 == TreeConstants.SELF_TYPE)
+			return le(curClass.getName(), t2);
+			
+		else if(t2 == TreeConstants.SELF_TYPE)
+			return false;
+			
+		else			
+			return path(t1).contains(t2);
+	}
+	
+	public AbstractSymbol getAttribute(AbstractSymbol c, AbstractSymbol v) {
+		if(!nodeMap.containsKey(c))
+			return null;
+			
+		LinkedList<AbstractSymbol> list = path(c);
+		AbstractSymbol type = null;
+		do {
+			type = nodeMap.get(list.removeLast()).attributes.get(v);				
+		} while(!list.isEmpty() && type != null);
+		
+		return type;		
 	}
 	
 	public List<AbstractSymbol> getFunctionParams(AbstractSymbol c, AbstractSymbol f) {
 		if(!nodeMap.containsKey(c))
 			return null;
 		
-		return nodeMap.get(c).methods.get(f);
+		LinkedList<AbstractSymbol> list = path(c);
+		List<AbstractSymbol> types = null;
+
+		do {
+			types = nodeMap.get(list.removeLast()).methods.get(f);
+		} while(!list.isEmpty() && types == null);
+		
+		return types;
 		
 	}
 	
@@ -448,6 +487,7 @@ class ClassTable {
 		public class_c value;
 		public Node parent;
 		public List<Node> children;
+		public Map<AbstractSymbol, AbstractSymbol> attributes;
 		public Map<AbstractSymbol, List<AbstractSymbol>> methods;
 		public Node(class_c value, Node parent) {
 			this.value = value;
@@ -456,12 +496,18 @@ class ClassTable {
 			if(parent != null)
 				parent.children.add(this);
 				
-			// retrieve method info
+			// retrieve attribute and method info
+			attributes = new HashMap<AbstractSymbol, AbstractSymbol>();
 			methods = new HashMap<AbstractSymbol, List<AbstractSymbol>>();
 			Features featList = value.getFeatures();
 			for(int i = 0; i < featList.getLength(); i++) {
 				Feature feat = (Feature)featList.getNth(i);
-				if(feat instanceof method) {
+				
+				if(feat instanceof attr) {
+					attr at = (attr)feat;
+					attributes.put(at.getName(), at.getType());
+					
+				} else if(feat instanceof method) {
 					method meth = (method)feat;
 					Formals formList = meth.getFormals();
 					List<AbstractSymbol> types = new ArrayList<AbstractSymbol>();
@@ -469,6 +515,8 @@ class ClassTable {
 						types.add(((formalc)formList.getNth(j)).getType());
 					types.add(meth.getRet());
 					methods.put(meth.getName(), types);
+				} else {
+					
 				}
 			}
 		}

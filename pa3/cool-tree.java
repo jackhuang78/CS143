@@ -434,6 +434,10 @@ class attr extends Feature {
 		dump_AbstractSymbol(out, n + 2, type_decl);
 		init.dump_with_types(out, n + 2);
 	}
+	
+	// PA 3
+	public AbstractSymbol getName() { return name; }
+	public AbstractSymbol getType() { return type_decl; } 
 
 }
 
