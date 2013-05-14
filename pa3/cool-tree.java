@@ -477,6 +477,7 @@ class formalc extends Formal {
 	}
 	
 	// PA3
+	public AbstractSymbol getName() { return name; }
 	public AbstractSymbol getType() { return type_decl; }
 
 }
@@ -599,7 +600,8 @@ class static_dispatch extends Expression {
 		if (ret){
 			AbstractSymbol t0 = expr.get_type(); 
 			ret = ret && class_table.le(type_name, t0);
-			List<AbstractSymbol> typeList = class_table.getFunctionParams(type_name, name);
+			//TODO fix to compile
+			List<AbstractSymbol> typeList = null;// (List<AbstractSymbol>)class_table.getMethodParams(type_name, name, true, true);
 			if (typeList.size() == 0){
 				class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("static_dispatch: No types found for " + type_name + ":" + "name");
 				set_type(TreeConstants.Object_);
@@ -690,7 +692,8 @@ class dispatch extends Expression {
 			if(t0 == TreeConstants.SELF_TYPE){
 				t0 = (AbstractSymbol)symbol_table.lookup(TreeConstants.SELF_TYPE); // TODO: is this correct?
 			}
-			List<AbstractSymbol> typeList = class_table.getFunctionParams(t0, name);
+			// TODO temporary fix to compile
+			List<AbstractSymbol> typeList = null;//(List<AbstractSymbol>)class_table.getMethodParams(t0, name, true, true);
 			if (typeList.size() == 0){
 				class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("dispatch: No types found for " + t0 + ":" + "name");
 				set_type(TreeConstants.Object_);

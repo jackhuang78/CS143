@@ -79,4 +79,8 @@ class TreeConstants {
 
     public static final AbstractSymbol val = 
 	AbstractTable.idtable.addString("_val");
+	
+	// PA3
+	public static final AbstractSymbol ret = 
+	AbstractTable.idtable.addString("_ret");
 }
