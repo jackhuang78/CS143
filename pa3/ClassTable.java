@@ -175,7 +175,7 @@ class ClassTable {
 		 
 		// PA3
 		treeRoot = new Node(Object_class, null);
-		nodeMap = new HashMap<AbstractSymbol, Node>();
+		nodeMap = new LinkedHashMap<AbstractSymbol, Node>();
 		nodeMap.put(Object_class.getName(), treeRoot);
 		nodeMap.put(Int_class.getName(), new Node(Int_class, treeRoot));
 		nodeMap.put(Bool_class.getName(), new Node(Bool_class, treeRoot));
@@ -300,18 +300,19 @@ class ClassTable {
 		// 4. check for absence of class Main or method main
 		if(!nodeMap.containsKey(TreeConstants.Main))
 			semantError().println("Class Main is not defined.");
-		else if(!nodeMap.get(TreeConstants.Main).methods.containsKey(TreeConstants.main_meth))
-			semantError(nodeMap.get(TreeConstants.Main).value).println("No 'main' method in class Main.");
+		// TODO check main method in Main
+		//else if(!nodeMap.get(TreeConstants.Main).methods.containsKey(TreeConstants.main_meth))
+		//	semantError(nodeMap.get(TreeConstants.Main).value).println("No 'main' method in class Main.");
 		
 		if(Flags.semant_debug) {
-			System.out.println("\nFinal class tree: \n" + this);
+			/*System.out.println("\nFinal class tree: \n" + this);
 			System.out.println("\nFinal node map:\n" + nodeMap);
-			/*
-			System.out.println(getAttribute(lookup("D"), lookup("b")));
-			System.out.println(getAttribute(lookup("D"), lookup("name")));
-			System.out.println(getAttribute(lookup("D"), lookup("X")));
-			System.out.println(getFunctionParams(lookup("D"), lookup("main")));
-			System.out.println(getFunctionParams(lookup("X"), lookup("Def")));			
+			
+			System.out.println(getAttribute(lookup("D"), lookup("b"), true, true));
+			System.out.println(getAttribute(lookup("D"), lookup("name"), true, true));
+			System.out.println(getAttribute(lookup("D"), lookup("X"), true, true));
+			System.out.println(getMethodParams(lookup("D"), lookup("main"), true, true));
+			System.out.println(getMethodParams(lookup("X"), lookup("Def"), true, true));			
 			
 			
 			System.out.println("LUB: " + lub(lookup("G"), lookup("C")));
@@ -326,11 +327,63 @@ class ClassTable {
 			*/
 		}
 		
-		// 5. Construct method/attr symbol tables for every class
+		// 5. Construct object/method environment for every class
+		for(AbstractSymbol clazz : nodeMap.keySet()) {
+			if(Flags.semant_debug)
+				System.out.println("Constructing object/method env for " + clazz);
+			Node node = nodeMap.get(clazz);
+
+			
+			List<AbstractSymbol> path = path(clazz);
+			node.objectEnv.enterScope();
+			node.methodEnv.enterScope();
+			if(node.parent != null) {
+				node.attrMap.putAll(node.parent.attrMap);
+				node.methMap.putAll(node.parent.methMap);
+			}
+			
+
+			/*
+			for(AbstractSymbol ancestor : path) {
+				Features featList = node.value.getFeatures();
+				
+			}
+			
+			Features featList = value.getFeatures();
+			for(int i = 0; i < featList.getLength(); i++) {
+				Feature feat = (Feature)featList.getNth(i);
+				
+				if(feat instanceof attr) {
+					attr at = (attr)feat;
+					attributes.put(at.getName(), at.getType());
+					
+				} else if(feat instanceof method) {
+					method meth = (method)feat;
+					Formals formList = meth.getFormals();
+					List<Map.Entry<AbstractSymbol, AbstractSymbol>> params = new ArrayList<Map.Entry<AbstractSymbol, AbstractSymbol>>();
+					
+					for(int j = 0; j < formList.getLength(); j++) {
+						formalc form = (formalc)formList.getNth(j);
+						params.add(new AbstractMap.SimpleEntry<AbstractSymbol, AbstractSymbol>(form.getName(), form.getType()));
+					}	
+					params.add(new AbstractMap.SimpleEntry<AbstractSymbol, AbstractSymbol>(
+						TreeConstants.ret, meth.getRet()));
+						
+					methods.put(meth.getName(), params);
+					
+				} else {
+					throw new RuntimeException("Feature is neither an attribute or a method.");
+				}
+			
+			}*/
+			
+		}	
 		
 		
 			
 	}
+	
+
 	
 
 	
@@ -351,7 +404,7 @@ class ClassTable {
 			sb.append("\t");
 		sb.append("\\______ ");
 		
-		sb.append("" + node.value.getName() + node.methods + node.attributes + "\n");
+		sb.append("" + node.value.getName() + "\n");
 		
 		for(Node n : node.children)
 			nodeToString(n, lv + 1, sb);
@@ -372,7 +425,7 @@ class ClassTable {
 	}
 	
 	
-	public AbstractSymbol lub(AbstractSymbol t1, AbstractSymbol t2) {
+	public AbstractSymbol lub(AbstractSymbol t1, AbstractSymbol t2, class_c clazz) {
 		if(!nodeMap.containsKey(t1) || !nodeMap.containsKey(t2))
 			return null;
 		
@@ -380,10 +433,10 @@ class ClassTable {
 			return t1;
 
 		else if(t1 == TreeConstants.SELF_TYPE)
-			return lub(curClass.getName(), t2);
+			return lub(clazz.getName(), t2, clazz);
 		
 		else if(t2 == TreeConstants.SELF_TYPE)
-			return lub(t1, curClass.getName());
+			return lub(t1, clazz.getName(), clazz);
 		
 		else {
 			LinkedList<AbstractSymbol> p1 = path(t1);
@@ -396,7 +449,24 @@ class ClassTable {
 		}	
 	}
 	
-	public boolean le(AbstractSymbol t1, AbstractSymbol t2) {
+	public AbstractSymbol lub(List<AbstractSymbol> ts, class_c clazz) {
+		if(ts.size() == 0)
+			return null;
+		else if(ts.size() == 1)
+			return ts.get(0);
+		else {
+			Iterator<AbstractSymbol> itor = ts.iterator();
+			AbstractSymbol common = lub(itor.next(), itor.next(), clazz);
+			while(itor.hasNext())
+				common = lub(common, itor.next(), clazz);
+			return common;
+		}
+		
+	}
+	
+	
+	
+	public boolean le(AbstractSymbol t1, AbstractSymbol t2, class_c clazz) {
 		if(!nodeMap.containsKey(t1) || !nodeMap.containsKey(t2))
 			return false;
 		
@@ -404,7 +474,7 @@ class ClassTable {
 			return true;
 			
 		else if(t1 == TreeConstants.SELF_TYPE)
-			return le(curClass.getName(), t2);
+			return le(clazz.getName(), t2, clazz);
 			
 		else if(t2 == TreeConstants.SELF_TYPE)
 			return false;
@@ -413,34 +483,66 @@ class ClassTable {
 			return path(t1).contains(t2);
 	}
 	
-	public AbstractSymbol getAttribute(AbstractSymbol c, AbstractSymbol v) {
-		if(!nodeMap.containsKey(c))
-			return null;
-			
-		LinkedList<AbstractSymbol> list = path(c);
-		AbstractSymbol type = null;
-		do {
-			//System.out.println(list);
-			type = nodeMap.get(list.removeLast()).attributes.get(v);				
-		} while(!list.isEmpty() && type == null);
-		
-		return type;		
+	public boolean hasClass(AbstractSymbol clazz) {
+		return nodeMap.containsKey(clazz);
 	}
 	
-	public List<AbstractSymbol> getFunctionParams(AbstractSymbol c, AbstractSymbol f) {
-		if(!nodeMap.containsKey(c))
+	public SymbolTable getMethodTable(AbstractSymbol clazz) {
+		return nodeMap.get(clazz).methodEnv;
+	}
+	
+	/*
+	public AbstractSymbol getAttribute(AbstractSymbol clazz, AbstractSymbol name, boolean self, boolean ancestor) {
+
+		// if CLAZZ is an undefined class, return null
+		if(!nodeMap.containsKey(clazz))
+			return null;
+			
+		
+		LinkedList<AbstractSymbol> list = path(clazz);
+		AbstractSymbol type = null;
+		
+
+		// search CLAZZ's list of attributes, if specified
+		if(!self)
+			list.removeLast();
+		else
+			type = nodeMap.get(list.removeLast()).attributes.get(name);
+			
+		// search the closest binding from CLASS's ancestors' lists of attributes, if specified
+		if(!ancestor)
+			return type;
+		else
+			while(!list.isEmpty() && type == null)
+				type = nodeMap.get(list.removeLast()).attributes.get(name);				
+		
+		return type;		
+	}*/
+	
+	/*
+	public List<Map.Entry<AbstractSymbol, AbstractSymbol>> getMethodParams(AbstractSymbol clazz, AbstractSymbol name, boolean self, boolean ancestor) {
+	
+		// if CLAZZ is an undefined class, return null
+		if(!nodeMap.containsKey(clazz))
 			return null;
 		
-		LinkedList<AbstractSymbol> list = path(c);
-		List<AbstractSymbol> types = null;
-
-		do {
-			types = nodeMap.get(list.removeLast()).methods.get(f);
-		} while(!list.isEmpty() && types == null);
+		LinkedList<AbstractSymbol> list = path(clazz);
+		List<Map.Entry<AbstractSymbol, AbstractSymbol>> params = null;
 		
-		return types;
+		if(!self)
+			list.removeLast();
+		else
+			params = nodeMap.get(list.removeLast()).methods.get(name);
+			
+		if(!ancestor)
+			return params;
+		else
+			while(!list.isEmpty() && params == null)
+				params = nodeMap.get(list.removeLast()).methods.get(name);
 		
-	}
+		return params;
+		
+	}*/
 	
 	public void setCurrentClass(class_c c) {
 		curClass = c;
@@ -499,11 +601,11 @@ class ClassTable {
 		public class_c value;
 		public Node parent;
 		public List<Node> children;
-		public SymbolTable attributeTable;
-		public SymbolTable methodTable;
-		
-		public Map<AbstractSymbol, AbstractSymbol> attributes;
-		public Map<AbstractSymbol, List<AbstractSymbol>> methods;
+		public Map<AbstractSymbol, AbstractSymbol> attrMap;
+		public Map<AbstractSymbol, Map<AbstractSymbol, AbstractSymbol>> methMap;
+		public SymbolTable objectEnv;
+		public SymbolTable methodEnv;
+
 		public Node(class_c value, Node parent) {
 			this.value = value;
 			this.parent = parent;
@@ -511,35 +613,69 @@ class ClassTable {
 			if(parent != null)
 				parent.children.add(this);
 				
+			attrMap = new HashMap<AbstractSymbol, AbstractSymbol>();
+			methMap = new HashMap<AbstractSymbol, Map<AbstractSymbol, AbstractSymbol>>();				
+			objectEnv = new SymbolTable();
+			methodEnv = new SymbolTable();
+
+				
 			// retrieve attribute and method info
-			attributes = new HashMap<AbstractSymbol, AbstractSymbol>();
-			methods = new HashMap<AbstractSymbol, List<AbstractSymbol>>();
+			/*methods = new ArrayList<method>();
+			attributes = new ArrayList<attr>();
 			Features featList = value.getFeatures();
 			for(int i = 0; i < featList.getLength(); i++) {
 				Feature feat = (Feature)featList.getNth(i);
 				
-				if(feat instanceof attr) {
+				if(feat instanceof attr)
+					attr.add((attr)feat);
+				else
+					attr.add((method)feat);
+				
+				/*
 					attr at = (attr)feat;
 					attributes.put(at.getName(), at.getType());
 					
 				} else if(feat instanceof method) {
 					method meth = (method)feat;
 					Formals formList = meth.getFormals();
-					List<AbstractSymbol> types = new ArrayList<AbstractSymbol>();
-					for(int j = 0; j < formList.getLength(); j++)
-						types.add(((formalc)formList.getNth(j)).getType());
-					types.add(meth.getRet());
-					methods.put(meth.getName(), types);
-				} else {
+					List<Map.Entry<AbstractSymbol, AbstractSymbol>> params = new ArrayList<Map.Entry<AbstractSymbol, AbstractSymbol>>();
 					
+					for(int j = 0; j < formList.getLength(); j++) {
+						formalc form = (formalc)formList.getNth(j);
+						params.add(new AbstractMap.SimpleEntry<AbstractSymbol, AbstractSymbol>(form.getName(), form.getType()));
+					}	
+					params.add(new AbstractMap.SimpleEntry<AbstractSymbol, AbstractSymbol>(
+						TreeConstants.ret, meth.getRet()));
+						
+					methods.put(meth.getName(), params);
+					
+				} else {
+					throw new RuntimeException("Feature is neither an attribute or a method.");
 				}
-			}
+			}*/
 		}
 		
 		public String toString() {
 			return "<" + value.getName() + " | " + value.getParent() + ">";
 		}
 	}
+	
+	/*
+	public class AttrInfo {
+		public AbstractSymbol attr;
+	}
+	
+	public class MethInfo {
+		public AbstractSymbol type;
+		public Map<AbstractSymbol, AbstractSymbol> params;
+		
+		public MethInfo(AbstractSymbol type) {
+			this.type = type;
+			params = new HashMap<AbstractSymbol, AbstractSymbol>();
+		}
+	}*/
+	
+	
 }
 						  
 	

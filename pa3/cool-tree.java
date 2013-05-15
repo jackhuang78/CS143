@@ -531,8 +531,8 @@ class formalc extends Formal {
 	}
 	
 	// PA3
+	public AbstractSymbol getName() { return name; }
 	public AbstractSymbol getType() { return type_decl; }
-	public AbstractSymbol getName()  { return name; }
 	public void check_types(ClassTable classTable, class_c cl) {
 		if (type_decl == TreeConstants.SELF_TYPE) {
 			classTable.semantError(cl).println("Formal parameter " + name + " cannot have type SELF_TYPE.");
@@ -657,6 +657,44 @@ class static_dispatch extends Expression {
 	protected AbstractSymbol type_name;
 	protected AbstractSymbol name;
 	protected Expressions actual;
+/*<<<<<<< HEAD
+	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
+		boolean ret = expr.check_types(class_table,symbol_table);
+		if (ret){
+			AbstractSymbol t0 = expr.get_type(); 
+			ret = ret && class_table.le(type_name, t0);
+			//TODO fix to compile
+			List<AbstractSymbol> typeList = null;// (List<AbstractSymbol>)class_table.getMethodParams(type_name, name, true, true);
+			if (typeList.size() == 0){
+				class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("static_dispatch: No types found for " + type_name + ":" + "name");
+				set_type(TreeConstants.Object_);
+				return false;
+			}else{
+				AbstractSymbol functionRetType = typeList.get(typeList.size() -1);
+				set_type(functionRetType == TreeConstants.SELF_TYPE ? t0 : functionRetType);
+			}
+			boolean paramsTypeChecked = false;
+			for (int i = 0; i< actual.getLength()-1; i++){
+				paramsTypeChecked = ((Expression) actual.getNth(i)).check_types(class_table,symbol_table);
+				if (paramsTypeChecked){
+					AbstractSymbol curType = ((Expression) actual.getNth(i)).get_type();
+					if (curType == TreeConstants.SELF_TYPE){
+						curType = (AbstractSymbol)symbol_table.lookup(TreeConstants.SELF_TYPE); // TODO: is this current?
+					}
+					if (class_table.le(typeList.get(i), curType)){
+						// this is good
+					}else{
+						class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("Invalid type for parameter " + i + " as type:" + "curType");
+						ret = false;
+					}
+				}else{
+					ret = false;
+				}
+				ret = ret && paramsTypeChecked;
+			}
+		}else{
+			return false;
+=======*/
 	public void check_types(ClassTable classTable, class_c cl, SymbolTable attrTable){
 		expr.check_types(classTable, cl, attrTable);
 		AbstractSymbol expr_type = expr.get_type();
@@ -669,6 +707,7 @@ class static_dispatch extends Expression {
 		}
 		for (Enumeration e = actual.getElements(); e.hasMoreElements();) {
 			((Expression)e.nextElement()).check_types(classTable, cl, attrTable);
+/*>>>>>>> b7ef6ebe3ad679e03104d80ebd248ffc0742fb2d*/
 		}
 		SymbolTable methodsTable = classTable.getMethodsTable(type_name);
 		MethodInfo methodInfo = (MethodInfo)methodsTable.lookup(name);
@@ -726,6 +765,41 @@ class dispatch extends Expression {
 	protected Expression expr;
 	protected AbstractSymbol name;
 	protected Expressions actual;
+/*<<<<<<< HEAD
+	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
+		boolean ret = expr.check_types(class_table,symbol_table);
+		if (ret){
+			AbstractSymbol t0 = expr.get_type();
+			if(t0 == TreeConstants.SELF_TYPE){
+				t0 = (AbstractSymbol)symbol_table.lookup(TreeConstants.SELF_TYPE); // TODO: is this correct?
+			}
+			// TODO temporary fix to compile
+			List<AbstractSymbol> typeList = null;//(List<AbstractSymbol>)class_table.getMethodParams(t0, name, true, true);
+			if (typeList.size() == 0){
+				class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("dispatch: No types found for " + t0 + ":" + "name");
+				set_type(TreeConstants.Object_);
+				return false;
+			}else{
+				AbstractSymbol functionRetType = typeList.get(typeList.size() -1);
+				set_type(functionRetType == TreeConstants.SELF_TYPE ? t0 : functionRetType);
+			}
+			boolean paramsTypeChecked = false;
+			for (int i = 0; i< actual.getLength()-1; i++){
+				paramsTypeChecked = ((Expression) actual.getNth(i)).check_types(class_table,symbol_table);
+				if (paramsTypeChecked){
+					AbstractSymbol curType = ((Expression) actual.getNth(i)).get_type();
+					if (curType == TreeConstants.SELF_TYPE){
+						curType = (AbstractSymbol)symbol_table.lookup(TreeConstants.SELF_TYPE); // TODO: is this current?
+					}
+					if (class_table.le(typeList.get(i), curType)){
+						// this is good
+					}else{
+						class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("Invalid type for parameter " + i + " as type:" + "curType");
+						ret = false;
+					}
+				}else{
+					ret = false;
+=======*/
 	public void check_types(ClassTable classTable, class_c cl,SymbolTable attrTable){
 		expr.check_types(classTable, cl, attrTable);
 		AbstractSymbol expr_type = expr.get_type();
@@ -752,6 +826,7 @@ class dispatch extends Expression {
 				if (!classTable.le(formal.getType(), paramType)) {
 					classTable.semantError(cl).println("In call of method " + name + ", type " + param.get_type() +
 						" of parameter " + formal.getName() + " does not conform to declared type " + formal.getType() + ".");
+/*>>>>>>> b7ef6ebe3ad679e03104d80ebd248ffc0742fb2d*/
 				}
 			}
 		}
