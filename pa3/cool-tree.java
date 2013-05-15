@@ -295,8 +295,6 @@ class class_c extends Class_ {
 	protected AbstractSymbol parent;
 	protected Features features;
 	protected AbstractSymbol filename;
-	private SymbolTable methodsTable;
-	private SymbolTable attrTable;
 	/** Creates "class_c" AST node. 
 	  *
 	  * @param lineNumber the line in the source file from which this node came.
@@ -327,8 +325,6 @@ class class_c extends Class_ {
 	public AbstractSymbol getFilename() { return filename; }
 	public AbstractSymbol getName()	 { return name; }
 	public AbstractSymbol getParent()   { return parent; }
-	public SymbolTable getMethodsTable() { return methodsTable; }
-	public SymbolTable getAttrTable()    { return attrTable; }
 	public Features getFeatures() { return features; }
 
 	public void dump_with_types(PrintStream out, int n) {
@@ -437,7 +433,7 @@ class method extends Feature {
 			classTable.semantError(cl).println("Inferred return type " + expr.get_type() +
 				" of method " + name + " does not conform to declared return type " + return_type + ".");
 		}
-		if (return_type != TreeConstants.SELF_TYPE && !classTable.le(return_type, exprType)) {
+		if (return_type != TreeConstants.SELF_TYPE && !classTable.le(return_type, exprType, cl)) {
 			classTable.semantError(cl).println("Inferred return type " + expr.get_type() +
 				" of method " + name + " does not conform to declared return type " + return_type + ".");
 		}
@@ -531,8 +527,8 @@ class formalc extends Formal {
 	}
 	
 	// PA3
-	public AbstractSymbol getName() { return name; }
 	public AbstractSymbol getType() { return type_decl; }
+	public AbstractSymbol getName()  { return name; }
 	public void check_types(ClassTable classTable, class_c cl) {
 		if (type_decl == TreeConstants.SELF_TYPE) {
 			classTable.semantError(cl).println("Formal parameter " + name + " cannot have type SELF_TYPE.");
@@ -611,7 +607,7 @@ class assign extends Expression {
 		AbstractSymbol name_type = (AbstractSymbol)attrTable.lookup(name);
 		expr.check_types(classTable, cl, attrTable);
 		AbstractSymbol expr_type = expr.get_type();
-		if (!classTable.le(name_type, expr_type)) {
+		if (!classTable.le(name_type, expr_type, cl)) {
 			classTable.semantError(cl).println("Type " + expr_type + 
 				" of assigned expression does not conform to declared type " + name_type + " of identifier " + name + ".");
 		}
@@ -657,59 +653,20 @@ class static_dispatch extends Expression {
 	protected AbstractSymbol type_name;
 	protected AbstractSymbol name;
 	protected Expressions actual;
-/*<<<<<<< HEAD
-	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
-		boolean ret = expr.check_types(class_table,symbol_table);
-		if (ret){
-			AbstractSymbol t0 = expr.get_type(); 
-			ret = ret && class_table.le(type_name, t0);
-			//TODO fix to compile
-			List<AbstractSymbol> typeList = null;// (List<AbstractSymbol>)class_table.getMethodParams(type_name, name, true, true);
-			if (typeList.size() == 0){
-				class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("static_dispatch: No types found for " + type_name + ":" + "name");
-				set_type(TreeConstants.Object_);
-				return false;
-			}else{
-				AbstractSymbol functionRetType = typeList.get(typeList.size() -1);
-				set_type(functionRetType == TreeConstants.SELF_TYPE ? t0 : functionRetType);
-			}
-			boolean paramsTypeChecked = false;
-			for (int i = 0; i< actual.getLength()-1; i++){
-				paramsTypeChecked = ((Expression) actual.getNth(i)).check_types(class_table,symbol_table);
-				if (paramsTypeChecked){
-					AbstractSymbol curType = ((Expression) actual.getNth(i)).get_type();
-					if (curType == TreeConstants.SELF_TYPE){
-						curType = (AbstractSymbol)symbol_table.lookup(TreeConstants.SELF_TYPE); // TODO: is this current?
-					}
-					if (class_table.le(typeList.get(i), curType)){
-						// this is good
-					}else{
-						class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("Invalid type for parameter " + i + " as type:" + "curType");
-						ret = false;
-					}
-				}else{
-					ret = false;
-				}
-				ret = ret && paramsTypeChecked;
-			}
-		}else{
-			return false;
-=======*/
 	public void check_types(ClassTable classTable, class_c cl, SymbolTable attrTable){
 		expr.check_types(classTable, cl, attrTable);
 		AbstractSymbol expr_type = expr.get_type();
 		if (expr_type == TreeConstants.SELF_TYPE) {
 			expr_type = (AbstractSymbol)attrTable.lookup(TreeConstants.SELF_TYPE);
 		}
-		if (!classTable.le(type_name, expr_type)) {
+		if (!classTable.le(type_name, expr_type, cl)) {
 			classTable.semantError(cl).println("Expression type " + expr.get_type() + 
 				" does not conform to declared static dispatch type " + type_name + ".");
 		}
 		for (Enumeration e = actual.getElements(); e.hasMoreElements();) {
 			((Expression)e.nextElement()).check_types(classTable, cl, attrTable);
-/*>>>>>>> b7ef6ebe3ad679e03104d80ebd248ffc0742fb2d*/
 		}
-		SymbolTable methodsTable = classTable.getMethodsTable(type_name);
+		SymbolTable methodsTable = classTable.getMethodTable(type_name);
 		MethodInfo methodInfo = (MethodInfo)methodsTable.lookup(name);
 		AbstractSymbol name_type = methodInfo.nameType;
 		set_type(name_type);
@@ -765,48 +722,13 @@ class dispatch extends Expression {
 	protected Expression expr;
 	protected AbstractSymbol name;
 	protected Expressions actual;
-/*<<<<<<< HEAD
-	public boolean check_types(ClassTable class_table, SymbolTable symbol_table){
-		boolean ret = expr.check_types(class_table,symbol_table);
-		if (ret){
-			AbstractSymbol t0 = expr.get_type();
-			if(t0 == TreeConstants.SELF_TYPE){
-				t0 = (AbstractSymbol)symbol_table.lookup(TreeConstants.SELF_TYPE); // TODO: is this correct?
-			}
-			// TODO temporary fix to compile
-			List<AbstractSymbol> typeList = null;//(List<AbstractSymbol>)class_table.getMethodParams(t0, name, true, true);
-			if (typeList.size() == 0){
-				class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("dispatch: No types found for " + t0 + ":" + "name");
-				set_type(TreeConstants.Object_);
-				return false;
-			}else{
-				AbstractSymbol functionRetType = typeList.get(typeList.size() -1);
-				set_type(functionRetType == TreeConstants.SELF_TYPE ? t0 : functionRetType);
-			}
-			boolean paramsTypeChecked = false;
-			for (int i = 0; i< actual.getLength()-1; i++){
-				paramsTypeChecked = ((Expression) actual.getNth(i)).check_types(class_table,symbol_table);
-				if (paramsTypeChecked){
-					AbstractSymbol curType = ((Expression) actual.getNth(i)).get_type();
-					if (curType == TreeConstants.SELF_TYPE){
-						curType = (AbstractSymbol)symbol_table.lookup(TreeConstants.SELF_TYPE); // TODO: is this current?
-					}
-					if (class_table.le(typeList.get(i), curType)){
-						// this is good
-					}else{
-						class_table.semantError(class_table.getCurrentClass().getFilename(),this).println("Invalid type for parameter " + i + " as type:" + "curType");
-						ret = false;
-					}
-				}else{
-					ret = false;
-=======*/
 	public void check_types(ClassTable classTable, class_c cl,SymbolTable attrTable){
 		expr.check_types(classTable, cl, attrTable);
 		AbstractSymbol expr_type = expr.get_type();
 		if (expr_type == TreeConstants.SELF_TYPE) {
 			expr_type = (AbstractSymbol)attrTable.lookup(TreeConstants.SELF_TYPE);
 		}
-		SymbolTable methodsTable = classTable.getMethodsTable(expr_type);
+		SymbolTable methodsTable = classTable.getMethodTable(expr_type);
 		AbstractSymbol name_type = TreeConstants.Object_;
 		Object found_method = methodsTable.lookup(name);
 		if (found_method == null) {
@@ -823,10 +745,9 @@ class dispatch extends Expression {
 				if (paramType == TreeConstants.SELF_TYPE) {
 					paramType = cl.getName();
 				}
-				if (!classTable.le(formal.getType(), paramType)) {
+				if (!classTable.le(formal.getType(), paramType,cl)) {
 					classTable.semantError(cl).println("In call of method " + name + ", type " + param.get_type() +
 						" of parameter " + formal.getName() + " does not conform to declared type " + formal.getType() + ".");
-/*>>>>>>> b7ef6ebe3ad679e03104d80ebd248ffc0742fb2d*/
 				}
 			}
 		}
@@ -898,7 +819,7 @@ class cond extends Expression {
 		List<AbstractSymbol> types = new ArrayList<AbstractSymbol>();
 		types.add(then_type);
 		types.add(else_type);
-		set_type(classTable.lub(types));
+		set_type(classTable.lub(types,cl));
 	}
 	/** Creates "cond" AST node. 
 	  *
@@ -1002,7 +923,7 @@ class typcase extends Expression {
 			br.check_types(classTable, cl, attrTable);
 			types.add(br.get_type());
 		}
-		set_type(classTable.lub(types));
+		set_type(classTable.lub(types,cl));
 	}
 	/** Creates "typcase" AST node. 
 	  *
@@ -1098,7 +1019,7 @@ class let extends Expression {
 		init.check_types(classTable, cl, attrTable);
 		AbstractSymbol init_type = init.get_type();
 		if (init_type != TreeConstants.No_type && init_type != TreeConstants.SELF_TYPE && 
-			!classTable.le(type_decl, init_type)) {
+			!classTable.le(type_decl, init_type,cl)) {
 			classTable.semantError(cl).println("Inferred type " + init_type + " of initialization of " + 
 				identifier + " does not conform to identifier's declared type " + type_decl + ".");
 			set_type(TreeConstants.No_type);
