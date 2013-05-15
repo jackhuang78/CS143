@@ -409,7 +409,7 @@ class method extends Feature {
 	public Formals getFormals() { return formals; }
 	public AbstractSymbol getRet() { return return_type; }
 	public void check_types(ClassTable classTable, class_c cl, SymbolTable attrTable) {
-		if (return_type != TreeConstants.SELF_TYPE && !classTable.hasClass(return_type) {
+		if (return_type != TreeConstants.SELF_TYPE && !classTable.hasClass(return_type)) {
 			classTable.semantError(cl).println("Undefined return type " + return_type + " in method " + name + ".");
 		}
 		attrTable.enterScope();
