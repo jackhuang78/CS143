@@ -331,57 +331,126 @@ class ClassTable {
 		for(AbstractSymbol clazz : nodeMap.keySet()) {
 			if(Flags.semant_debug)
 				System.out.println("Constructing object/method env for " + clazz);
+			
 			Node node = nodeMap.get(clazz);
-
+			AbstractSymbol filename = node.value.getFilename();
 			
-			List<AbstractSymbol> path = path(clazz);
-			node.objectEnv.enterScope();
-			node.methodEnv.enterScope();
-			if(node.parent != null) {
-				node.attrMap.putAll(node.parent.attrMap);
-				node.methMap.putAll(node.parent.methMap);
-			}
-			
-
-			/*
-			for(AbstractSymbol ancestor : path) {
-				Features featList = node.value.getFeatures();
-				
-			}
-			
-			Features featList = value.getFeatures();
+			Features featList = node.value.getFeatures();
 			for(int i = 0; i < featList.getLength(); i++) {
 				Feature feat = (Feature)featList.getNth(i);
 				
 				if(feat instanceof attr) {
-					attr at = (attr)feat;
-					attributes.put(at.getName(), at.getType());
-					
-				} else if(feat instanceof method) {
-					method meth = (method)feat;
-					Formals formList = meth.getFormals();
-					List<Map.Entry<AbstractSymbol, AbstractSymbol>> params = new ArrayList<Map.Entry<AbstractSymbol, AbstractSymbol>>();
-					
-					for(int j = 0; j < formList.getLength(); j++) {
-						formalc form = (formalc)formList.getNth(j);
-						params.add(new AbstractMap.SimpleEntry<AbstractSymbol, AbstractSymbol>(form.getName(), form.getType()));
-					}	
-					params.add(new AbstractMap.SimpleEntry<AbstractSymbol, AbstractSymbol>(
-						TreeConstants.ret, meth.getRet()));
+					attr a = (attr)feat;
+					AbstractSymbol name = a.getName();
+					if(node.parent.attrMap.containsKey(name)) {
+						semantError(filename, a).printf("Attribute %s is an attribute of an inherited class.\n", name);
 						
-					methods.put(meth.getName(), params);
+					} else if(node.attrMap.containsKey(name)) {
+						semantError(filename, a).printf("Attribute %s is multiply defined in class.\n", name);
+						
+					} else {
+						node.attrMap.put(name, a.getType());
+					}
 					
 				} else {
-					throw new RuntimeException("Feature is neither an attribute or a method.");
-				}
+				
+					method m = (method)feat;
+					AbstractSymbol name = m.getName();
+					Formals formList = m.getFormals();
+					Map<AbstractSymbol, AbstractSymbol> params = null;
+					if(node.parent != null)
+						params = node.parent.methMap.get(name);
+
+					boolean success = false;
+
+					
+					// if method is not defined in this class nor in parent class, add it
+					if((node.parent == null || !node.parent.methMap.containsKey(name)) && ! node.methMap.containsKey(name)) {
+						success = true;
+
+					// error if the same method is defined in the same class					
+					} else if(node.methMap.containsKey(name)) {
+						semantError(filename, m).printf(
+							"Method %s is multiply defined.\n", name);
+					
+					// error if return type is different
+					} else if(params.get(null) != m.getRet()) {
+							semantError(filename, m).printf(
+								"In redefined method %s, return type %s is different from original return type %s.\n", 
+								name, m.getRet(), params.get(null));
+								
+					// error if number of parameters is different		
+					} else if(formList.getLength() != params.size() - 1) {
+						semantError(filename, m).printf(
+							"Incompatible number of formal parameters in redefined method %s.\n",
+							name);
+							
+					// error if any parameter type is different
+					} else {
+					
+						Iterator<AbstractSymbol> itor = params.keySet().iterator();
+						for(int j = 0; j < formList.getLength(); j++) {
+							AbstractSymbol key = itor.next();
+							formalc form = (formalc)formList.getNth(j);
+							if(key == null)
+								continue;
+							
+							if(form.getType() != params.get(key)) {
+								semantError(filename, m).printf(
+									"In redefined method func, parameter type %s is different from original type %s\n",
+									form.getType(),
+									params.get(key));
+								break;
+							}
+						}
+						success = true;							
+					} // END method check block
+					
+					if(success) {
+						Map<AbstractSymbol, AbstractSymbol> formMap = new LinkedHashMap<AbstractSymbol, AbstractSymbol>();
+						for(int j = 0; j < formList.getLength(); j++) {
+							formalc form = (formalc)formList.getNth(j);
+							formMap.put(form.getName(), form.getType());
+						}
+						formMap.put(null, m.getRet());
+						node.methMap.put(m.getName(), formMap);
+					}
+					
+				} // END method block
+			} // END feature loop
 			
-			}*/
+			// include parent's attributes and methods
+			if(node.parent != null) {
+				for(AbstractSymbol name : node.parent.attrMap.keySet())
+					if(!node.attrMap.containsKey(name))
+						node.attrMap.put(name, node.parent.attrMap.get(name));
+						
+				for(AbstractSymbol name : node.parent.methMap.keySet())
+					if(!node.methMap.containsKey(name))
+						node.methMap.put(name, node.parent.methMap.get(name));		
+
+			}
 			
-		}	
-		
-		
+			// construct scopes
+			node.objectEnv = new SymbolTable();
+			node.objectEnv.enterScope();
+			for(AbstractSymbol name : node.attrMap.keySet())
+				node.objectEnv.addId(name, node.attrMap.get(name));
 			
-	}
+			node.methodEnv = new SymbolTable();
+			node.methodEnv.enterScope();
+			for(AbstractSymbol name : node.methMap.keySet())
+				node.methodEnv.addId(name, node.methMap.get(name));
+				
+			if(Flags.semant_debug) {
+				System.out.println("AttrEnv:\n" + node.objectEnv);
+				System.out.println("MethEnv:\n" + node.methodEnv);
+//				System.out.println("Constructing object/method env for " + clazz);
+			}
+			
+			
+		} // END class loop (constructing scope)				
+	} // END ClassTable constructor
 	
 
 	
@@ -613,8 +682,8 @@ class ClassTable {
 			if(parent != null)
 				parent.children.add(this);
 				
-			attrMap = new HashMap<AbstractSymbol, AbstractSymbol>();
-			methMap = new HashMap<AbstractSymbol, Map<AbstractSymbol, AbstractSymbol>>();				
+			attrMap = new LinkedHashMap<AbstractSymbol, AbstractSymbol>();
+			methMap = new LinkedHashMap<AbstractSymbol, Map<AbstractSymbol, AbstractSymbol>>();				
 			objectEnv = new SymbolTable();
 			methodEnv = new SymbolTable();
 

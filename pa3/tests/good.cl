@@ -15,3 +15,14 @@ Class Main {
 	  (new C).init(1,true)
 	};
 };
+
+Class D inherits C {
+	c:String;
+	init(x:Int, z:Bool):C{
+		self
+	};
+	
+	inc():Int{
+		x + 1
+	};
+};
