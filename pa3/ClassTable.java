@@ -397,7 +397,8 @@ class ClassTable {
 							
 							if(form.getType() != params.get(key)) {
 								semantError(filename, m).printf(
-									"In redefined method func, parameter type %s is different from original type %s\n",
+									"In redefined method %s, parameter type %s is different from original type %s\n",
+									name,
 									form.getType(),
 									params.get(key));
 								break;
@@ -410,7 +411,17 @@ class ClassTable {
 						Map<AbstractSymbol, AbstractSymbol> formMap = new LinkedHashMap<AbstractSymbol, AbstractSymbol>();
 						for(int j = 0; j < formList.getLength(); j++) {
 							formalc form = (formalc)formList.getNth(j);
-							formMap.put(form.getName(), form.getType());
+							if(formMap.containsKey(form.getName())) {
+								semantError(filename, form).printf(
+									"Formal parameter %s is multiply defined.\n",
+									form.getName());
+								formMap.put(
+									createNewSymbol(form.getName().toString()), 
+									form.getType());
+								
+							} else	{
+								formMap.put(form.getName(), form.getType());
+							}
 						}
 						formMap.put(null, m.getRet());
 						node.methMap.put(m.getName(), formMap);
@@ -449,11 +460,34 @@ class ClassTable {
 			}
 			
 			
+			
+			
 		} // END class loop (constructing scope)				
+		
+		
+		// 6. Check for main method in Main
+		if(!nodeMap.get(TreeConstants.Main).methMap.containsKey(TreeConstants.main_meth))
+			semantError(nodeMap.get(TreeConstants.Main).value).println("No 'main' method in class Main.");
+		
 	} // END ClassTable constructor
 	
 
+	private AbstractSymbol createNewSymbol(String name) {
+		boolean nameExist = true;
+		while(nameExist) {
+			nameExist = false;
+			name = name + "_";
+			Enumeration e = AbstractTable.idtable.getSymbols();
+			while(e.hasMoreElements()) {
+				if(e.nextElement().toString().equals(name)) {
+					nameExist = true;
+					break;
+				}
+			}
+		}
 	
+		return AbstractTable.idtable.addString(name);
+	}
 
 	
 	private AbstractSymbol lookup(String name) {
