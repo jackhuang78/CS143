@@ -278,10 +278,27 @@ class programc extends Program {
 	public void semant() {
 		/* ClassTable constructor may do some semantic analysis */
 		ClassTable classTable = new ClassTable(classes);
+		
 		if (classTable.errors()) {
 			System.err.println("Compilation halted due to static semantic errors.");
 			System.exit(1);
 		}
+		
+		classTable.constructScope();
+		
+		for(int i = 0; i < classes.getLength(); i++) {
+			class_c clazz = (class_c) classes.getNth(i);
+			clazz.check_types(classTable, classTable.getAttributeTable(clazz.getName()));
+		}
+		
+		if (classTable.errors()) {
+			System.err.println("Compilation halted due to static semantic errors.");
+			System.exit(1);
+		}
+//			classList.add((class_c)cls.getNth(i));
+//		if(Flags.semant_debug)
+//			System.out.println("\nclassList: \n" + classList);
+		
 	}
 
 }
@@ -994,6 +1011,8 @@ class block extends Expression {
 		for (Enumeration e = body.getElements(); e.hasMoreElements();) {
 			Expression expr = (Expression)e.nextElement();
 			expr.check_types(classTable, cl, attrTable);
+			
+			System.out.println("block: " + e + " " + expr.get_type());
 			set_type(expr.get_type());
 		}
 	}
@@ -1729,10 +1748,12 @@ class object extends Expression {
 	protected AbstractSymbol name;
 	public void check_types(ClassTable classTable, class_c cl, SymbolTable attrTable) {
 		Object lookedup = attrTable.lookup(name);
+		System.out.println(name + " in symbol table is " + lookedup);
 		if (lookedup == null) {
 			classTable.semantError(cl).println("Undeclared identifier " + name + ".");
 			set_type(TreeConstants.No_type);
 		} else {
+			System.out.println(name + " 2 in symbol table is " + lookedup);
 			set_type((AbstractSymbol)lookedup);
 		}
 	}
@@ -1755,6 +1776,7 @@ class object extends Expression {
 
 	
 	public void dump_with_types(PrintStream out, int n) {
+		System.out.println("dwt: " + name + ": "+ get_type());
 		dump_line(out, n);
 		out.println(Utilities.pad(n) + "_object");
 		dump_AbstractSymbol(out, n + 2, name);

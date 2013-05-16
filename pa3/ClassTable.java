@@ -327,7 +327,13 @@ class ClassTable {
 			*/
 		}
 		
-		// 5. Construct object/method environment for every class
+		
+		
+	} // END ClassTable constructor
+	
+	
+	public void constructScope() {
+	// 5. Construct object/method environment for every class
 		for(AbstractSymbol clazz : nodeMap.keySet()) {
 			if(Flags.semant_debug)
 				System.out.println("Constructing object/method env for " + clazz);
@@ -447,6 +453,7 @@ class ClassTable {
 			node.objectEnv.enterScope();
 			for(AbstractSymbol name : node.attrMap.keySet())
 				node.objectEnv.addId(name, node.attrMap.get(name));
+			//node.objectEnv.addId(TreeConstants.self, TreeConstants.SELF_TYPE);
 			
 			node.methodEnv = new SymbolTable();
 			node.methodEnv.enterScope();
@@ -468,9 +475,7 @@ class ClassTable {
 		// 6. Check for main method in Main
 		if(!nodeMap.get(TreeConstants.Main).methMap.containsKey(TreeConstants.main_meth))
 			semantError(nodeMap.get(TreeConstants.Main).value).println("No 'main' method in class Main.");
-		
-	} // END ClassTable constructor
-	
+	}
 
 	private AbstractSymbol createNewSymbol(String name) {
 		boolean nameExist = true;
@@ -568,7 +573,7 @@ class ClassTable {
 	}
 	
 	
-	
+	// HACK: actually GE (t1 and t2 switched)
 	public boolean le(AbstractSymbol t1, AbstractSymbol t2, class_c clazz) {
 		if(!nodeMap.containsKey(t1) || !nodeMap.containsKey(t2))
 			return false;
@@ -592,6 +597,10 @@ class ClassTable {
 	
 	public SymbolTable getMethodTable(AbstractSymbol clazz) {
 		return nodeMap.get(clazz).methodEnv;
+	}
+	
+	public SymbolTable getAttributeTable(AbstractSymbol clazz) {
+		return nodeMap.get(clazz).objectEnv;
 	}
 	
 	/*
