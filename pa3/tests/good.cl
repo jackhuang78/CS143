@@ -18,11 +18,12 @@ Class Main {
 
 Class D inherits C {
 	c:String;
+	d:Int <- 10;
 	init(x:Int, z:Bool):C{
 		self
 	};
 	
 	inc():Int{
-		x + 1
+		d + 1
 	};
 };

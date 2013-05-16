@@ -346,6 +346,7 @@ class class_c extends Class_ {
 	public void check_types(ClassTable classTable, SymbolTable attrTable) {
 		attrTable.enterScope();
 		attrTable.addId(TreeConstants.SELF_TYPE, name);
+		attrTable.addId(TreeConstants.self, TreeConstants.SELF_TYPE);
 		for (Enumeration e = features.getElements(); e.hasMoreElements();) {
 			((Feature)e.nextElement()).check_types(classTable, this, attrTable);
 		}
@@ -433,7 +434,7 @@ class method extends Feature {
 			classTable.semantError(cl).println("Inferred return type " + expr.get_type() +
 				" of method " + name + " does not conform to declared return type " + return_type + ".");
 		}
-		if (return_type != TreeConstants.SELF_TYPE && !classTable.le(return_type, exprType, cl)) {
+		if (return_type != TreeConstants.SELF_TYPE && !classTable.le(exprType,return_type, cl)) {
 			classTable.semantError(cl).println("Inferred return type " + expr.get_type() +
 				" of method " + name + " does not conform to declared return type " + return_type + ".");
 		}
@@ -607,7 +608,7 @@ class assign extends Expression {
 		AbstractSymbol name_type = (AbstractSymbol)attrTable.lookup(name);
 		expr.check_types(classTable, cl, attrTable);
 		AbstractSymbol expr_type = expr.get_type();
-		if (!classTable.le(name_type, expr_type, cl)) {
+		if (!classTable.le(expr_type,name_type, cl)) {
 			classTable.semantError(cl).println("Type " + expr_type + 
 				" of assigned expression does not conform to declared type " + name_type + " of identifier " + name + ".");
 		}
@@ -659,7 +660,7 @@ class static_dispatch extends Expression {
 		if (expr_type == TreeConstants.SELF_TYPE) {
 			expr_type = (AbstractSymbol)attrTable.lookup(TreeConstants.SELF_TYPE);
 		}
-		if (!classTable.le(type_name, expr_type, cl)) {
+		if (!classTable.le(expr_type,type_name, cl)) {
 			classTable.semantError(cl).println("Expression type " + expr.get_type() + 
 				" does not conform to declared static dispatch type " + type_name + ".");
 		}
@@ -683,7 +684,7 @@ class static_dispatch extends Expression {
 					paramType = cl.getName();
 				}
 				AbstractSymbol paramName = itor.next();
-				if (!classTable.le(methodInfo.get(paramName), paramType,cl)) {
+				if (!classTable.le(paramType,methodInfo.get(paramName),cl)) {
 					classTable.semantError(cl).println("In call of method " + name + ", type " + param.get_type() +
 						" of parameter " + paramName + " does not conform to declared type " + methodInfo.get(paramName) + ".");
 				}
@@ -770,7 +771,7 @@ class dispatch extends Expression {
 					paramType = cl.getName();
 				}
 				AbstractSymbol paramName = itor.next();
-				if (!classTable.le(methodInfo.get(paramName), paramType,cl)) {
+				if (!classTable.le(paramType,methodInfo.get(paramName),cl)) {
 					classTable.semantError(cl).println("In call of method " + name + ", type " + param.get_type() +
 						" of parameter " + paramName + " does not conform to declared type " + methodInfo.get(paramName) + ".");
 				}
@@ -1044,7 +1045,7 @@ class let extends Expression {
 		init.check_types(classTable, cl, attrTable);
 		AbstractSymbol init_type = init.get_type();
 		if (init_type != TreeConstants.No_type && init_type != TreeConstants.SELF_TYPE && 
-			!classTable.le(type_decl, init_type,cl)) {
+			!classTable.le(init_type,type_decl,cl)) {
 			classTable.semantError(cl).println("Inferred type " + init_type + " of initialization of " + 
 				identifier + " does not conform to identifier's declared type " + type_decl + ".");
 			set_type(TreeConstants.No_type);
