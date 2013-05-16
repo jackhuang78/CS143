@@ -534,8 +534,8 @@ class ClassTable {
 	
 	
 	public AbstractSymbol lub(AbstractSymbol t1, AbstractSymbol t2, class_c clazz) {
-		if(!nodeMap.containsKey(t1) || !nodeMap.containsKey(t2))
-			return null;
+		//if(!nodeMap.containsKey(t1) || !nodeMap.containsKey(t2))
+		//	return null;
 		
 		if(t1 == TreeConstants.SELF_TYPE && t2 == TreeConstants.SELF_TYPE)
 			return t1;
@@ -558,6 +558,8 @@ class ClassTable {
 	}
 	
 	public AbstractSymbol lub(List<AbstractSymbol> ts, class_c clazz) {
+		//System.out.println("LUB: " + ts + " in " + clazz);
+	
 		if(ts.size() == 0)
 			return null;
 		else if(ts.size() == 1)
@@ -575,8 +577,11 @@ class ClassTable {
 	
 	// HACK: actually GE (t1 and t2 switched)
 	public boolean le(AbstractSymbol t1, AbstractSymbol t2, class_c clazz) {
-		if(!nodeMap.containsKey(t1) || !nodeMap.containsKey(t2))
-			return false;
+	
+		//System.out.printf("Is %s less than %s in %s?\n", t1, t2, clazz);
+		
+		//if(!nodeMap.containsKey(t1) || !nodeMap.containsKey(t2))
+		//	return false;
 		
 		if(t1 == TreeConstants.SELF_TYPE && t2 == TreeConstants.SELF_TYPE)
 			return true;

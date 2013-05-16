@@ -11,14 +11,6 @@ import java.io.PrintStream;
 import java.util.Vector;
 import java.util.*;
 
-class MethodInfo {
-	public AbstractSymbol nameType;
-	public Formals formals;
-	public MethodInfo(AbstractSymbol nameType, Formals formals) {
-		this.nameType = nameType;
-		this.formals = formals;
-	}
-}
 
 /** Defines simple phylum Program */
 abstract class Program extends TreeNode {
@@ -624,11 +616,12 @@ class assign extends Expression {
 		AbstractSymbol name_type = (AbstractSymbol)attrTable.lookup(name);
 		expr.check_types(classTable, cl, attrTable);
 		AbstractSymbol expr_type = expr.get_type();
+		//System.out.println("assign: expr= " + expr_type + ", name= " + name_type);
 		if (!classTable.le(expr_type,name_type, cl)) {
 			classTable.semantError(cl.getFilename(),this).println("Type " + expr_type + 
 				" of assigned expression does not conform to declared type " + name_type + " of identifier " + name + ".");
 		}
-		set_type(name_type);
+		set_type(expr_type);
 	}
 	/** Creates "assign" AST node. 
 	  *
