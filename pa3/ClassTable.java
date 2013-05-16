@@ -453,6 +453,7 @@ class ClassTable {
 			node.objectEnv.enterScope();
 			for(AbstractSymbol name : node.attrMap.keySet())
 				node.objectEnv.addId(name, node.attrMap.get(name));
+			//node.objectEnv.addId(TreeConstants.self, TreeConstants.SELF_TYPE);
 			
 			node.methodEnv = new SymbolTable();
 			node.methodEnv.enterScope();
@@ -572,7 +573,7 @@ class ClassTable {
 	}
 	
 	
-	
+	// HACK: actually GE (t1 and t2 switched)
 	public boolean le(AbstractSymbol t1, AbstractSymbol t2, class_c clazz) {
 		if(!nodeMap.containsKey(t1) || !nodeMap.containsKey(t2))
 			return false;

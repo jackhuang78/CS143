@@ -18,6 +18,7 @@ Class Main {
 
 Class D inherits C {
 	c:String;
+	x:Int <- 10;
 	init(x:Int, z:Bool):C{
 		self
 	};
