@@ -1012,7 +1012,7 @@ class block extends Expression {
 			Expression expr = (Expression)e.nextElement();
 			expr.check_types(classTable, cl, attrTable);
 			
-			System.out.println("block: " + e + " " + expr.get_type());
+			//System.out.println("block: " + e + " " + expr.get_type());
 			set_type(expr.get_type());
 		}
 	}
@@ -1748,12 +1748,12 @@ class object extends Expression {
 	protected AbstractSymbol name;
 	public void check_types(ClassTable classTable, class_c cl, SymbolTable attrTable) {
 		Object lookedup = attrTable.lookup(name);
-		System.out.println(name + " in symbol table is " + lookedup);
+		//System.out.println(name + " in symbol table is " + lookedup);
 		if (lookedup == null) {
 			classTable.semantError(cl).println("Undeclared identifier " + name + ".");
 			set_type(TreeConstants.No_type);
 		} else {
-			System.out.println(name + " 2 in symbol table is " + lookedup);
+			//System.out.println(name + " 2 in symbol table is " + lookedup);
 			set_type((AbstractSymbol)lookedup);
 		}
 	}
@@ -1776,7 +1776,7 @@ class object extends Expression {
 
 	
 	public void dump_with_types(PrintStream out, int n) {
-		System.out.println("dwt: " + name + ": "+ get_type());
+		//System.out.println("dwt: " + name + ": "+ get_type());
 		dump_line(out, n);
 		out.println(Utilities.pad(n) + "_object");
 		dump_AbstractSymbol(out, n + 2, name);
