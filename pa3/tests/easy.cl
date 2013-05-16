@@ -1,3 +1,4 @@
+
 class CellularAutomaton inherits IO {
     population_map : String;
    
@@ -92,4 +93,3 @@ class Main {
         }
     };
 };
-
