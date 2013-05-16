@@ -278,10 +278,27 @@ class programc extends Program {
 	public void semant() {
 		/* ClassTable constructor may do some semantic analysis */
 		ClassTable classTable = new ClassTable(classes);
+		
 		if (classTable.errors()) {
 			System.err.println("Compilation halted due to static semantic errors.");
 			System.exit(1);
 		}
+		
+		classTable.constructScope();
+		
+		for(int i = 0; i < classes.getLength(); i++) {
+			class_c clazz = (class_c) classes.getNth(i);
+			clazz.check_types(classTable, classTable.getAttributeTable(clazz.getName()));
+		}
+		
+		if (classTable.errors()) {
+			System.err.println("Compilation halted due to static semantic errors.");
+			System.exit(1);
+		}
+//			classList.add((class_c)cls.getNth(i));
+//		if(Flags.semant_debug)
+//			System.out.println("\nclassList: \n" + classList);
+		
 	}
 
 }

@@ -327,7 +327,13 @@ class ClassTable {
 			*/
 		}
 		
-		// 5. Construct object/method environment for every class
+		
+		
+	} // END ClassTable constructor
+	
+	
+	public void constructScope() {
+	// 5. Construct object/method environment for every class
 		for(AbstractSymbol clazz : nodeMap.keySet()) {
 			if(Flags.semant_debug)
 				System.out.println("Constructing object/method env for " + clazz);
@@ -468,9 +474,7 @@ class ClassTable {
 		// 6. Check for main method in Main
 		if(!nodeMap.get(TreeConstants.Main).methMap.containsKey(TreeConstants.main_meth))
 			semantError(nodeMap.get(TreeConstants.Main).value).println("No 'main' method in class Main.");
-		
-	} // END ClassTable constructor
-	
+	}
 
 	private AbstractSymbol createNewSymbol(String name) {
 		boolean nameExist = true;
@@ -592,6 +596,10 @@ class ClassTable {
 	
 	public SymbolTable getMethodTable(AbstractSymbol clazz) {
 		return nodeMap.get(clazz).methodEnv;
+	}
+	
+	public SymbolTable getAttributeTable(AbstractSymbol clazz) {
+		return nodeMap.get(clazz).objectEnv;
 	}
 	
 	/*
