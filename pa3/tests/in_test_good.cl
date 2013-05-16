@@ -15,7 +15,10 @@ Class Def inherits Main{
 };
 
 Class D inherits Def{
-	
+	x : Int;
+	func():Int {
+		x <- x + x * x
+	};
 
 };
 
