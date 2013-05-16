@@ -667,9 +667,33 @@ class static_dispatch extends Expression {
 			((Expression)e.nextElement()).check_types(classTable, cl, attrTable);
 		}
 		SymbolTable methodsTable = classTable.getMethodTable(type_name);
-		MethodInfo methodInfo = (MethodInfo)methodsTable.lookup(name);
-		AbstractSymbol name_type = methodInfo.nameType;
-		set_type(name_type);
+		Map<AbstractSymbol, AbstractSymbol> methodInfo = (Map<AbstractSymbol, AbstractSymbol>)methodsTable.lookup(name);
+		AbstractSymbol name_type = methodInfo.get(null);
+		if (methodInfo == null) {
+			classTable.semantError(cl).println("Dispatch to undefined method " + name + ".");
+		} else {
+			if(actual.getLength() != methodInfo.size() - 1)
+				classTable.semantError(cl).println("Number of parameters don't match.");
+			Iterator<AbstractSymbol> itor = methodInfo.keySet().iterator();
+			for (int i = 0; i < actual.getLength() && itor.hasNext(); ++i) {
+				Expression param = (Expression)actual.getNth(i);
+				param.check_types(classTable, cl, attrTable);
+				AbstractSymbol paramType = param.get_type();
+				if (paramType == TreeConstants.SELF_TYPE) {
+					paramType = cl.getName();
+				}
+				AbstractSymbol paramName = itor.next();
+				if (!classTable.le(methodInfo.get(paramName), paramType,cl)) {
+					classTable.semantError(cl).println("In call of method " + name + ", type " + param.get_type() +
+						" of parameter " + paramName + " does not conform to declared type " + methodInfo.get(paramName) + ".");
+				}
+			}
+		}
+		if (name_type == TreeConstants.SELF_TYPE) {
+			set_type(expr.get_type());
+		} else {
+			set_type(name_type);
+		}
 	}
 	/** Creates "static_dispatch" AST node. 
 	  *
@@ -728,26 +752,27 @@ class dispatch extends Expression {
 		if (expr_type == TreeConstants.SELF_TYPE) {
 			expr_type = (AbstractSymbol)attrTable.lookup(TreeConstants.SELF_TYPE);
 		}
+
 		SymbolTable methodsTable = classTable.getMethodTable(expr_type);
-		AbstractSymbol name_type = TreeConstants.Object_;
-		Object found_method = methodsTable.lookup(name);
-		if (found_method == null) {
+		Map<AbstractSymbol, AbstractSymbol> methodInfo = (Map<AbstractSymbol, AbstractSymbol>)methodsTable.lookup(name);
+		AbstractSymbol name_type = methodInfo.get(null);
+		if (methodInfo == null) {
 			classTable.semantError(cl).println("Dispatch to undefined method " + name + ".");
 		} else {
-			MethodInfo methodInfo = (MethodInfo)methodsTable.lookup(name);
-			name_type = methodInfo.nameType;
-			Formals formals = methodInfo.formals;
-			for (int i = 0; i < actual.getLength(); ++i) {
+			if(actual.getLength() != methodInfo.size() - 1)
+				classTable.semantError(cl).println("Number of parameters don't match.");
+			Iterator<AbstractSymbol> itor = methodInfo.keySet().iterator();
+			for (int i = 0; i < actual.getLength() && itor.hasNext(); ++i) {
 				Expression param = (Expression)actual.getNth(i);
 				param.check_types(classTable, cl, attrTable);
-				formalc formal = (formalc)formals.getNth(i);
 				AbstractSymbol paramType = param.get_type();
 				if (paramType == TreeConstants.SELF_TYPE) {
 					paramType = cl.getName();
 				}
-				if (!classTable.le(formal.getType(), paramType,cl)) {
+				AbstractSymbol paramName = itor.next();
+				if (!classTable.le(methodInfo.get(paramName), paramType,cl)) {
 					classTable.semantError(cl).println("In call of method " + name + ", type " + param.get_type() +
-						" of parameter " + formal.getName() + " does not conform to declared type " + formal.getType() + ".");
+						" of parameter " + paramName + " does not conform to declared type " + methodInfo.get(paramName) + ".");
 				}
 			}
 		}
