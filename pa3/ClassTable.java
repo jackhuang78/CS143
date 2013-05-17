@@ -348,7 +348,11 @@ class ClassTable {
 				if(feat instanceof attr) {
 					attr a = (attr)feat;
 					AbstractSymbol name = a.getName();
-					if(node.parent.attrMap.containsKey(name)) {
+					AbstractSymbol type = a.getType();
+					if(!nodeMap.containsKey(name)) {
+						semantError(filename, a).printf("Class %s of attribute %s is undefined.\n", type, name);
+					}
+					else if(node.parent.attrMap.containsKey(name)) {
 						semantError(filename, a).printf("Attribute %s is an attribute of an inherited class.\n", name);
 						
 					} else if(node.attrMap.containsKey(name)) {
@@ -401,7 +405,12 @@ class ClassTable {
 							if(key == null)
 								continue;
 							
-							if(form.getType() != params.get(key)) {
+							if(!nodeMap.containsKey(form.getType())) {
+								semantError(filename, m).printf(
+									"Class %s of formal parameter %s is undefined.\n",
+									form.getType(), name);
+							
+							} else if(form.getType() != params.get(key)) {
 								semantError(filename, m).printf(
 									"In redefined method %s, parameter type %s is different from original type %s\n",
 									name,
