@@ -378,7 +378,22 @@ class ClassTable {
 					
 					// if method is not defined in this class nor in parent class, add it
 					if((node.parent == null || !node.parent.methMap.containsKey(name)) && ! node.methMap.containsKey(name)) {
+						
 						success = true;
+						
+						for(int j = 0; j < formList.getLength(); j++) {
+							formalc form = (formalc)formList.getNth(j);
+							//System.err.println(form.getType());
+							if(!hasClass(form.getType())) {
+								semantError(filename, m).printf(
+									"Class %s of formal parameter %s is undefined.\n",
+									form.getType(), form.getName());
+							
+								success = false;
+							}
+						}
+
+						
 
 					// error if the same method is defined in the same class					
 					} else if(node.methMap.containsKey(name)) {
@@ -404,15 +419,13 @@ class ClassTable {
 						for(int j = 0; j < formList.getLength(); j++) {
 							AbstractSymbol key = itor.next();
 							formalc form = (formalc)formList.getNth(j);
+							//System.err.printf("param %s has type %s: %s\n", form.getName(), form.getType(), hasClass(form.getType()) );
 							if(key == null)
 								continue;
 							
-							if(!hasClass(form.getType())) {
-								semantError(filename, m).printf(
-									"Class %s of formal parameter %s is undefined.\n",
-									form.getType(), name);
 							
-							} else if(form.getType() != params.get(key)) {
+							
+							 if(form.getType() != params.get(key)) {
 								semantError(filename, m).printf(
 									"In redefined method %s, parameter type %s is different from original type %s\n",
 									name,
