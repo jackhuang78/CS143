@@ -10,12 +10,17 @@ class C {
 		self;
            }
 	};
+	init_parent(x:Int) : C{
+	   {
+		a <- x;
+	   }
+	};
 };
 
 class C2 inherits C {
 	a : Int;
 	b : Bool;
-	init(x : Int, y : Bool, z: String) : SELF_TYPE {
+	init2(x : Int, y : Bool, z: String) : SELF_TYPE {
            {
 		a <- x;
 		b <- y;
@@ -26,10 +31,11 @@ class C2 inherits C {
 class C3 inherits C2 {
 	a : Int;
 	b : Bool;
-	init(x : Int, y : Bool) : SELF_TYPE  {
+	init3(x : Int, y : Bool, o: Object) : SELF_TYPE  {
            {
 		a <- x;
 		b <- y;
+		
            }
 	};
 };
@@ -96,12 +102,32 @@ class D inherits C {
 };
 
 Class Main {
+	x : C;
+	z : D;
+	h : C2;
+	g : String;
+        t : Main;
 	main():C {
 	 {
+          
+	  x <- new C;
+	  x <- new D;
+	  y <- new C;
+	  z <- new C;
+          h <- new C2;
 	  (new C).init(1,1);
 	  (new C).init(1,true,3);
 	  (new C).iinit(1,true);
 	  (new C);
+	  h.init(1,true);
+	  h.init(1,true,"1234");
+          g <- h.init(1,true);
+	  g <- h.init(1,true,"1234");
+	  g <- h@C.init(1,true,"1234");
+	  g <- h@C.init(1,true);
+          (new C2).init2(1,true,"1234");
+          (new C2).init2(1,true);
+
 	 }
 	};
 };
