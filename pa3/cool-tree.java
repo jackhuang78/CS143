@@ -845,6 +845,9 @@ class cond extends Expression {
 	protected Expression else_exp;
 	public void check_types(ClassTable classTable,  class_c cl, SymbolTable attrTable){
 		pred.check_types(classTable, cl, attrTable);
+		if (pred.get_type() != TreeConstants.Bool) {
+			classTable.semantError(cl.getFilename(),this).println("Predicate of 'if' does not have type Bool.");
+		}
 		then_exp.check_types(classTable, cl, attrTable);
 		else_exp.check_types(classTable, cl, attrTable);
 		AbstractSymbol then_type = then_exp.get_type();

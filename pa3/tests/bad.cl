@@ -13,6 +13,19 @@ class C {
 	init_parent(x:Int) : C{
 	   {
 		a <- x;
+		if a < 10 then 
+			if a <= 20 then
+				a <- 13
+			else 
+				new C2
+			fi
+		else
+			if "3123" then
+				b <- new C3
+			else
+				a <- "12334"
+			fi
+		fi;
 	   }
 	};
 };
@@ -24,6 +37,14 @@ class C2 inherits C {
            {
 		a <- x;
 		b <- y;
+		self;
+           }
+	};
+	init22(x : C, y : C3) : SELF_TYPE {
+           {
+		a <- x;
+		b <- y;
+		self;
            }
 	};
 };
@@ -107,6 +128,9 @@ Class Main {
 	h : C2;
 	g : String;
         t : Main;
+	q : C2;
+	b : C;
+        m : C3;
 	main():C {
 	 {
           
@@ -121,10 +145,22 @@ Class Main {
 	  (new C);
 	  h.init(1,true);
 	  h.init(1,true,"1234");
+	  q.init2(1,true,"12333");
+	  q.init22(x,q);
+          q.init22(x,x);
+	  q.init22(q,x);
+	  q.init22(m,q);
+	  q.init22(q,m);
+	  q.init22(m,x);
+	  m <- q.init2(1,true,"12333");
           g <- h.init(1,true);
 	  g <- h.init(1,true,"1234");
 	  g <- h@C.init(1,true,"1234");
 	  g <- h@C.init(1,true);
+	  q <- h@C.init(1,true,"1234");
+	  q <- h@C.init(1,true);
+	  b <- h@C.init(1,true,"1234");
+	  b <- h@C.init(1,true);
           (new C2).init2(1,true,"1234");
           (new C2).init2(1,true);
 
