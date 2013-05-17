@@ -175,8 +175,10 @@ class ClassTable {
 		 
 		// PA3
 		treeRoot = new Node(Object_class, null);
+		//treeRoot = new Node(TreeConstants.prim_slot, null);
 		nodeMap = new LinkedHashMap<AbstractSymbol, Node>();
 		nodeMap.put(Object_class.getName(), treeRoot);
+		//nodeMap.put(Object_class.getName(), new Node(Object_class, treeRoot));
 		nodeMap.put(Int_class.getName(), new Node(Int_class, treeRoot));
 		nodeMap.put(Bool_class.getName(), new Node(Bool_class, treeRoot));
 		nodeMap.put(Str_class.getName(), new Node(Str_class, treeRoot));
@@ -305,9 +307,9 @@ class ClassTable {
 		//	semantError(nodeMap.get(TreeConstants.Main).value).println("No 'main' method in class Main.");
 		
 		if(Flags.semant_debug) {
-			/*System.out.println("\nFinal class tree: \n" + this);
+			System.out.println("\nFinal class tree: \n" + this);
 			System.out.println("\nFinal node map:\n" + nodeMap);
-			
+			/*
 			System.out.println(getAttribute(lookup("D"), lookup("b"), true, true));
 			System.out.println(getAttribute(lookup("D"), lookup("name"), true, true));
 			System.out.println(getAttribute(lookup("D"), lookup("X"), true, true));
@@ -348,6 +350,10 @@ class ClassTable {
 				if(feat instanceof attr) {
 					attr a = (attr)feat;
 					AbstractSymbol name = a.getName();
+					AbstractSymbol type = a.getType();
+					if(!hasClass(type)) {
+						semantError(filename, a).printf("Class %s of attribute %s is undefined.\n", type, name);
+					} 
 					if(node.parent.attrMap.containsKey(name)) {
 						semantError(filename, a).printf("Attribute %s is an attribute of an inherited class.\n", name);
 						
@@ -372,7 +378,22 @@ class ClassTable {
 					
 					// if method is not defined in this class nor in parent class, add it
 					if((node.parent == null || !node.parent.methMap.containsKey(name)) && ! node.methMap.containsKey(name)) {
+						
 						success = true;
+						
+						for(int j = 0; j < formList.getLength(); j++) {
+							formalc form = (formalc)formList.getNth(j);
+							//System.err.println(form.getType());
+							if(!hasClass(form.getType())) {
+								semantError(filename, m).printf(
+									"Class %s of formal parameter %s is undefined.\n",
+									form.getType(), form.getName());
+							
+								success = false;
+							}
+						}
+
+						
 
 					// error if the same method is defined in the same class					
 					} else if(node.methMap.containsKey(name)) {
@@ -398,10 +419,13 @@ class ClassTable {
 						for(int j = 0; j < formList.getLength(); j++) {
 							AbstractSymbol key = itor.next();
 							formalc form = (formalc)formList.getNth(j);
+							//System.err.printf("param %s has type %s: %s\n", form.getName(), form.getType(), hasClass(form.getType()) );
 							if(key == null)
 								continue;
 							
-							if(form.getType() != params.get(key)) {
+							
+							
+							 if(form.getType() != params.get(key)) {
 								semantError(filename, m).printf(
 									"In redefined method %s, parameter type %s is different from original type %s\n",
 									name,
@@ -534,8 +558,8 @@ class ClassTable {
 	
 	
 	public AbstractSymbol lub(AbstractSymbol t1, AbstractSymbol t2, class_c clazz) {
-		//if(!nodeMap.containsKey(t1) || !nodeMap.containsKey(t2))
-		//	return null;
+		if(!hasClass(t1) || !hasClass(t2))
+			return null;
 		
 		if(t1 == TreeConstants.SELF_TYPE && t2 == TreeConstants.SELF_TYPE)
 			return t1;
@@ -578,7 +602,12 @@ class ClassTable {
 	// HACK: actually GE (t1 and t2 switched)
 	public boolean le(AbstractSymbol t1, AbstractSymbol t2, class_c clazz) {
 	
-		//System.out.printf("Is %s less than %s in %s?\n", t1, t2, clazz);
+		
+		//System.err.printf("Is %s less than %s in %s?\n", t1, t2, clazz);
+		//System.err.println("t1= " + nodeMap.get(t1));
+		
+		if(!hasClass(t1) || !hasClass(t2))
+			return false;
 		
 		//if(!nodeMap.containsKey(t1) || !nodeMap.containsKey(t2))
 		//	return false;
@@ -597,7 +626,11 @@ class ClassTable {
 	}
 	
 	public boolean hasClass(AbstractSymbol clazz) {
-		return nodeMap.containsKey(clazz);
+		//System.err.println("hasClass(" + clazz + "):" + nodeMap.containsKey(clazz));
+	
+		return clazz == TreeConstants.prim_slot || 
+				clazz == TreeConstants.SELF_TYPE || 
+				nodeMap.containsKey(clazz);
 	}
 	
 	public SymbolTable getMethodTable(AbstractSymbol clazz) {
