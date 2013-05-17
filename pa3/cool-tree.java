@@ -438,6 +438,11 @@ class method extends Feature {
 		if (exprType == TreeConstants.SELF_TYPE) {
 			exprType = cl.getName();
 		}
+		
+		//System.err.println("CT.le: " + !classTable.le(exprType, return_type, cl));
+		//System.err.println("return_type: " + return_type);
+		//System.err.println("expr_type: " + expr.get_type());
+		
 		if (return_type == TreeConstants.SELF_TYPE && expr.get_type() != TreeConstants.SELF_TYPE) {
 			classTable.semantError(cl.getFilename(),this).println("Inferred return type " + expr.get_type() +
 				" of method " + name + " does not conform to declared return type " + return_type + ".");
@@ -1626,7 +1631,7 @@ class new_ extends Expression {
 	public void check_types(ClassTable classTable,class_c cl, SymbolTable attrTable){
 		if (type_name != TreeConstants.SELF_TYPE && !classTable.hasClass(type_name)) {
 			classTable.semantError(cl.getFilename(),this).println("'new' used with undefined class " + type_name + ".");
-			set_type(TreeConstants.No_type);
+			set_type(TreeConstants.Object_);
 		} else {
 			set_type(type_name);
 		}

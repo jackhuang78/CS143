@@ -307,9 +307,9 @@ class ClassTable {
 		//	semantError(nodeMap.get(TreeConstants.Main).value).println("No 'main' method in class Main.");
 		
 		if(Flags.semant_debug) {
-			/*System.out.println("\nFinal class tree: \n" + this);
+			System.out.println("\nFinal class tree: \n" + this);
 			System.out.println("\nFinal node map:\n" + nodeMap);
-			
+			/*
 			System.out.println(getAttribute(lookup("D"), lookup("b"), true, true));
 			System.out.println(getAttribute(lookup("D"), lookup("name"), true, true));
 			System.out.println(getAttribute(lookup("D"), lookup("X"), true, true));
@@ -589,7 +589,9 @@ class ClassTable {
 	// HACK: actually GE (t1 and t2 switched)
 	public boolean le(AbstractSymbol t1, AbstractSymbol t2, class_c clazz) {
 	
-		//System.out.printf("Is %s less than %s in %s?\n", t1, t2, clazz);
+		
+		//System.err.printf("Is %s less than %s in %s?\n", t1, t2, clazz);
+		//System.err.println("t1= " + nodeMap.get(t1));
 		
 		if(!hasClass(t1) || !hasClass(t2))
 			return false;
@@ -611,6 +613,8 @@ class ClassTable {
 	}
 	
 	public boolean hasClass(AbstractSymbol clazz) {
+		//System.err.println("hasClass(" + clazz + "):" + nodeMap.containsKey(clazz));
+	
 		return clazz == TreeConstants.prim_slot || 
 				clazz == TreeConstants.SELF_TYPE || 
 				nodeMap.containsKey(clazz);
