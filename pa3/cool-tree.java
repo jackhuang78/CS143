@@ -11,14 +11,6 @@ import java.io.PrintStream;
 import java.util.Vector;
 import java.util.*;
 
-class MethodInfo {
-	public AbstractSymbol nameType;
-	public Formals formals;
-	public MethodInfo(AbstractSymbol nameType, Formals formals) {
-		this.nameType = nameType;
-		this.formals = formals;
-	}
-}
 
 /** Defines simple phylum Program */
 abstract class Program extends TreeNode {
@@ -295,9 +287,6 @@ class programc extends Program {
 			System.err.println("Compilation halted due to static semantic errors.");
 			System.exit(1);
 		}
-//			classList.add((class_c)cls.getNth(i));
-//		if(Flags.semant_debug)
-		
 	}
 
 }

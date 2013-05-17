@@ -327,7 +327,13 @@ class ClassTable {
 			*/
 		}
 		
-		// 5. Construct object/method environment for every class
+		
+		
+	} // END ClassTable constructor
+	
+	
+	public void constructScope() {
+	// 5. Construct object/method environment for every class
 		for(AbstractSymbol clazz : nodeMap.keySet()) {
 			if(Flags.semant_debug)
 				System.out.println("Constructing object/method env for " + clazz);
@@ -447,6 +453,7 @@ class ClassTable {
 			node.objectEnv.enterScope();
 			for(AbstractSymbol name : node.attrMap.keySet())
 				node.objectEnv.addId(name, node.attrMap.get(name));
+			//node.objectEnv.addId(TreeConstants.self, TreeConstants.SELF_TYPE);
 			
 			node.methodEnv = new SymbolTable();
 			node.methodEnv.enterScope();
@@ -468,9 +475,7 @@ class ClassTable {
 		// 6. Check for main method in Main
 		if(!nodeMap.get(TreeConstants.Main).methMap.containsKey(TreeConstants.main_meth))
 			semantError(nodeMap.get(TreeConstants.Main).value).println("No 'main' method in class Main.");
-		
-	} // END ClassTable constructor
-	
+	}
 
 	private AbstractSymbol createNewSymbol(String name) {
 		boolean nameExist = true;
@@ -529,8 +534,8 @@ class ClassTable {
 	
 	
 	public AbstractSymbol lub(AbstractSymbol t1, AbstractSymbol t2, class_c clazz) {
-		if(!nodeMap.containsKey(t1) || !nodeMap.containsKey(t2))
-			return null;
+		//if(!nodeMap.containsKey(t1) || !nodeMap.containsKey(t2))
+		//	return null;
 		
 		if(t1 == TreeConstants.SELF_TYPE && t2 == TreeConstants.SELF_TYPE)
 			return t1;
@@ -553,6 +558,8 @@ class ClassTable {
 	}
 	
 	public AbstractSymbol lub(List<AbstractSymbol> ts, class_c clazz) {
+		//System.out.println("LUB: " + ts + " in " + clazz);
+	
 		if(ts.size() == 0)
 			return null;
 		else if(ts.size() == 1)
@@ -568,10 +575,13 @@ class ClassTable {
 	}
 	
 	
-	
+	// HACK: actually GE (t1 and t2 switched)
 	public boolean le(AbstractSymbol t1, AbstractSymbol t2, class_c clazz) {
-		if(!nodeMap.containsKey(t1) || !nodeMap.containsKey(t2))
-			return false;
+	
+		//System.out.printf("Is %s less than %s in %s?\n", t1, t2, clazz);
+		
+		//if(!nodeMap.containsKey(t1) || !nodeMap.containsKey(t2))
+		//	return false;
 		
 		if(t1 == TreeConstants.SELF_TYPE && t2 == TreeConstants.SELF_TYPE)
 			return true;
@@ -592,6 +602,10 @@ class ClassTable {
 	
 	public SymbolTable getMethodTable(AbstractSymbol clazz) {
 		return nodeMap.get(clazz).methodEnv;
+	}
+	
+	public SymbolTable getAttributeTable(AbstractSymbol clazz) {
+		return nodeMap.get(clazz).objectEnv;
 	}
 	
 	/*
