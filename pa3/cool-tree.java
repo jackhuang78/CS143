@@ -596,6 +596,9 @@ class branch extends Case {
 		expr.dump_with_types(out, n + 2);
 	}
 	public void check_types(ClassTable classTable, class_c cl, SymbolTable attrTable) {
+		if(classTable.hasClass(type_decl) == false){
+			classTable.semantError(cl.getFilename(),this).println("Class "+type_decl+" of case branch is undefined.");
+		}
 		attrTable.enterScope();
 		attrTable.addId(name, type_decl);
 		expr.check_types(classTable, cl, attrTable);

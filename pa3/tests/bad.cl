@@ -10,6 +10,11 @@ class C {
 		self;
            }
 	};
+	init_parent_self(self:PPP) : C{
+	   {
+		self;
+	   }
+	};
 	init_parent_pppccc(x:PPP) : C{
 	   {
 		ppp;
@@ -21,6 +26,11 @@ class C {
 	   }
 	};
 	init_parent_ppp(x:Int) : C{
+	   {
+		ppp;
+	   }
+	};
+	init_parent_duplicate(x:Int, x:Int, y: String) : C{
 	   {
 		ppp;
 	   }
@@ -86,6 +96,7 @@ class C {
 			{
 				a = a + 1 * a / 2 - ~a;
 				b = not isvoid b;
+				ff <- self;
 			}
 		pool;
 	
@@ -101,6 +112,19 @@ class C {
 		not true;
 		b = not "123123";
 		c = not "123";
+
+		case self of
+			a : F => (a <- new F);
+			b : B => self;
+			c : G => new G;
+		esac;
+
+		case self of
+			a : C => 20;
+			a : C => 30;
+			a : C1 => self;
+			c : C2 => new C2;
+		esac;
 	   }
 	};
 };
@@ -208,7 +232,9 @@ Class Main {
         m : C3;
 	main():C {
 	 {
-          
+	  iioqwe;
+          x;
+	  q;
 	  x <- q;
 	  q <- x;
 	  x <- new C;
