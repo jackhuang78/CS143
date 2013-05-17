@@ -970,19 +970,19 @@ class typcase extends Expression {
 	protected Cases cases;
 	public void check_types(ClassTable classTable, class_c cl, SymbolTable attrTable) {
 		expr.check_types(classTable, cl, attrTable);
-		List<AbstractSymbol> types = new ArrayList<AbstractSymbol>();
-		Set<AbstractSymbol> declTypes = new HashSet<AbstractSymbol>();
+		List<AbstractSymbol> br_types = new ArrayList<AbstractSymbol>();
+		Set<AbstractSymbol> decl_types = new HashSet<AbstractSymbol>();
 		for (Enumeration e = cases.getElements(); e.hasMoreElements();) {
 			branch br = (branch)e.nextElement();
 			AbstractSymbol type_decl = br.getTypeDecl();
-			if (declTypes.contains(type_decl)) {
-				classTable.semantError(cl.getFilename(),this).println("Duplicate branch " + type_decl + " in case statement.");
+			if (decl_types.contains(type_decl)) {
+				classTable.semantError(cl.getFilename(),br).println("Duplicate branch " + type_decl + " in case statement.");
 			}
-			declTypes.add(type_decl);
+			decl_types.add(type_decl);
 			br.check_types(classTable, cl, attrTable);
-			types.add(br.get_type());
+			br_types.add(br.get_type());
 		}
-		set_type(classTable.lub(types,cl));
+		set_type(classTable.lub(br_types,cl));
 	}
 	/** Creates "typcase" AST node. 
 	  *
@@ -1029,6 +1029,7 @@ class block extends Expression {
 			expr.check_types(classTable, cl, attrTable);
 			set_type(expr.get_type());
 		}
+		//System.err.println("block=" + get_type());
 	}
 	/** Creates "block" AST node. 
 	  *
@@ -1069,25 +1070,25 @@ class let extends Expression {
 	protected Expression init;
 	protected Expression body;
 	public void check_types(ClassTable classTable, class_c cl, SymbolTable attrTable) {
+		attrTable.enterScope();		
 		if (identifier == TreeConstants.self) {
 			classTable.semantError(cl.getFilename(),this).println("'self' cannot be bound in a 'let' expression.");
-			set_type(TreeConstants.Object_);
-			return;
+			set_type(body.get_type());
 		}
 
 		init.check_types(classTable, cl, attrTable);
 		AbstractSymbol init_type = init.get_type();
-		if (init_type != TreeConstants.No_type && init_type != TreeConstants.SELF_TYPE && 
-			!classTable.le(init_type,type_decl,cl)) {
+		if (init_type != TreeConstants.No_type && !classTable.le(init_type,type_decl,cl)) {
 			classTable.semantError(cl.getFilename(),this).println("Inferred type " + init_type + " of initialization of " + 
 				identifier + " does not conform to identifier's declared type " + type_decl + ".");
 			set_type(TreeConstants.Object_);
-			return;
 		}
-		attrTable.enterScope();
-		attrTable.addId(identifier, type_decl);
+		
+		if (identifier != TreeConstants.self) 
+			attrTable.addId(identifier, type_decl);
 		body.check_types(classTable, cl, attrTable);
 		attrTable.exitScope();
+		//System.err.println("Let: " + body.get_type());
 		set_type(body.get_type());
 	}
 	/** Creates "let" AST node. 
@@ -1760,6 +1761,7 @@ class object extends Expression {
 	protected AbstractSymbol name;
 	public void check_types(ClassTable classTable, class_c cl, SymbolTable attrTable) {
 		Object lookedup = attrTable.lookup(name);
+		//System.err.println("lookedup: "+name+" : "+lookedup);
 		if (lookedup == null) {
 			classTable.semantError(cl.getFilename(),this).println("Undeclared identifier " + name + ".");
 			set_type(TreeConstants.Object_);

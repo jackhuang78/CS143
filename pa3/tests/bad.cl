@@ -125,6 +125,49 @@ class C {
 			a : C1 => self;
 			c : C2 => new C2;
 		esac;
+
+		case xx of
+			a : C => 20;
+			a : C => 30;
+			a : C1 => self;
+			c : C2 => new C2;
+		esac;
+
+
+		let x:Int<-a, y:Int, z:SELF_TYPE in 
+		{
+			x <- x + y;
+			z <- new SELF_TYPE;
+			let x:Bool<-true, zz:Bool in
+			{
+				x <- not x;
+				zz <- not zz;
+				let x:Int, y:Int in
+				{
+					x <- 2 + 3;
+					y <- x;
+				};
+				
+			};
+		};
+
+		let self:Int<-a, y:Int, z:SELF_TYPE in 
+		{
+			x <- x + y;
+			z <- new SELF_TYPE;
+			let x:Bool<-self, zz:Bool in
+			{
+				x <- not x;
+				zz <- not zz;
+				let x:Int, y:Int in
+				{
+					x <- 2 + 3;
+					y <- x;
+				};
+				
+			};
+		};
+
 	   }
 	};
 };
@@ -162,6 +205,7 @@ class C3 inherits C2 {
 
 
 class D inherits C {
+	self : C;
 	a : Str;
 	b : Bool;
 	z : String;
