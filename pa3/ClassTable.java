@@ -175,8 +175,10 @@ class ClassTable {
 		 
 		// PA3
 		treeRoot = new Node(Object_class, null);
+		//treeRoot = new Node(TreeConstants.prim_slot, null);
 		nodeMap = new LinkedHashMap<AbstractSymbol, Node>();
 		nodeMap.put(Object_class.getName(), treeRoot);
+		//nodeMap.put(Object_class.getName(), new Node(Object_class, treeRoot));
 		nodeMap.put(Int_class.getName(), new Node(Int_class, treeRoot));
 		nodeMap.put(Bool_class.getName(), new Node(Bool_class, treeRoot));
 		nodeMap.put(Str_class.getName(), new Node(Str_class, treeRoot));
@@ -349,10 +351,9 @@ class ClassTable {
 					attr a = (attr)feat;
 					AbstractSymbol name = a.getName();
 					AbstractSymbol type = a.getType();
-					if(!nodeMap.containsKey(name)) {
+					if(!hasClass(type)) {
 						semantError(filename, a).printf("Class %s of attribute %s is undefined.\n", type, name);
-					}
-					else if(node.parent.attrMap.containsKey(name)) {
+					} else if(node.parent.attrMap.containsKey(name)) {
 						semantError(filename, a).printf("Attribute %s is an attribute of an inherited class.\n", name);
 						
 					} else if(node.attrMap.containsKey(name)) {
@@ -405,7 +406,7 @@ class ClassTable {
 							if(key == null)
 								continue;
 							
-							if(!nodeMap.containsKey(form.getType())) {
+							if(!hasClass(form.getType())) {
 								semantError(filename, m).printf(
 									"Class %s of formal parameter %s is undefined.\n",
 									form.getType(), name);
@@ -606,7 +607,9 @@ class ClassTable {
 	}
 	
 	public boolean hasClass(AbstractSymbol clazz) {
-		return nodeMap.containsKey(clazz);
+		return clazz == TreeConstants.prim_slot || 
+				clazz == TreeConstants.SELF_TYPE || 
+				nodeMap.containsKey(clazz);
 	}
 	
 	public SymbolTable getMethodTable(AbstractSymbol clazz) {
