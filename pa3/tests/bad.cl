@@ -61,6 +61,14 @@ class D inherits C {
 
 	   }
 	};
+	new_(x: Int, y: Bool, z: Object) : C{
+	   {
+		z <- new Object;
+		z <- new DDDDD;
+		
+
+	   }
+	};
 
 };
 
