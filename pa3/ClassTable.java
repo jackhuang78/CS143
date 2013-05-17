@@ -353,7 +353,8 @@ class ClassTable {
 					AbstractSymbol type = a.getType();
 					if(!hasClass(type)) {
 						semantError(filename, a).printf("Class %s of attribute %s is undefined.\n", type, name);
-					} else if(node.parent.attrMap.containsKey(name)) {
+					} 
+					if(node.parent.attrMap.containsKey(name)) {
 						semantError(filename, a).printf("Attribute %s is an attribute of an inherited class.\n", name);
 						
 					} else if(node.attrMap.containsKey(name)) {
