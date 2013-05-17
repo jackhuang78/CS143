@@ -687,7 +687,7 @@ class static_dispatch extends Expression {
 		} else {
 			name_type = methodInfo.get(null);
 			if(actual.getLength() != methodInfo.size() - 1) {
-				classTable.semantError(cl.getFilename(),this).println("Method " + name + " called with wrong number of arguments.");
+				classTable.semantError(cl.getFilename(),this).println("Method " + name + " invoked with wrong number of arguments.");
 			} else {
 				Iterator<AbstractSymbol> itor = methodInfo.keySet().iterator();
 				for (int i = 0; i < actual.getLength() && itor.hasNext(); ++i) {
