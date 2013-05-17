@@ -172,10 +172,21 @@ Instructions
 Write-up for PA4
 ----------------
 
-We break the sematic analysis into three phases, class check, feature check, 
-and type check. 
+***************************
+*****     User ID     *****
+***************************
+user: yh3483
+user: borui
 
-Phase 1: Class Check
+
+**************************
+*****     Design     *****
+**************************
+
+We break the sematic analysis into three phases, class check, feature check, 
+and scope/type check. 
+
+Phase 1: Class Check (ClassTable.java)
 In this phase we construct an inheritance tree from all existing classes. As we 
 build the tree, we check for the following errors:
 
@@ -188,18 +199,43 @@ We stop the sematic analysis if there is any error in this phase.
 
 
 
-Phase 2: Feature Check
+Phase 2: Feature Check (ClassTable.java)
 In this phase we construct the object and method environments for each class. 
 As we build the environments, we check for the following errors:
 
-	2.1. declaring undefined class for attribute
-	2.2. redefining attribute in superclass
-	2.3. redefining attribute in the current class
-		
-	2.4. redefining method in the current class
-	2.5. redefining method in the superclass with different return type
+	2.1.1	declaring undefined class for attribute
+	2.1.2	redefining attribute in superclass
+	2.1.3	redefining attribute in the current class
 	
+	2.2.1	undefined class for parameter or return type	
+	2.2.2	redefining method in the current class
+	2.2.3	redefining method in superclass with different number of parameters
+	2.2.3	redefining method in superclass with different parameter type or 
+	return type
+	2.2.4	duplicated parameter names
+	2.2.5	absense of main method in Main class
 	
-	parameter, or method return type
+Phase 3: Scope/Type Check (cool-tree.java)
+In this phase perform scope and type check for each node in the AST. For each 
+node, we recursively check the children nodes first and use the returned 
+type information to check the current node. The type check rule is in accordance
+to the COOL manual. 
+
+For method, let statement, or case statement, we also enter/exit scope to allow
+new variable or redefined variable. We use the updated scope to check for any 
+undeclared identifier. 
+
+If the type of a node cannot be determined because of type/scope error, we set 
+the type to the type of the node to be Object.
+
+***************************
+*****     Testing     *****
+***************************
+We perform testing by comparing the results from our implementation to that 
+from the reference solution. We construct various valid and invalid tests. 
+These tests can be found under the tests directory. Our implementation produces
+an equal amount of or more error messages than the reference in each test case.
+We have verified that the additional error messages we produce are in fact 
+correct according to the COOL sematic rules.
 
 
