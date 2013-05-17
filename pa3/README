@@ -231,11 +231,16 @@ the type to the type of the node to be Object.
 ***************************
 *****     Testing     *****
 ***************************
+
 We perform testing by comparing the results from our implementation to that 
 from the reference solution. We construct various valid and invalid tests. 
-These tests can be found under the tests directory. Our implementation produces
-an equal amount of or more error messages than the reference in each test case.
-We have verified that the additional error messages we produce are in fact 
-correct according to the COOL sematic rules.
+These tests can be found under the tests directory. The bad.cl, bad2.cl contains
+code with errors that can be recovered from the semantic analysis. good.cl,
+easy.cl, and better.cl contains code that does not have any error. These files
+are crafted to exhaustedly test the functionality of our code. The rest of
+the test cases are related to checking class inheritance relationships.
+Our implementation produces an equal amount of or more error messages than the 
+reference in each test case.We have verified that the additional error messages 
+we produce are in fact correct according to the COOL sematic rules.
 
 

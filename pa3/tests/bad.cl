@@ -133,6 +133,53 @@ class C {
 			c : C2 => new C2;
 		esac;
 
+		case a of
+			self : C => 20;
+			self : C => 30;
+			self : C1 => self;
+			c : C2 => new C2;
+		esac;
+
+
+		let x:Bool<-self, zz:Bool in
+		{
+			x <- not x;
+			zz <- not zz;
+			let x:Int, y:Int in
+			{
+				x <- 2 + 3;
+				y <- x;
+			};
+			
+		};
+
+		let x:C2, zz:C3 in
+		{
+			self;
+			
+		};
+
+		let x:C2, zz:C3 in
+		{
+			x <- new C3;
+			x <- new C;
+			ddddd <- x;
+			zz <- zz;
+			
+		};
+
+		let x:C2, zz:C3 in
+		{
+			x <- new C3;
+			zz <- new C;
+			
+		};
+
+		let x:PPP, y:Int in
+		{
+			x <- 2 + 3;
+			y <- x;
+		};
 
 		let x:Int<-a, y:Int, z:SELF_TYPE in 
 		{
@@ -167,6 +214,8 @@ class C {
 				
 			};
 		};
+
+		
 
 	   }
 	};
@@ -302,6 +351,18 @@ Class Main {
 	  q.init22(m,q);
 	  q.init22(q,m);
 	  q.init22(m,x);
+	  q@C2.init22(x,q);
+          q@C2.init22(x,x);
+	  q@C2.init22(q,x);
+	  q@C2.init22(m,q);
+	  q@D.init22(q,m);
+	  q@C3.init22(m,x);
+	  x@C2.init22(x,q);
+          m@C2.init22(x,x);
+	  x@C2.init22(q,x);
+	  m@C2.init22(m,q);
+	  x@D.init22(q,m);
+	  m@C3.init22(m,x);
 	  m <- q.init2(1,true,"12333");
           g <- h.init(1,true);
 	  g <- h.init(1,true,"1234");

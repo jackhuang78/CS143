@@ -599,6 +599,9 @@ class branch extends Case {
 		if(classTable.hasClass(type_decl) == false){
 			classTable.semantError(cl.getFilename(),this).println("Class "+type_decl+" of case branch is undefined.");
 		}
+		if(name == TreeConstants.self){
+			classTable.semantError(cl.getFilename(),this).println("'self' bound in 'case'.");
+		}
 		attrTable.enterScope();
 		attrTable.addId(name, type_decl);
 		expr.check_types(classTable, cl, attrTable);
@@ -1070,10 +1073,13 @@ class let extends Expression {
 	protected Expression init;
 	protected Expression body;
 	public void check_types(ClassTable classTable, class_c cl, SymbolTable attrTable) {
-		attrTable.enterScope();		
+		attrTable.enterScope();	
+		if (classTable.hasClass(type_decl) == false){
+			classTable.semantError(cl.getFilename(),this).println("Class "+type_decl+" of let-bound identifier "+identifier+" is undefined.");
+
+		}	
 		if (identifier == TreeConstants.self) {
 			classTable.semantError(cl.getFilename(),this).println("'self' cannot be bound in a 'let' expression.");
-			set_type(body.get_type());
 		}
 
 		init.check_types(classTable, cl, attrTable);
@@ -1081,7 +1087,6 @@ class let extends Expression {
 		if (init_type != TreeConstants.No_type && !classTable.le(init_type,type_decl,cl)) {
 			classTable.semantError(cl.getFilename(),this).println("Inferred type " + init_type + " of initialization of " + 
 				identifier + " does not conform to identifier's declared type " + type_decl + ".");
-			set_type(TreeConstants.Object_);
 		}
 		
 		if (identifier != TreeConstants.self) 
