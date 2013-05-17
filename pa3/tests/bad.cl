@@ -12,6 +12,29 @@ class C {
 	};
 };
 
+class C2 inherits C {
+	a : Int;
+	b : Bool;
+	init(x : Int, y : Bool, z: String) : SELF_TYPE {
+           {
+		a <- x;
+		b <- y;
+           }
+	};
+};
+
+class C3 inherits C2 {
+	a : Int;
+	b : Bool;
+	init(x : Int, y : Bool) : SELF_TYPE  {
+           {
+		a <- x;
+		b <- y;
+           }
+	};
+};
+
+
 class D inherits C {
 	a : Str;
 	b : Bool;
@@ -64,7 +87,7 @@ class D inherits C {
 	new_(x: Int, y: Bool, z: Object) : C{
 	   {
 		z <- new Object;
-		z <- new DDDDD;
+	        z <- new DDDDD; 
 		
 
 	   }
