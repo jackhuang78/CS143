@@ -545,8 +545,8 @@ class ClassTable {
 	
 	
 	public AbstractSymbol lub(AbstractSymbol t1, AbstractSymbol t2, class_c clazz) {
-		//if(!nodeMap.containsKey(t1) || !nodeMap.containsKey(t2))
-		//	return null;
+		if(!hasClass(t1) || !hasClass(t2))
+			return null;
 		
 		if(t1 == TreeConstants.SELF_TYPE && t2 == TreeConstants.SELF_TYPE)
 			return t1;
@@ -590,6 +590,9 @@ class ClassTable {
 	public boolean le(AbstractSymbol t1, AbstractSymbol t2, class_c clazz) {
 	
 		//System.out.printf("Is %s less than %s in %s?\n", t1, t2, clazz);
+		
+		if(!hasClass(t1) || !hasClass(t2))
+			return false;
 		
 		//if(!nodeMap.containsKey(t1) || !nodeMap.containsKey(t2))
 		//	return false;
