@@ -611,12 +611,10 @@ class assign extends Expression {
 		if (name == TreeConstants.self) {
 			classTable.semantError(cl.getFilename(),this).println("Cannot assign to 'self'.");
 			set_type(TreeConstants.No_type);
-			return;
 		}
 		AbstractSymbol name_type = (AbstractSymbol)attrTable.lookup(name);
 		expr.check_types(classTable, cl, attrTable);
 		AbstractSymbol expr_type = expr.get_type();
-		//System.out.println("assign: expr= " + expr_type + ", name= " + name_type);
 		if (!classTable.le(expr_type,name_type, cl)) {
 			classTable.semantError(cl.getFilename(),this).println("Type " + expr_type + 
 				" of assigned expression does not conform to declared type " + name_type + " of identifier " + name + ".");
@@ -1121,11 +1119,9 @@ class plus extends Expression {
 	public void check_types(ClassTable classTable, class_c cl, SymbolTable attrTable) {
 		e1.check_types(classTable, cl, attrTable);
 		e2.check_types(classTable, cl, attrTable);
+		set_type(TreeConstants.Int);
 		if (e1.get_type() != TreeConstants.Int || e2.get_type() != TreeConstants.Int) {
-			classTable.semantError(cl.getFilename(),this).println("non-Int arguments: " + e1.get_type() + " + " + e2.get_type());
-			set_type(TreeConstants.Object_);
-		} else {
-			set_type(e2.get_type());
+			classTable.semantError(cl.getFilename(),this).println("non-Int arguments: " + e1.get_type() + " + " + e2.get_type());		
 		}
 	}
 	/** Creates "plus" AST node. 
@@ -1169,11 +1165,9 @@ class sub extends Expression {
 	public void check_types(ClassTable classTable, class_c cl, SymbolTable attrTable) {
 		e1.check_types(classTable, cl, attrTable);
 		e2.check_types(classTable, cl, attrTable);
+		set_type(TreeConstants.Int);
 		if (e1.get_type() != TreeConstants.Int || e2.get_type() != TreeConstants.Int) {
-			classTable.semantError(cl.getFilename(),this).println("non-Int arguments: " + e1.get_type() + " + " + e2.get_type());
-			set_type(TreeConstants.Object_);
-		} else {
-			set_type(e2.get_type());
+			classTable.semantError(cl.getFilename(),this).println("non-Int arguments: " + e1.get_type() + " - " + e2.get_type());
 		}
 	}
 	/** Creates "sub" AST node. 
@@ -1217,11 +1211,9 @@ class mul extends Expression {
 	public void check_types(ClassTable classTable, class_c cl, SymbolTable attrTable) {
 		e1.check_types(classTable, cl, attrTable);
 		e2.check_types(classTable, cl, attrTable);
+		set_type(TreeConstants.Int);
 		if (e1.get_type() != TreeConstants.Int || e2.get_type() != TreeConstants.Int) {
-			classTable.semantError(cl.getFilename(),this).println("non-Int arguments: " + e1.get_type() + " + " + e2.get_type());
-			set_type(TreeConstants.Object_);
-		} else {
-			set_type(e2.get_type());
+			classTable.semantError(cl.getFilename(),this).println("non-Int arguments: " + e1.get_type() + " * " + e2.get_type());
 		}
 	}
 	/** Creates "mul" AST node. 
@@ -1265,11 +1257,9 @@ class divide extends Expression {
 	public void check_types(ClassTable classTable, class_c cl, SymbolTable attrTable) {
 		e1.check_types(classTable, cl, attrTable);
 		e2.check_types(classTable, cl, attrTable);
+		set_type(TreeConstants.Int);
 		if (e1.get_type() != TreeConstants.Int || e2.get_type() != TreeConstants.Int) {
-			classTable.semantError(cl.getFilename(),this).println("non-Int arguments: " + e1.get_type() + " + " + e2.get_type());
-			set_type(TreeConstants.Object_);
-		} else {
-			set_type(e2.get_type());
+			classTable.semantError(cl.getFilename(),this).println("non-Int arguments: " + e1.get_type() + " / " + e2.get_type());
 		}
 	}
 	/** Creates "divide" AST node. 
