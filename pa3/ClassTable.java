@@ -354,7 +354,10 @@ class ClassTable {
 					if(!hasClass(type)) {
 						semantError(filename, a).printf("Class %s of attribute %s is undefined.\n", type, name);
 					} 
-					if(node.parent.attrMap.containsKey(name)) {
+					if(name == TreeConstants.self) {
+						//semantError(filename, a).printf("'self' cannot be the name of an attribute.\n");
+					
+					} else if(node.parent.attrMap.containsKey(name)) {
 						semantError(filename, a).printf("Attribute %s is an attribute of an inherited class.\n", name);
 						
 					} else if(node.attrMap.containsKey(name)) {
@@ -441,7 +444,12 @@ class ClassTable {
 						Map<AbstractSymbol, AbstractSymbol> formMap = new LinkedHashMap<AbstractSymbol, AbstractSymbol>();
 						for(int j = 0; j < formList.getLength(); j++) {
 							formalc form = (formalc)formList.getNth(j);
-							if(formMap.containsKey(form.getName())) {
+							
+							if(form.getName() == TreeConstants.self) {
+								//semantError(filename, form).printf(
+								//	"'self' cannot be the name of a formal parameter.\n");
+	
+							} else if(formMap.containsKey(form.getName())) {
 								semantError(filename, form).printf(
 									"Formal parameter %s is multiply defined.\n",
 									form.getName());
