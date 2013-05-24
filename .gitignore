@@ -1,8 +1,11 @@
 *.class
 *.err
 *.out
+*.s
 *~
-semant
+cgen
+
+
 # Package Files #
 *.jar
 *.war
