@@ -274,6 +274,7 @@ class program extends Program {
 		ClassTable classTable = new ClassTable(classes);
 		
 		/* some semantic analysis code may go here */
+		//System.out.println("Semant!");
 
 		if (classTable.errors()) {
 			System.err.println("Compilation halted due to static semantic errors.");

@@ -1,0 +1,36 @@
+#! /usr/bin/python
+
+import os, argparse
+
+
+
+# setup and parse arguments
+parser = argparse.ArgumentParser(description='CS143 PA4 Testing Script')
+parser.add_argument('-d', action='store_true', help='run diff')
+parser.add_argument('files', metavar='file', type=str, nargs='+'
+	, help='cl testing files')
+
+args = parser.parse_args()
+
+print args
+
+# begin testing script
+print '\n>>>>> CS143 PA4 Testing Script <<<<<'
+os.system('mkdir -p out')
+
+for f in args.files:
+	print 'File: %s' % f
+	name = f.split('.')[0]
+	
+	os.system('rm -f out/%s.s' % name)
+	os.system('rm -f out/%s_ref.s' % name)
+	
+	os.system('/usr/class/cs143/bin/coolc %s' % f)
+	os.system('mv %s.s %s_ref.s' % (name, name))
+	os.system('./mycoolc %s' % f)
+	
+	if args.d:
+		os.system('diff %s.s %s_ref.s' % (name, name))
+	
+
+print '====================================\n'
