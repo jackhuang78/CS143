@@ -4,6 +4,18 @@
  *)
 
 class Main {
-  main():Int { 0 };
+	x:Int <- 11;	
+	y:Int;
+	w:String <- "abc";
+	z:String;
+	main():Int { x <- 22 };
+};
+
+class A inherits Main {
+	aa:Bool;
+	
+	foo():Bool {
+		aa <- foo()
+	};
 };
 
