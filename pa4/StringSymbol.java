@@ -52,7 +52,10 @@ class StringSymbol extends AbstractSymbol {
 
 	/* Add code to reference the dispatch table for class String here */
 
-	s.println("");		// dispatch table
+	// PA4 TODO: change to not hardcoded?
+	s.println("String" + CgenSupport.DISPTAB_SUFFIX);		// dispatch table
+	
+	
 	s.print(CgenSupport.WORD); lensym.codeRef(s); s.println(""); // length
 	CgenSupport.emitStringConstant(str, s); // ascii string
 	s.print(CgenSupport.ALIGN); // align to word
@@ -68,6 +71,11 @@ class StringSymbol extends AbstractSymbol {
     /** Returns a copy of this symbol */
     public Object clone() {
 	return new StringSymbol(str, str.length(), index);
+    }
+    
+    // PA4, for debugging
+    public int getIndex() {
+    	return index;
     }
 }
 

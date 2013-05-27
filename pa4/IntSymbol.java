@@ -52,7 +52,11 @@ class IntSymbol extends AbstractSymbol {
 
 	/* Add code to reference the dispatch table for class Int here */
 
-	s.println("");		// dispatch table
+	// PA4 
+	// TODO: change to not hardcoded?
+	s.println("Int" + CgenSupport.DISPTAB_SUFFIX);		// dispatch table
+	
+	
 	s.println(CgenSupport.WORD + str); // integer value
     }
 

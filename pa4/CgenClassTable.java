@@ -24,6 +24,7 @@ PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 import java.io.PrintStream;
 import java.util.Vector;
 import java.util.Enumeration;
+import java.util.*;
 
 /** This class is used for representing the inheritance tree during code
 	generation. You will need to fill in some of its methods and
@@ -32,6 +33,9 @@ class CgenClassTable extends SymbolTable {
 
 	/** All classes in the program, represented as CgenNode */
 	private Vector nds;
+	
+	// PA4
+	private Map<AbstractSymbol, CgenNode> nodeMap;
 
 	/** This is the stream to which assembly instructions are output */
 	private PrintStream str;
@@ -49,6 +53,8 @@ class CgenClassTable extends SymbolTable {
 	 * */
 	private void codeGlobalData() {
 		// The following global names must be defined first.
+
+		str.println("\n# Global Data");
 
 		str.print("\t.data\n" + CgenSupport.ALIGN);
 		str.println(CgenSupport.GLOBAL + CgenSupport.CLASSNAMETAB);
@@ -87,6 +93,8 @@ class CgenClassTable extends SymbolTable {
 	 * declare the global names.
 	 * */
 	private void codeGlobalText() {
+		str.println("\n# Global Text");
+	
 		str.println(CgenSupport.GLOBAL + CgenSupport.HEAP_START);
 		str.print(CgenSupport.HEAP_START + CgenSupport.LABEL);
 		str.println(CgenSupport.WORD + 0);
@@ -140,6 +148,9 @@ class CgenClassTable extends SymbolTable {
 	 * The constants are emmitted by running through the stringtable and
 	 * inttable and producing code for each entry. */
 	private void codeConstants() {
+		
+		str.println("\n# Constants");
+	
 		// Add constants that are required by the code generator.
 		AbstractTable.stringtable.addString("");
 		AbstractTable.inttable.addString("0");
@@ -147,6 +158,44 @@ class CgenClassTable extends SymbolTable {
 		AbstractTable.stringtable.codeStringTable(stringclasstag, str);
 		AbstractTable.inttable.codeStringTable(intclasstag, str);
 		codeBools(boolclasstag);
+	}
+	
+	private void codeClassNameTable() {
+		str.println("\n# Class Name Table");
+		str.print(CgenSupport.CLASSNAMETAB + CgenSupport.LABEL);
+		for (Object obj : nds) {
+			str.print(CgenSupport.WORD); 
+			((CgenNode)obj).getNameStrSym().codeRef(str);
+			str.println("\t# " + obj);
+		}
+	}
+	
+	private void codeClassObjTable() {
+		str.println("\n# Class Object Table");
+		str.print(CgenSupport.CLASSOBJTAB + CgenSupport.LABEL);
+		for (Object obj : nds) {
+			AbstractSymbol className = ((CgenNode)obj).getName();
+			
+			str.print(CgenSupport.WORD);
+			CgenSupport.emitProtObjRef(className, str);
+			str.println();
+			
+			str.print(CgenSupport.WORD); 
+			CgenSupport.emitInitRef(className, str);
+			str.println();
+		}
+	}
+	
+	private void codeDispTables() {
+		str.println("\n# Dispatch Tables");
+		for (Object obj : nds) {
+			CgenNode nd = (CgenNode)obj;
+
+			CgenSupport.emitDispTableRef(nd.getName(), str);
+			str.print(CgenSupport.LABEL);
+			
+			nd.codeDispTab(str);
+		}
 	}
 
 
@@ -345,10 +394,13 @@ class CgenClassTable extends SymbolTable {
 	// a tree of `CgenNode', and class names are placed
 	// in the base class symbol table.
 	
+	private int nextClassTag = 0;
 	private void installClass(CgenNode nd) {
 		AbstractSymbol name = nd.getName();
 		if (probe(name) != null) return;
 		nds.addElement(nd);
+		nodeMap.put(nd.getName(), nd);	// PA4
+		nd.setTag(nextClassTag++);
 		addId(name, nd);
 	}
 
@@ -363,6 +415,11 @@ class CgenClassTable extends SymbolTable {
 		for (Enumeration e = nds.elements(); e.hasMoreElements(); ) {
 			setRelations((CgenNode)e.nextElement());
 		}
+		
+		if(Flags.cgen_debug) {
+			for(Enumeration e = nds.elements(); e.hasMoreElements();)
+				System.out.println(e.nextElement());
+		}
 	}
 
 	private void setRelations(CgenNode nd) {
@@ -374,12 +431,9 @@ class CgenClassTable extends SymbolTable {
 	/** Constructs a new class table and invokes the code generator */
 	public CgenClassTable(Classes cls, PrintStream str) {
 		nds = new Vector();
+		nodeMap = new LinkedHashMap<AbstractSymbol, CgenNode>();
 
 		this.str = str;
-
-		stringclasstag = 0 /* Change to your String class tag here */;
-		intclasstag =	0 /* Change to your Int class tag here */;
-		boolclasstag =   0 /* Change to your Bool class tag here */;
 
 		enterScope();
 		if (Flags.cgen_debug) System.out.println("Building CgenClassTable");
@@ -387,6 +441,10 @@ class CgenClassTable extends SymbolTable {
 		installBasicClasses();
 		installClasses(cls);
 		buildInheritanceTree();
+		
+		stringclasstag = nodeMap.get(TreeConstants.Str).getTag();
+		intclasstag = nodeMap.get(TreeConstants.Int).getTag();
+		boolclasstag = nodeMap.get(TreeConstants.Bool).getTag();
 
 		code();
 
@@ -404,11 +462,25 @@ class CgenClassTable extends SymbolTable {
 
 		if (Flags.cgen_debug) System.out.println("coding constants");
 		codeConstants();
-
+		
+		
 		//				 Add your code to emit
 		//				   - prototype objects
 		//				   - class_nameTab
 		//				   - dispatch tables
+		
+		if (Flags.cgen_debug) System.out.println("coding class name table");
+		codeClassNameTable();
+		
+		if (Flags.cgen_debug) System.out.println("coding class object table");
+		codeClassObjTable();
+
+		if (Flags.cgen_debug) System.out.println("coding dispatch tables");
+		codeDispTables();		
+
+
+
+
 
 		if (Flags.cgen_debug) System.out.println("coding global text");
 		codeGlobalText();

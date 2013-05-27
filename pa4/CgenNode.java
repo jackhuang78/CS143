@@ -24,6 +24,7 @@ PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 import java.io.PrintStream;
 import java.util.Vector;
 import java.util.Enumeration;
+import java.util.*;
 
 class CgenNode extends class_ {
 	/** The parent of this node in the inheritance tree */
@@ -40,6 +41,12 @@ class CgenNode extends class_ {
 	
 	/** Does this node correspond to a basic class? */
 	private int basic_status;
+	
+	private StringSymbol nameStrSym;
+	private int tag;
+	private Map<AbstractSymbol, List<AbstractSymbol>> methodMap;
+	
+	
 
 	/** Constructs a new CgenNode to represent class "c".
 	 * @param c the class
@@ -51,7 +58,18 @@ class CgenNode extends class_ {
 		this.parent = null;
 		this.children = new Vector();
 		this.basic_status = basic_status;
-		AbstractTable.stringtable.addString(name.getString());
+		this.nameStrSym = (StringSymbol)AbstractTable.stringtable.addString(name.getString());
+		this.tag = -1;
+		
+		this.methodMap = new LinkedHashMap<AbstractSymbol, List<AbstractSymbol>>();
+		for(Enumeration e = features.getElements(); e.hasMoreElements();) {
+			Feature feat = (Feature)e.nextElement();
+			if(feat instanceof method) {
+				method meth = (method)feat;
+				List<AbstractSymbol> formList = new LinkedList<AbstractSymbol>();
+				methodMap.put(meth.name, formList);
+			}
+		}
 	}
 
 	void addChild(CgenNode child) {
@@ -91,6 +109,43 @@ class CgenNode extends class_ {
 	 * */
 	boolean basic() { 
 		return basic_status == Basic; 
+	}
+	
+	// PA4
+	public String toString() {
+		return String.format(
+			"<[%d]class %s inherits %s>", 
+			tag, getName(), getParent());
+	}
+	
+	void setTag(int tag) {
+		this.tag = tag;
+	}
+	
+	int getTag() {
+		return tag;
+	}
+	
+	StringSymbol getNameStrSym() {
+		return nameStrSym;
+	}
+	
+	void codeDispTab(PrintStream s) {
+	
+		if(Flags.cgen_debug) {
+			System.out.println("codeDispTab " + name + " " + methodMap.size());		
+		}
+	
+	
+	
+		if(name != TreeConstants.Object_)
+			parent.codeDispTab(s);
+		
+		for(AbstractSymbol method : methodMap.keySet()) {
+			s.print(CgenSupport.WORD);
+			CgenSupport.emitMethodRef(getName(), method, s);
+			s.println();
+		}		
 	}
 }
 	

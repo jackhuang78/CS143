@@ -4,18 +4,29 @@
  *)
 
 class Main {
-	x:Int <- 11;	
-	y:Int;
-	w:String <- "abc";
-	z:String;
-	main():Int { x <- 22 };
+	main():Int { 0 };
 };
 
-class A inherits Main {
-	aa:Bool;
+class A {
+	a1:A;
 	
-	foo():Bool {
-		aa <- foo()
-	};
+	func(a2:A):A {
+		{
+			new A;
+			a1 <- new A;
+			a2 <- new A;
+			
+
+			a1 <- func(a2);
+			a1 <- a2.func(a2);
+			
+			a1 <- copy();
+			a1 <- a2.copy();
+			
+			
+			
+			
+		}
+	};	
 };
 
