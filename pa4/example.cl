@@ -36,3 +36,8 @@ class B inherits A {
 	
 };
 
+class C {
+	a:Int;
+	b:Int <- 1;
+	c:Int <- 1 + 2;
+};
