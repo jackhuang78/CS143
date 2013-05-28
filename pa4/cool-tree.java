@@ -6,11 +6,6 @@
 //
 //////////////////////////////////////////////////////////
 
-
-<<<<<<< HEAD
-
-=======
->>>>>>> origin/master
 import java.util.*;
 import java.io.PrintStream;
 
@@ -520,17 +515,10 @@ class formal extends Formal {
 	  * @param a0 initial value for name
 	  * @param a1 initial value for type_decl
 	  */
-<<<<<<< HEAD
 	public AbstractSymbol getType() {
         return type_decl;
     }
 
-=======
-
-	public AbstractSymbol getType() {
-        	return type_decl;
-	}
->>>>>>> origin/master
 	public formal(int lineNumber, AbstractSymbol a1, AbstractSymbol a2) {
 		super(lineNumber);
 		name = a1;
@@ -614,11 +602,7 @@ class branch extends Case {
         //AbstractTable.varTable.addId(name, new BranchVariable(offset));
         expr.code(s);
         //AbstractTable.varTable.exitScope();
-<<<<<<< HEAD
-        //CgenSupport.emitPop(s);
-=======
         CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, 4, s); // pop
->>>>>>> origin/master
         //--AbstractTable.offset;
         CgenSupport.emitBranch(labelEnd, s);
         CgenSupport.emitLabelDef(labelNext, s);
@@ -1136,11 +1120,7 @@ class let extends Expression {
         //AbstractTable.varTable.addId(identifier, new LetVariable(offset));
         body.code(s);
         //AbstractTable.varTable.exitScope();
-<<<<<<< HEAD
-        //CgenSupport.emitPop(s);
-=======
         CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, 4, s); // pop
->>>>>>> origin/master
         //--AbstractTable.offset;
         s.println("# end of let for " + identifier);
 	}
