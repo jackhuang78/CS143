@@ -44,7 +44,14 @@ class CgenNode extends class_ {
 	
 	private StringSymbol nameStrSym;
 	private int tag;
-	private Map<AbstractSymbol, List<AbstractSymbol>> methodMap;
+	
+	private int methOff;
+	private int attrOff;
+	public Map<AbstractSymbol, Integer> methOffsets;
+	public Map<AbstractSymbol, Integer> attrOffsets;
+	
+	private Map<AbstractSymbol, attr> attrMap;
+	private Map<AbstractSymbol, method> methMap;
 	
 	
 
@@ -61,16 +68,18 @@ class CgenNode extends class_ {
 		this.nameStrSym = (StringSymbol)AbstractTable.stringtable.addString(name.getString());
 		this.tag = -1;
 		
-		this.methodMap = new LinkedHashMap<AbstractSymbol, List<AbstractSymbol>>();
+		/*this.methMap = new LinkedHashMap<AbstractSymbol, List<AbstractSymbol>>();
 		for(Enumeration e = features.getElements(); e.hasMoreElements();) {
 			Feature feat = (Feature)e.nextElement();
 			if(feat instanceof method) {
 				method meth = (method)feat;
 				List<AbstractSymbol> formList = new LinkedList<AbstractSymbol>();
-				methodMap.put(meth.name, formList);
+				methMap.put(meth.name, formList);
 			}
-		}
+		}*/
 	}
+	
+
 
 	void addChild(CgenNode child) {
 		children.addElement(child);
@@ -129,23 +138,143 @@ class CgenNode extends class_ {
 	StringSymbol getNameStrSym() {
 		return nameStrSym;
 	}
-	
-	void codeDispTab(PrintStream s) {
-	
-		if(Flags.cgen_debug) {
-			System.out.println("codeDispTab " + name + " " + methodMap.size());		
-		}
-	
-	
-	
-		if(name != TreeConstants.Object_)
-			parent.codeDispTab(s);
+
+	void buildFeatures() {
+		attrMap = new LinkedHashMap<AbstractSymbol, attr>();
+		methMap = new LinkedHashMap<AbstractSymbol, method>();
+		methOffsets = new LinkedHashMap<AbstractSymbol, Integer>();
+		attrOffsets = new LinkedHashMap<AbstractSymbol, Integer>();
+		methOff = 0;
+		attrOff = 3;
 		
-		for(AbstractSymbol method : methodMap.keySet()) {
+		if(getName() != TreeConstants.Object_) {
+			//attrMap.putAll(parent.attrMap);
+			//methOffsets.putAll(parent.methOffsets);
+			//attrOffsets.putAll(parent.attrOffsets);
+			methOff = parent.methOff;
+			attrOff = parent.attrOff;
+		}
+		
+		for(Enumeration e = features.getElements(); e.hasMoreElements();) {
+			Feature feat = (Feature)e.nextElement();
+			if(feat instanceof method) {
+				methMap.put( ((method)feat).name, (method)feat );
+				methOffsets.put( ((method)feat).name, methOff );
+				methOff += 1;
+			} else {
+				attrMap.put( ((attr)feat).name, (attr)feat );
+				attrOffsets.put( ((attr)feat).name, attrOff );
+				attrOff += 1;
+				
+			}
+		}
+		
+		for(Enumeration e = getChildren(); e.hasMoreElements();) {
+			((CgenNode)e.nextElement()).buildFeatures();
+		}
+	}	
+	
+	void codeDispTab(PrintStream s) {	
+		if(Flags.cgen_debug) {
+			System.out.println("codeDispTab " + name + " " + methOffsets.size());		
+		}
+		
+		for(AbstractSymbol method : methOffsets.keySet()) {
 			s.print(CgenSupport.WORD);
-			CgenSupport.emitMethodRef(getName(), method, s);
+			CgenSupport.emitMethodRef(name, method, s);
 			s.println();
 		}		
+	}
+	
+	void codeProtObj(PrintStream s) {
+		if(Flags.cgen_debug) {
+			System.out.println("codeProtObj " + name + " " + attrOffsets.size());		
+		}
+		
+		
+		// class tag
+		s.println(CgenSupport.WORD + getTag());				
+		
+		// size
+		s.println(CgenSupport.WORD + (attrOff));	
+		
+		// disp table
+		s.print(CgenSupport.WORD);	
+		CgenSupport.emitDispTableRef(name, s);	
+		s.println();					
+		
+		// attributes
+		for(AbstractSymbol name : attrMap.keySet()) {
+			
+			AbstractSymbol type = attrMap.get(name).type_decl;
+			
+			if(Flags.cgen_debug)
+				System.out.println("\tattr: " + name + ":" + type);
+			
+			s.print(CgenSupport.WORD);
+						
+			if(type == TreeConstants.Int)
+				((IntSymbol)AbstractTable.inttable.addInt(0)).codeRef(s);
+			else if(type == TreeConstants.Bool)
+				s.print(CgenSupport.BOOLCONST_PREFIX + "0");
+			else if(type == TreeConstants.Str)
+				((StringSymbol)AbstractTable.stringtable.addString("")).codeRef(s);
+			else
+				s.print("0");
+			s.println();
+		}	
+	}
+	
+	void codeObjInit(PrintStream s) {
+		if(Flags.cgen_debug)	System.out.println("codeObjInit " + name);		
+		
+		CgenSupport.emitEnteringMethod(s);
+		
+		if(name != TreeConstants.Object_) {
+			CgenSupport.emitJal(parent.name + CgenSupport.CLASSINIT_SUFFIX, s);
+		}
+		
+		for(AbstractSymbol name : attrMap.keySet()) {
+			attr a = attrMap.get(name);
+			if(Flags.cgen_debug)	
+				System.out.printf("\t%s:%s<-%s\n", a.name, a.type_decl, a.init);	
+			
+			if(!(a.init instanceof no_expr)) {
+				a.init.code(s);
+				CgenSupport.emitStore(
+					CgenSupport.ACC, attrOffsets.get(name), 
+					CgenSupport.SELF, s);
+			}
+		}
+		
+		
+		
+		CgenSupport.emitMove(CgenSupport.ACC, CgenSupport.SELF, s);
+		CgenSupport.emitExitingMethod(s);
+		
+		
+		
+	}
+	
+	void codeClassMethod(PrintStream s) {
+		if(name == TreeConstants.Object_ ||
+			name == TreeConstants.IO ||
+			name == TreeConstants.Int ||
+			name == TreeConstants.Str) {
+			
+			return;
+		}
+		
+		
+		if(Flags.cgen_debug)	System.out.println("codeClassMethod " + name);		
+		
+		for(method m : methMap.values()) {
+			CgenSupport.emitMethodRef(name, m.name, s);
+			s.print(CgenSupport.LABEL);
+			
+			m.code(s);
+			
+		}
 	}
 }
 	

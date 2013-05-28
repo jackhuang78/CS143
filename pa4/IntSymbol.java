@@ -71,5 +71,9 @@ class IntSymbol extends AbstractSymbol {
     public Object clone() {
 	return new IntSymbol(str, str.length(), index);
     }
+    
+    public int getIndex() {
+		return index;
+	}
 }
 

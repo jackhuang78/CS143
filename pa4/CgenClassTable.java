@@ -31,6 +31,8 @@ import java.util.*;
 	potentially extend it in other useful ways. */
 class CgenClassTable extends SymbolTable {
 
+	public static CgenClassTable globalTable;
+
 	/** All classes in the program, represented as CgenNode */
 	private Vector nds;
 	
@@ -193,10 +195,47 @@ class CgenClassTable extends SymbolTable {
 
 			CgenSupport.emitDispTableRef(nd.getName(), str);
 			str.print(CgenSupport.LABEL);
-			
 			nd.codeDispTab(str);
+			
 		}
 	}
+	
+	
+	
+	private void codeProtObjs() {
+		str.println("\n# Prototype Objects");
+		for (Object obj : nds) {
+			CgenNode nd = (CgenNode)obj;
+
+			str.println(CgenSupport.WORD + "-1");
+			CgenSupport.emitProtObjRef(nd.getName(), str);
+			str.print(CgenSupport.LABEL);
+			nd.codeProtObj(str);
+		}
+	}
+	
+	private void codeObjInits() {
+		str.println("\n# Object Initializers");
+		for(Object obj : nds) {
+			CgenNode nd = (CgenNode)obj;
+
+			CgenSupport.emitInitRef(nd.getName(), str);
+			str.print(CgenSupport.LABEL);
+			nd.codeObjInit(str);
+		}
+	}
+	
+	private void codeClassMethods() {
+		str.println("\n# Class Methods");
+		for(Object obj : nds) {
+			CgenNode nd = (CgenNode)obj;
+			nd.codeClassMethod(str);
+			
+		}
+	}
+	
+
+
 
 
 	/** Creates data structures representing basic Cool classes (Object,
@@ -421,6 +460,8 @@ class CgenClassTable extends SymbolTable {
 				System.out.println(e.nextElement());
 		}
 	}
+	
+	
 
 	private void setRelations(CgenNode nd) {
 		CgenNode parent = (CgenNode)probe(nd.getParent());
@@ -430,6 +471,9 @@ class CgenClassTable extends SymbolTable {
 
 	/** Constructs a new class table and invokes the code generator */
 	public CgenClassTable(Classes cls, PrintStream str) {
+	
+		globalTable = this;
+	
 		nds = new Vector();
 		nodeMap = new LinkedHashMap<AbstractSymbol, CgenNode>();
 
@@ -441,6 +485,7 @@ class CgenClassTable extends SymbolTable {
 		installBasicClasses();
 		installClasses(cls);
 		buildInheritanceTree();
+		root().buildFeatures();
 		
 		stringclasstag = nodeMap.get(TreeConstants.Str).getTag();
 		intclasstag = nodeMap.get(TreeConstants.Int).getTag();
@@ -450,6 +495,7 @@ class CgenClassTable extends SymbolTable {
 
 		exitScope();
 	}
+	
 
 	/** This method is the meat of the code generator.  It is to be
 		filled in programming assignment 5 */
@@ -468,7 +514,7 @@ class CgenClassTable extends SymbolTable {
 		//				   - prototype objects
 		//				   - class_nameTab
 		//				   - dispatch tables
-		
+
 		if (Flags.cgen_debug) System.out.println("coding class name table");
 		codeClassNameTable();
 		
@@ -478,7 +524,9 @@ class CgenClassTable extends SymbolTable {
 		if (Flags.cgen_debug) System.out.println("coding dispatch tables");
 		codeDispTables();		
 
-
+		if (Flags.cgen_debug) System.out.println("coding prototype objects");
+		codeProtObjs();		
+		
 
 
 
@@ -489,11 +537,29 @@ class CgenClassTable extends SymbolTable {
 		//				   - object initializer
 		//				   - the class methods
 		//				   - etc...
+		
+		if (Flags.cgen_debug) System.out.println("coding object initializer");
+		codeObjInits();
+		
+		if (Flags.cgen_debug) System.out.println("coding class methods");
+		codeClassMethods();
 	}
 
 	/** Gets the root of the inheritance tree */
 	public CgenNode root() {
 		return (CgenNode)probe(TreeConstants.Object_);
+	}
+	
+	public static int getMethodOffset(AbstractSymbol clazz, AbstractSymbol method) {
+		return globalTable.nodeMap.get(clazz).methOffsets.get(method);
+	}
+	
+	public static int getAttrOffset(AbstractSymbol clazz, AbstractSymbol a) {
+		return globalTable.nodeMap.get(clazz).attrOffsets.get(a);
+	}
+	
+	public static String getFilename(AbstractSymbol clazz) {
+		return globalTable.nodeMap.get(clazz).filename.toString();
 	}
 }
 						  
