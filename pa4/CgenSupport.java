@@ -755,7 +755,6 @@ class CgenSupport {
 			addiu	$sp $sp 16
 			jr	$ra	
 		*/
-		
 		emitLoad(FP, 3, SP, s);
 		emitLoad(SELF, 2, SP, s);
 		emitLoad(RA, 1, SP, s);
