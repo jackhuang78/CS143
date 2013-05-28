@@ -690,6 +690,40 @@ class CgenSupport {
     }
     // end cs 143 add
    
+	
+	static void emitEnteringMethod(PrintStream s) {
+		/*
+			addiu	$sp $sp -12
+			sw	$fp 12($sp)
+			sw	$s0 8($sp)
+			sw	$ra 4($sp)
+			addiu	$fp $sp 4
+			move	$s0 $a0
+		*/
+
+		emitAddiu(SP, SP, -12, s);
+		emitStore(FP, 3, SP, s);
+		emitStore(SELF, 2, SP, s);
+		emitStore(RA, 1, SP, s);
+		emitAddiu(FP, SP, 4, s);
+		emitMove(SELF, ACC, s);
+	}
+	
+	static void emitExitingMethod(PrintStream s) {
+		/*
+			lw	$fp 12($sp)
+			lw	$s0 8($sp)
+			lw	$ra 4($sp)
+			addiu	$sp $sp 16
+			jr	$ra	
+		*/
+		
+		emitLoad(FP, 3, SP, s);
+		emitLoad(SELF, 2, SP, s);
+		emitLoad(RA, 1, SP, s);
+		emitAddiu(SP, SP, 12, s);
+		emitReturn(s);
+	}
 }
 	
 	

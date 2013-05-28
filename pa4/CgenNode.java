@@ -1,5 +1,5 @@
 /*
-00..........                                                                  0000000000000000000000000Copyright (c) 2000 The Regents of the University of California.
+Copyright (c) 2000 The Regents of the University of California.
 All rights reserved.
 
 Permission to use, copy, modify, and distribute this software for any
@@ -50,7 +50,7 @@ class CgenNode extends class_ {
 	private Map<AbstractSymbol, Integer> methOffsets;
 	private Map<AbstractSymbol, Integer> attrOffsets;
 	
-	private Map<AbstractSymbol, AbstractSymbol> attrTypes;
+	private Map<AbstractSymbol, attr> attrMap;
 	
 	
 
@@ -139,16 +139,16 @@ class CgenNode extends class_ {
 	}
 
 	void buildFeatures() {
-		attrTypes = new LinkedHashMap<AbstractSymbol, AbstractSymbol>();
+		attrMap = new LinkedHashMap<AbstractSymbol, attr>();
 		methOffsets = new LinkedHashMap<AbstractSymbol, Integer>();
 		attrOffsets = new LinkedHashMap<AbstractSymbol, Integer>();
 		methOff = 0;
-		attrOff = 12;
+		attrOff = 3;
 		
 		if(getName() != TreeConstants.Object_) {
-			methOffsets.putAll(parent.methOffsets);
-			attrOffsets.putAll(parent.attrOffsets);
-			attrTypes.putAll(parent.attrTypes);
+			//attrMap.putAll(parent.attrMap);
+			//methOffsets.putAll(parent.methOffsets);
+			//attrOffsets.putAll(parent.attrOffsets);
 			methOff = parent.methOff;
 			attrOff = parent.attrOff;
 		}
@@ -157,11 +157,11 @@ class CgenNode extends class_ {
 			Feature feat = (Feature)e.nextElement();
 			if(feat instanceof method) {
 				methOffsets.put( ((method)feat).name, methOff );
-				methOff += 4;
+				methOff += 1;
 			} else {
-				attrTypes.put( ((attr)feat).name, ((attr)feat).type_decl );
+				attrMap.put( ((attr)feat).name, (attr)feat );
 				attrOffsets.put( ((attr)feat).name, attrOff );
-				attrOff += 4;
+				attrOff += 1;
 				
 			}
 		}
@@ -188,13 +188,12 @@ class CgenNode extends class_ {
 			System.out.println("codeProtObj " + name + " " + attrOffsets.size());		
 		}
 		
-				
 		
 		// class tag
 		s.println(CgenSupport.WORD + getTag());				
 		
 		// size
-		s.println(CgenSupport.WORD + (attrOff/4));	
+		s.println(CgenSupport.WORD + (attrOff));	
 		
 		// disp table
 		s.print(CgenSupport.WORD);	
@@ -202,12 +201,12 @@ class CgenNode extends class_ {
 		s.println();					
 		
 		// attributes
-		for(AbstractSymbol attr : attrTypes.keySet()) {
+		for(AbstractSymbol name : attrMap.keySet()) {
 			
-			AbstractSymbol type = attrTypes.get(attr);
+			AbstractSymbol type = attrMap.get(name).type_decl;
 			
 			if(Flags.cgen_debug)
-				System.out.println("\tattr: " + attr + ":" + type);
+				System.out.println("\tattr: " + name + ":" + type);
 			
 			s.print(CgenSupport.WORD);
 						
@@ -221,6 +220,37 @@ class CgenNode extends class_ {
 				s.print("0");
 			s.println();
 		}	
+	}
+	
+	void codeObjInit(PrintStream s) {
+		if(Flags.cgen_debug)	System.out.println("codeObjInit " + name);		
+		
+		CgenSupport.emitEnteringMethod(s);
+		
+		if(name != TreeConstants.Object_) {
+			CgenSupport.emitJal(parent.name + CgenSupport.CLASSINIT_SUFFIX, s);
+		}
+		
+		for(AbstractSymbol name : attrMap.keySet()) {
+			attr a = attrMap.get(name);
+			if(Flags.cgen_debug)	
+				System.out.printf("\t%s:%s<-%s\n", a.name, a.type_decl, a.init);	
+			
+			if(!(a.init instanceof no_expr)) {
+				a.init.code(s);
+				CgenSupport.emitStore(
+					CgenSupport.ACC, attrOffsets.get(name), 
+					CgenSupport.SELF, s);
+			}
+		}
+		
+		
+		
+		CgenSupport.emitMove(CgenSupport.ACC, CgenSupport.SELF, s);
+		CgenSupport.emitExitingMethod(s);
+		
+		
+		
 	}
 }
 	

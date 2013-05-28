@@ -212,6 +212,17 @@ class CgenClassTable extends SymbolTable {
 		}
 	}
 	
+	private void codeObjInits() {
+		str.println("\n# Object Initializers");
+		for (Object obj : nds) {
+			CgenNode nd = (CgenNode)obj;
+
+			CgenSupport.emitInitRef(nd.getName(), str);
+			str.print(CgenSupport.LABEL);
+			nd.codeObjInit(str);
+		}
+	}
+	
 
 
 
@@ -489,7 +500,7 @@ class CgenClassTable extends SymbolTable {
 		//				   - prototype objects
 		//				   - class_nameTab
 		//				   - dispatch tables
-		
+
 		if (Flags.cgen_debug) System.out.println("coding class name table");
 		codeClassNameTable();
 		
@@ -501,8 +512,7 @@ class CgenClassTable extends SymbolTable {
 
 		if (Flags.cgen_debug) System.out.println("coding prototype objects");
 		codeProtObjs();		
-
-
+		
 
 
 
@@ -513,6 +523,9 @@ class CgenClassTable extends SymbolTable {
 		//				   - object initializer
 		//				   - the class methods
 		//				   - etc...
+		
+		if (Flags.cgen_debug) System.out.println("coding object initializer");
+		codeObjInits();
 	}
 
 	/** Gets the root of the inheritance tree */
