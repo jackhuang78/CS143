@@ -1405,7 +1405,7 @@ class lt extends Expression {
 	  * @param s the output stream 
 	  * */
 	public void code(PrintStream s) {
-        CgenSupport.emitComparison(e1, e2, CgenSupport.BLT, s);
+        CgenSupport.emitCpr(e1, e2, CgenSupport.BLT, s);
 	}
 
 
@@ -1511,7 +1511,7 @@ class leq extends Expression {
 	  * @param s the output stream 
 	  * */
 	public void code(PrintStream s) {
-		CgenSupport.emitComparison(e1, e2, CgenSupport.BLEQ, s);
+		CgenSupport.emitCpr(e1, e2, CgenSupport.BLEQ, s);
 	}
 
 
