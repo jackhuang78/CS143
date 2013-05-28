@@ -8,8 +8,7 @@
 
 import java.util.*;
 import java.io.PrintStream;
-
-public static CgenClassTable ct;
+import static CgenClassTable.*;
 
 /** Defines simple phylum Program */
 abstract class Program extends TreeNode {

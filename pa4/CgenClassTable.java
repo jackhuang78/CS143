@@ -31,7 +31,7 @@ import java.util.*;
 	potentially extend it in other useful ways. */
 class CgenClassTable extends SymbolTable {
 
-	public static CgenClassTable globalTable;
+	public static CgenClassTable ct;
 
 	/** All classes in the program, represented as CgenNode */
 	private Vector nds;
@@ -472,7 +472,7 @@ class CgenClassTable extends SymbolTable {
 	/** Constructs a new class table and invokes the code generator */
 	public CgenClassTable(Classes cls, PrintStream str) {
 	
-		cool-tree.ct = this;
+		ct = this;
 	
 		nds = new Vector();
 		nodeMap = new LinkedHashMap<AbstractSymbol, CgenNode>();
@@ -559,7 +559,7 @@ class CgenClassTable extends SymbolTable {
 	}
 	
 	// HACK
-	public static String getFilename(AbstractSymbol clazz) {
+	public String getFilename(AbstractSymbol clazz) {
 		return nodeMap.get(TreeConstants.Main).filename.toString();
 //		return nodeMap.get(clazz).filename.toString();
 	}
