@@ -41,15 +41,31 @@ class CgenSupport {
         emitJal(CASE_ABORT, s);
     }
 
+    /** generates the next label and return an int
+	 * */
     static int genNextLabel() {
         labelIncrementCounter++;
         return labelIncrementCounter;
     }
 
+    /** return the label of a string object
+     * @str string to lookup
+	 * */
+    static String getStrLabel(String str) {
+        return STRCONST_PREFIX + ((StringSymbol)AbstractTable.stringtable.lookup(str)).getIndex();
+    }
+
+    /** return the label of a integer object
+     * @num int to loopup
+	 * */
+    static String getIntLabel(Integer num) {
+        return INTCONST_PREFIX + ((IntSymbol)AbstractTable.inttable.lookup(num.toString())).getIndex(); 
+    }
+
     static void emitCheckVoidCallDispAbort(int lineNumber, PrintStream s) {
         int label = genNextLabel();
         emitBne(ACC, ZERO, label, s);
-        emitLoadAddress(ACC, getStringRef(currentFilename.toString()), s);
+        emitLoadAddress(ACC, getStrLabel(currentFilename.toString()), s);
         emitLoadImm(T1, lineNumber, s);
         emitDispatchAbort(s);
         emitLabelDef(label, s);
@@ -58,21 +74,14 @@ class CgenSupport {
     static void emitCheckVoidCallCaseAbort(int lineNumber, PrintStream s) {
         int label = genNextLabel();
         emitBne(ACC, ZERO, label, s);
-        emitLoadAddress(ACC, getStringRef(currentFilename.toString()), s);
+        emitLoadAddress(ACC, getStrLabel(currentFilename.toString()), s);
         emitLoadImm(T1, lineNumber, s);
         emitCaseAbort(s);
         emitLabelDef(label, s);
     }
 
-    static String getStringRef(String s) {
-        StringSymbol sym = (StringSymbol)AbstractTable.stringtable.lookup(s);
-        return STRCONST_PREFIX; //+ sym.getIndex(); need to get index
-    }
 
-    static String getIntRef(Integer n) {
-        IntSymbol sym = (IntSymbol)AbstractTable.inttable.lookup(n.toString());
-        return INTCONST_PREFIX; // + sym.getIndex(); need to get index
-    }
+    
     // end cs 143 add
 
 	/** Runtime constants for controlling the garbage collector. */

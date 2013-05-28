@@ -1105,9 +1105,9 @@ class let extends Expression {
                 BoolConst.falsebool.codeRef(s);
                 s.println("");
             } else if (type_decl == TreeConstants.Int) {
-                s.println(CgenSupport.LA + CgenSupport.ACC + " " +  CgenSupport.getIntRef(0));
+                s.println(CgenSupport.LA + CgenSupport.ACC + " " +  CgenSupport.getIntLabel(0));
             } else if (type_decl == TreeConstants.Str) {
-                s.println(CgenSupport.LA + CgenSupport.ACC + " " +  CgenSupport.getStringRef(""));
+                s.println(CgenSupport.LA + CgenSupport.ACC + " " +  CgenSupport.getStrLabel(""));
             } else {
                 CgenSupport.emitMove(CgenSupport.ACC, CgenSupport.ZERO, s);
             }
