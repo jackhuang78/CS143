@@ -727,9 +727,9 @@ class static_dispatch extends Expression {
             CgenSupport.emitPush(CgenSupport.ACC, s);
         }
         expr.code(s);
-        CgenSupport.emitCheckVoidCallDispAbort(lineNumber, s);
+        CgenSupport.emitCheckVoidCallDispAbort(lineNumber, CgenClassTable.getFilename(type_name), s);
         CgenSupport.emitLoadAddress(CgenSupport.T1, type_name + CgenSupport.DISPTAB_SUFFIX, s);
-        //CgenSupport.emitLoad(CgenSupport.T1, AbstractTable.classTable.getMethodOffset(type_name, name, actual), CgenSupport.T1, s);
+        CgenSupport.emitLoad(CgenSupport.T1, CgenClassTable.getMethodOffset(type_name, name), CgenSupport.T1, s);
         CgenSupport.emitJalr(CgenSupport.T1, s);
         s.println("# end of static_dispatch " + type_name + "." + name + "()");
 	}
@@ -795,11 +795,10 @@ class dispatch extends Expression {
             CgenSupport.emitPush(CgenSupport.ACC, s);
         }
         expr.code(s);
-        CgenSupport.emitCheckVoidCallDispAbort(lineNumber, s);
-        CgenSupport.emitLoad(CgenSupport.T1, CgenSupport.DISPTABLE_OFFSET, CgenSupport.ACC, s);
         AbstractSymbol exprType = expr.get_type();
-        System.err.println("dispatch: " + exprType + "::" + name);
-        //CgenSupport.emitLoad(CgenSupport.T1, AbstractTable.classTable.getMethodOffset(exprType, name, actual), CgenSupport.T1, s);
+        CgenSupport.emitCheckVoidCallDispAbort(lineNumber, CgenClassTable.getFilename(exprType),s);
+        CgenSupport.emitLoad(CgenSupport.T1, CgenSupport.DISPTABLE_OFFSET, CgenSupport.ACC, s);
+        CgenSupport.emitLoad(CgenSupport.T1, CgenClassTable.getMethodOffset(exprType, name), CgenSupport.T1, s);
         CgenSupport.emitJalr(CgenSupport.T1, s);
         s.println("# end of dispatch " + name + "()");
 	}

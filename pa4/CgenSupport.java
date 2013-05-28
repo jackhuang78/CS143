@@ -28,8 +28,6 @@ import java.io.PrintStream;
 	this class is even created. */
 class CgenSupport {
 	// cs 143 add
-	public static AbstractSymbol currentFilename;
-    public static CgenNode currentClass;
     private static int labelIncrementCounter = 0;
     final static String DISP_ABORT = "_dispatch_abort";
     final static String CASE_ABORT = "_case_abort";
@@ -62,19 +60,19 @@ class CgenSupport {
         return INTCONST_PREFIX + ((IntSymbol)AbstractTable.inttable.lookup(num.toString())).getIndex(); 
     }
 
-    static void emitCheckVoidCallDispAbort(int lineNumber, PrintStream s) {
+    static void emitCheckVoidCallDispAbort(int lineNumber, String fileName, PrintStream s) {
         int label = genNextLabel();
         emitBne(ACC, ZERO, label, s);
-        emitLoadAddress(ACC, getStrLabel(currentFilename.toString()), s);
+        emitLoadAddress(ACC, getStrLabel(fileName), s);
         emitLoadImm(T1, lineNumber, s);
         emitDispatchAbort(s);
         emitLabelDef(label, s);
     }
 
-    static void emitCheckVoidCallCaseAbort(int lineNumber, PrintStream s) {
+    static void emitCheckVoidCallCaseAbort(int lineNumber,String fileName, PrintStream s) {
         int label = genNextLabel();
         emitBne(ACC, ZERO, label, s);
-        emitLoadAddress(ACC, getStrLabel(currentFilename.toString()), s);
+        emitLoadAddress(ACC, getStrLabel(fileName), s);
         emitLoadImm(T1, lineNumber, s);
         emitCaseAbort(s);
         emitLabelDef(label, s);
