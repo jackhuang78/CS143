@@ -51,6 +51,7 @@ class CgenNode extends class_ {
 	private Map<AbstractSymbol, Integer> attrOffsets;
 	
 	private Map<AbstractSymbol, attr> attrMap;
+	private Map<AbstractSymbol, method> methMap;
 	
 	
 
@@ -140,6 +141,7 @@ class CgenNode extends class_ {
 
 	void buildFeatures() {
 		attrMap = new LinkedHashMap<AbstractSymbol, attr>();
+		methMap = new LinkedHashMap<AbstractSymbol, method>();
 		methOffsets = new LinkedHashMap<AbstractSymbol, Integer>();
 		attrOffsets = new LinkedHashMap<AbstractSymbol, Integer>();
 		methOff = 0;
@@ -156,6 +158,7 @@ class CgenNode extends class_ {
 		for(Enumeration e = features.getElements(); e.hasMoreElements();) {
 			Feature feat = (Feature)e.nextElement();
 			if(feat instanceof method) {
+				methMap.put( ((method)feat).name, (method)feat );
 				methOffsets.put( ((method)feat).name, methOff );
 				methOff += 1;
 			} else {
@@ -251,6 +254,27 @@ class CgenNode extends class_ {
 		
 		
 		
+	}
+	
+	void codeClassMethod(PrintStream s) {
+		if(name == TreeConstants.Object_ ||
+			name == TreeConstants.IO ||
+			name == TreeConstants.Int ||
+			name == TreeConstants.Str) {
+			
+			return;
+		}
+		
+		
+		if(Flags.cgen_debug)	System.out.println("codeClassMethod " + name);		
+		
+		for(method m : methMap.values()) {
+			CgenSupport.emitMethodRef(name, m.name, s);
+			s.println(CgenSupport.LABEL);
+			
+			m.code(s);
+			
+		}
 	}
 }
 	

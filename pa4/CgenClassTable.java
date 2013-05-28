@@ -214,12 +214,21 @@ class CgenClassTable extends SymbolTable {
 	
 	private void codeObjInits() {
 		str.println("\n# Object Initializers");
-		for (Object obj : nds) {
+		for(Object obj : nds) {
 			CgenNode nd = (CgenNode)obj;
 
 			CgenSupport.emitInitRef(nd.getName(), str);
 			str.print(CgenSupport.LABEL);
 			nd.codeObjInit(str);
+		}
+	}
+	
+	private void codeClassMethods() {
+		str.println("\n# Class Methods");
+		for(Object obj : nds) {
+			CgenNode nd = (CgenNode)obj;
+			nd.codeClassMethod(str);
+			
 		}
 	}
 	
@@ -526,6 +535,9 @@ class CgenClassTable extends SymbolTable {
 		
 		if (Flags.cgen_debug) System.out.println("coding object initializer");
 		codeObjInits();
+		
+		if (Flags.cgen_debug) System.out.println("coding class methods");
+		codeClassMethods();
 	}
 
 	/** Gets the root of the inheritance tree */
