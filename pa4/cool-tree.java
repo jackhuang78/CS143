@@ -7,10 +7,8 @@
 //////////////////////////////////////////////////////////
 
 
-
-import java.util.Enumeration;
+import java.util.*;
 import java.io.PrintStream;
-import java.util.Vector;
 
 
 /** Defines simple phylum Program */
@@ -423,7 +421,7 @@ class method extends Feature {
 
 	
     public void code(PrintStream s) {
-        AbstractTable.offset = 1;
+        //AbstractTable.offset = 1;
         //AbstractTable.varTable.enterScope();
         for (int i = 0; i < formals.getLength(); ++i) {
             formal formal = (formal)formals.getNth(i);
@@ -441,7 +439,7 @@ class method extends Feature {
     public List<AbstractSymbol> getParamTypes() {
         List<AbstractSymbol> paramTypes = new ArrayList<AbstractSymbol>();
         for (Enumeration e = formals.getElements(); e.hasMoreElements();) {
-            paramTypes.add((formal)e.nextElement().getType());
+            paramTypes.add(((formal)e.nextElement()).getType());
         }
         return paramTypes;
     }
@@ -518,6 +516,10 @@ class formal extends Formal {
 	  * @param a0 initial value for name
 	  * @param a1 initial value for type_decl
 	  */
+
+	public AbstractSymbol getType() {
+        	return type_decl;
+	}
 	public formal(int lineNumber, AbstractSymbol a1, AbstractSymbol a2) {
 		super(lineNumber);
 		name = a1;
@@ -557,6 +559,9 @@ class branch extends Case {
 	  * @param a1 initial value for type_decl
 	  * @param a2 initial value for expr
 	  */
+	public AbstractSymbol getType() {
+		return type_decl;
+	}
 	public branch(int lineNumber, AbstractSymbol a1, AbstractSymbol a2, Expression a3) {
 		super(lineNumber);
 		name = a1;
@@ -586,20 +591,20 @@ class branch extends Case {
     public void code(int labelEnd, PrintStream s) {
         s.println("# start of branch for " + name + ":" + type_decl);
         CgenSupport.emitLoad(CgenSupport.T1, 0, CgenSupport.ACC, s);
-        List<Integer> childrenTags = AbstractTable.classTable.getChildrenTags(type_decl);
-        int minTag = Collections.min(childrenTags);
-        int maxTag = Collections.max(childrenTags);
+        //List<Integer> childrenTags = AbstractTable.classTable.getChildrenTags(type_decl);
+        int minTag = 0; //Collections.min(childrenTags);
+        int maxTag = 0; //Collections.max(childrenTags);
         int labelNext = CgenSupport.genLabelNum();
         CgenSupport.emitBlti(CgenSupport.T1, minTag, labelNext, s);
         CgenSupport.emitBgti(CgenSupport.T1, maxTag, labelNext, s);
-        int offset = AbstractTable.offset++;
+        //int offset = AbstractTable.offset++;
         CgenSupport.emitPush(CgenSupport.ACC, s);
         //AbstractTable.varTable.enterScope();
         //AbstractTable.varTable.addId(name, new BranchVariable(offset));
         expr.code(s);
         //AbstractTable.varTable.exitScope();
-        CgenSupport.emitPop(s);
-        --AbstractTable.offset;
+        CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, 4, s); // pop
+        //--AbstractTable.offset;
         CgenSupport.emitBranch(labelEnd, s);
         CgenSupport.emitLabelDef(labelNext, s);
         s.println("# end of branch for " + name + ":" + type_decl);
@@ -717,15 +722,15 @@ class static_dispatch extends Expression {
 	public void code(PrintStream s) {
 		s.println("# static_dispatch " + type_name + "." + name + "()");
 		// code actuals
-        for (Enumeration e = actuals.getElements(); e.hasMoreElements();) {
-            Expression actual = (Expression)e.nextElement();
-            actual.code(s);
+        for (Enumeration e = actual.getElements(); e.hasMoreElements();) {
+            Expression a = (Expression)e.nextElement();
+            a.code(s);
             CgenSupport.emitPush(CgenSupport.ACC, s);
         }
         expr.code(s);
         CgenSupport.emitCheckVoidCallDispAbort(lineNumber, s);
         CgenSupport.emitLoadAddress(CgenSupport.T1, type_name + CgenSupport.DISPTAB_SUFFIX, s);
-        CgenSupport.emitLoad(CgenSupport.T1, AbstractTable.classTable.getMethodOffset(type_name, name, actual), CgenSupport.T1, s);
+        //CgenSupport.emitLoad(CgenSupport.T1, AbstractTable.classTable.getMethodOffset(type_name, name, actual), CgenSupport.T1, s);
         CgenSupport.emitJalr(CgenSupport.T1, s);
         s.println("# end of static_dispatch " + type_name + "." + name + "()");
 	}
@@ -785,9 +790,9 @@ class dispatch extends Expression {
 	public void code(PrintStream s) {
 		s.println("# dispatch " + name + "()");
         // code actuals
-        for (Enumeration e = actuals.getElements(); e.hasMoreElements();) {
-            Expression actual = (Expression)e.nextElement();
-            actual.code(s);
+        for (Enumeration e = actual.getElements(); e.hasMoreElements();) {
+            Expression a = (Expression)e.nextElement();
+            a.code(s);
             CgenSupport.emitPush(CgenSupport.ACC, s);
         }
         expr.code(s);
@@ -795,7 +800,7 @@ class dispatch extends Expression {
         CgenSupport.emitLoad(CgenSupport.T1, CgenSupport.DISPTABLE_OFFSET, CgenSupport.ACC, s);
         AbstractSymbol exprType = expr.get_type();
         System.err.println("dispatch: " + exprType + "::" + name);
-        CgenSupport.emitLoad(CgenSupport.T1, AbstractTable.classTable.getMethodOffset(exprType, name, actual), CgenSupport.T1, s);
+        //CgenSupport.emitLoad(CgenSupport.T1, AbstractTable.classTable.getMethodOffset(exprType, name, actual), CgenSupport.T1, s);
         CgenSupport.emitJalr(CgenSupport.T1, s);
         s.println("# end of dispatch " + name + "()");
 	}
@@ -981,7 +986,8 @@ class typcase extends Expression {
         }
         Collections.sort(branches, new Comparator<branch>() {
             public int compare(branch first, branch second) {
-                return AbstractTable.classTable.depth(second.getType()) - AbstractTable.classTable.depth(first.getType());
+                //return AbstractTable.classTable.depth(second.getType()) - AbstractTable.classTable.depth(first.getType());
+		return 0; // dummy
             }
         });
         for(branch br: branches) {
@@ -1109,15 +1115,14 @@ class let extends Expression {
         } else {
             init.code(s);
         }
-        int offset = AbstractTable.offset++;
-        //int offset = AbstractTable.offset;
+        //int offset = AbstractTable.offset++;
         CgenSupport.emitPush(CgenSupport.ACC, s);
         //AbstractTable.varTable.enterScope();
         //AbstractTable.varTable.addId(identifier, new LetVariable(offset));
         body.code(s);
         //AbstractTable.varTable.exitScope();
-        CgenSupport.emitPop(s);
-        --AbstractTable.offset;
+        CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, 4, s); // pop
+        //--AbstractTable.offset;
         s.println("# end of let for " + identifier);
 	}
 
