@@ -65,12 +65,12 @@ class CgenSupport {
 
     static String getStringRef(String s) {
         StringSymbol sym = (StringSymbol)AbstractTable.stringtable.lookup(s);
-        return STRCONST_PREFIX + sym.getIndex();
+        return STRCONST_PREFIX;// + sym.getIndex();
     }
 
     static String getIntRef(Integer n) {
         IntSymbol sym = (IntSymbol)AbstractTable.inttable.lookup(n.toString());
-        return INTCONST_PREFIX + sym.getIndex();
+        return INTCONST_PREFIX;// + sym.getIndex();
     }
     // end cs 143 add
 
