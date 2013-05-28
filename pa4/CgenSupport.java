@@ -30,7 +30,7 @@ class CgenSupport {
 	// cs 143 add
 	public static AbstractSymbol currentFilename;
     public static CgenNode currentClass;
-    private static int labelNum = 0;
+    private static int labelIncrementCounter = 0;
     final static String DISP_ABORT = "_dispatch_abort";
     final static String CASE_ABORT = "_case_abort";
    	static void emitDispatchAbort(PrintStream s) {
@@ -41,37 +41,47 @@ class CgenSupport {
         emitJal(CASE_ABORT, s);
     }
 
-    static int genLabelNum() {
-        return labelNum++;
+    /** generates the next label and return an int
+	 * */
+    static int genNextLabel() {
+        labelIncrementCounter++;
+        return labelIncrementCounter;
+    }
+
+    /** return the label of a string object
+     * @str string to lookup
+	 * */
+    static String getStrLabel(String str) {
+        return STRCONST_PREFIX + ((StringSymbol)AbstractTable.stringtable.lookup(str)).getIndex();
+    }
+
+    /** return the label of a integer object
+     * @num int to loopup
+	 * */
+    static String getIntLabel(Integer num) {
+        return INTCONST_PREFIX + ((IntSymbol)AbstractTable.inttable.lookup(num.toString())).getIndex(); 
     }
 
     static void emitCheckVoidCallDispAbort(int lineNumber, PrintStream s) {
-        int label = genLabelNum();
+        int label = genNextLabel();
         emitBne(ACC, ZERO, label, s);
-        emitLoadAddress(ACC, getStringRef(currentFilename.toString()), s);
+        emitLoadAddress(ACC, getStrLabel(currentFilename.toString()), s);
         emitLoadImm(T1, lineNumber, s);
         emitDispatchAbort(s);
         emitLabelDef(label, s);
     }
 
     static void emitCheckVoidCallCaseAbort(int lineNumber, PrintStream s) {
-        int label = genLabelNum();
+        int label = genNextLabel();
         emitBne(ACC, ZERO, label, s);
-        emitLoadAddress(ACC, getStringRef(currentFilename.toString()), s);
+        emitLoadAddress(ACC, getStrLabel(currentFilename.toString()), s);
         emitLoadImm(T1, lineNumber, s);
         emitCaseAbort(s);
         emitLabelDef(label, s);
     }
 
-    static String getStringRef(String s) {
-        StringSymbol sym = (StringSymbol)AbstractTable.stringtable.lookup(s);
-        return STRCONST_PREFIX; //+ sym.getIndex(); need to get index
-    }
 
-    static String getIntRef(Integer n) {
-        IntSymbol sym = (IntSymbol)AbstractTable.inttable.lookup(n.toString());
-        return INTCONST_PREFIX; // + sym.getIndex(); need to get index
-    }
+    
     // end cs 143 add
 
 	/** Runtime constants for controlling the garbage collector. */
@@ -228,17 +238,6 @@ class CgenSupport {
 		b.codeRef(s);
 		s.println("");
 	}
-
-	static void emitLoadBool(String dest_reg, boolean b, PrintStream s) {
-		emitPartialLoadAddress(dest_reg, s);
-		if(b){
-		    BoolConst.truebool.codeRef(s);
-		}else{
-		    BoolConst.falsebool.codeRef(s);
-		}
-		s.println("");
-	}
-
 
 	/** Emits an instruction to load a string constant into a register.
 	 * @param dest_reg the destination register
@@ -666,6 +665,9 @@ class CgenSupport {
         s.println("# emit end method CLOSED");
     }
 
+    /** Emits a pop operation.
+	 * @reg the reg destination we want to pop to
+	 * */
     static void emitPop(String reg, PrintStream s) {
         emitAddiu(SP, SP, 4, s);
         emitLoad(reg, 0, SP, s);
@@ -679,36 +681,52 @@ class CgenSupport {
     static void emitArith(Expression e1, Expression e2, String opcode, PrintStream s) {
         e1.code(s);
         // fetch first arg value from ACC + 12 and store in T1
-        CgenSupport.emitFetchInt(CgenSupport.T1, CgenSupport.ACC, s);
+        emitFetchInt(T1, ACC, s);
         // store T1's value on stack
-        CgenSupport.emitPush(CgenSupport.T1, s);
+        emitPush(T1, s);
         e2.code(s);
-        // CgenSupport.emitJal("Object.copy", s); // need object copy?
+        // emitJal("Object.copy", s); // need object copy?
         // fetch 2nd arg value from ACC + 12 and store in T2
-        CgenSupport.emitFetchInt(CgenSupport.T2, CgenSupport.ACC, s);
+        emitFetchInt(T2, ACC, s);
         // recover T1's original value
-        CgenSupport.emitPop(CgenSupport.T1, s);
+        emitPop(T1, s);
         // print MIPS code
         s.println(opcode + T1 + " " + T1 + " " + T2);
         // store operation result of T1 into ACC address + 12
-        CgenSupport.emitStoreInt(CgenSupport.T1, CgenSupport.ACC, s);
+        emitStoreInt(T1, ACC, s);
     }
 
-    static void emitComparison(Expression e1, Expression e2, String op, PrintStream s) {
+	/** Emits comparison among two params.
+	 * @e1 param 1
+	 * @e2 param 2
+	 * @opcode operation
+	 * */
+    static void emitCpr(Expression e1, Expression e2, String opcode, PrintStream s) {
         e1.code(s);
+        // push start address of e1's result onto the stack
         emitPush(ACC, s);
         e2.code(s);
-        emitPop(T1, s);
+        // move e2's result's start address into T2
         emitMove(T2, ACC, s);
-        emitLoadBool(ACC,true,s);
-        int labelEnd = genLabelNum();
+        // recover e1's result's start address into T1
+        emitPop(T1, s);
+        // load true's address into ACC 
+        emitLoadBool(ACC,new BoolConst(true),s);
+        // save T1 and T2 's true value into T1 and T2
         emitFetchInt(T1, T1, s);
         emitFetchInt(T2, T2, s);
-        s.print(op + T1 + " " + T2 + " ");
-        emitLabelRef(labelEnd, s);
+        // print instruction, do not finish printing yet..
+        s.print(opcode + T1 + " " + T2 + " ");
+        // get a new label number.. this is a dummy label, if it is true then false won't be written in to ACC
+        int dummy_label = genNextLabel();
+        // finish printing the label
+        emitLabelRef(dummy_label, s);
+        // print new line
         s.println("");
-        emitLoadBool(ACC,false,s);
-        emitLabelDef(labelEnd, s);
+        // now seems like code is still execution (no branching), load false's boolean into ACC
+        emitLoadBool(ACC,new BoolConst(false),s);
+        // print label for branching
+        emitLabelDef(dummy_label, s);
     }
     // end cs 143 add
    

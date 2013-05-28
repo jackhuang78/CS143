@@ -593,7 +593,7 @@ class branch extends Case {
         //List<Integer> childrenTags = AbstractTable.classTable.getChildrenTags(type_decl);
         int minTag = 0; //Collections.min(childrenTags);
         int maxTag = 0; //Collections.max(childrenTags);
-        int labelNext = CgenSupport.genLabelNum();
+        int labelNext = CgenSupport.genNextLabel();
         CgenSupport.emitBlti(CgenSupport.T1, minTag, labelNext, s);
         CgenSupport.emitBgti(CgenSupport.T1, maxTag, labelNext, s);
         //int offset = AbstractTable.offset++;
@@ -856,8 +856,8 @@ class cond extends Expression {
 		s.println("# start of cond");
         pred.code(s);
         CgenSupport.emitFetchInt(CgenSupport.T1, CgenSupport.ACC, s);
-        int labelFalse = CgenSupport.genLabelNum();
-        int labelEnd = CgenSupport.genLabelNum();
+        int labelFalse = CgenSupport.genNextLabel();
+        int labelEnd = CgenSupport.genNextLabel();
         CgenSupport.emitBeqz(CgenSupport.T1, labelFalse, s);
         // true branch
         then_exp.code(s);
@@ -915,8 +915,8 @@ class loop extends Expression {
 	  * */
 	public void code(PrintStream s) {
         s.println("# start of loop");
-        int labelLoop = CgenSupport.genLabelNum();
-        int labelEnd = CgenSupport.genLabelNum();
+        int labelLoop = CgenSupport.genNextLabel();
+        int labelEnd = CgenSupport.genNextLabel();
         CgenSupport.emitLabelDef(labelLoop, s);
         pred.code(s);
         CgenSupport.emitFetchInt(CgenSupport.T1, CgenSupport.ACC, s);
@@ -978,7 +978,7 @@ class typcase extends Expression {
 		s.println("# start of case");
         expr.code(s);
         CgenSupport.emitCheckVoidCallCaseAbort(lineNumber, s);
-        int labelEnd = CgenSupport.genLabelNum();
+        int labelEnd = CgenSupport.genNextLabel();
         List<branch> branches = new ArrayList<branch>();
         for (Enumeration e = cases.getElements(); e.hasMoreElements();) {
             branches.add((branch)e.nextElement());
@@ -1105,9 +1105,9 @@ class let extends Expression {
                 BoolConst.falsebool.codeRef(s);
                 s.println("");
             } else if (type_decl == TreeConstants.Int) {
-                s.println(CgenSupport.LA + CgenSupport.ACC + " " +  CgenSupport.getIntRef(0));
+                s.println(CgenSupport.LA + CgenSupport.ACC + " " +  CgenSupport.getIntLabel(0));
             } else if (type_decl == TreeConstants.Str) {
-                s.println(CgenSupport.LA + CgenSupport.ACC + " " +  CgenSupport.getStringRef(""));
+                s.println(CgenSupport.LA + CgenSupport.ACC + " " +  CgenSupport.getStrLabel(""));
             } else {
                 CgenSupport.emitMove(CgenSupport.ACC, CgenSupport.ZERO, s);
             }
@@ -1405,7 +1405,7 @@ class lt extends Expression {
 	  * @param s the output stream 
 	  * */
 	public void code(PrintStream s) {
-        CgenSupport.emitComparison(e1, e2, CgenSupport.BLT, s);
+        CgenSupport.emitCpr(e1, e2, CgenSupport.BLT, s);
 	}
 
 
@@ -1458,10 +1458,10 @@ class eq extends Expression {
         e2.code(s);
         CgenSupport.emitPop(CgenSupport.T1, s);
         CgenSupport.emitMove(CgenSupport.T2, CgenSupport.ACC, s);
-        CgenSupport.emitLoadBool(CgenSupport.ACC, true,s);
-        int labelEnd = CgenSupport.genLabelNum();
+        CgenSupport.emitLoadBool(CgenSupport.ACC, new BoolConst(true),s);
+        int labelEnd = CgenSupport.genNextLabel();
         CgenSupport.emitBeq(CgenSupport.T1, CgenSupport.T2, labelEnd, s);
-        CgenSupport.emitLoadBool(CgenSupport.A1, false,s);
+        CgenSupport.emitLoadBool(CgenSupport.A1, new BoolConst(false),s);
         CgenSupport.emitJal("equality_test", s);
         CgenSupport.emitLabelDef(labelEnd, s);
         s.println("# end of eq");
@@ -1511,7 +1511,7 @@ class leq extends Expression {
 	  * @param s the output stream 
 	  * */
 	public void code(PrintStream s) {
-		CgenSupport.emitComparison(e1, e2, CgenSupport.BLEQ, s);
+		CgenSupport.emitCpr(e1, e2, CgenSupport.BLEQ, s);
 	}
 
 
@@ -1556,10 +1556,10 @@ class comp extends Expression {
 		s.println("# start of comp");
         e1.code(s);
         CgenSupport.emitFetchInt(CgenSupport.T1, CgenSupport.ACC, s);
-        CgenSupport.emitLoadBool(CgenSupport.ACC, true,s);
-        int labelEnd = CgenSupport.genLabelNum();
+        CgenSupport.emitLoadBool(CgenSupport.ACC, new BoolConst(true),s);
+        int labelEnd = CgenSupport.genNextLabel();
         CgenSupport.emitBeqz(CgenSupport.T1, labelEnd, s);
-        CgenSupport.emitLoadBool(CgenSupport.ACC, false,s);
+        CgenSupport.emitLoadBool(CgenSupport.ACC, new BoolConst(false),s);
         CgenSupport.emitLabelDef(labelEnd, s);
         s.println("# end of comp");
 	}
@@ -1788,15 +1788,15 @@ class isvoid extends Expression {
 	public void code(PrintStream s) {
 		s.println("# start of isvoid");
         e1.code(s);
-        int labelVoid = CgenSupport.genLabelNum();
-        int labelEnd = CgenSupport.genLabelNum();
+        int labelVoid = CgenSupport.genNextLabel();
+        int labelEnd = CgenSupport.genNextLabel();
         CgenSupport.emitBeqz(CgenSupport.ACC, labelVoid, s);
         // is not void
-        CgenSupport.emitLoadBool(CgenSupport.ACC, false, s);
+        CgenSupport.emitLoadBool(CgenSupport.ACC, new BoolConst(false), s);
         CgenSupport.emitBranch(labelEnd, s);
         // is void
         CgenSupport.emitLabelDef(labelVoid, s);
-        CgenSupport.emitLoadBool(CgenSupport.ACC, true,s);
+        CgenSupport.emitLoadBool(CgenSupport.ACC, new BoolConst(true),s);
         // end
         CgenSupport.emitLabelDef(labelEnd, s);
         s.println("# end of isvoid");
