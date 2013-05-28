@@ -47,8 +47,8 @@ class CgenNode extends class_ {
 	
 	private int methOff;
 	private int attrOff;
-	private Map<AbstractSymbol, Integer> methOffsets;
-	private Map<AbstractSymbol, Integer> attrOffsets;
+	public Map<AbstractSymbol, Integer> methOffsets;
+	public Map<AbstractSymbol, Integer> attrOffsets;
 	
 	private Map<AbstractSymbol, attr> attrMap;
 	private Map<AbstractSymbol, method> methMap;
@@ -270,7 +270,7 @@ class CgenNode extends class_ {
 		
 		for(method m : methMap.values()) {
 			CgenSupport.emitMethodRef(name, m.name, s);
-			s.println(CgenSupport.LABEL);
+			s.print(CgenSupport.LABEL);
 			
 			m.code(s);
 			

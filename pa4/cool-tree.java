@@ -795,7 +795,7 @@ class dispatch extends Expression {
             CgenSupport.emitPush(CgenSupport.ACC, s);
         }
         expr.code(s);
-        CgenSupport.emitCheckVoidCallDispAbort(lineNumber, s);
+        //CgenSupport.emitCheckVoidCallDispAbort(lineNumber, s);
         CgenSupport.emitLoad(CgenSupport.T1, CgenSupport.DISPTABLE_OFFSET, CgenSupport.ACC, s);
         AbstractSymbol exprType = expr.get_type();
         System.err.println("dispatch: " + exprType + "::" + name);

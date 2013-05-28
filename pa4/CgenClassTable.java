@@ -31,6 +31,8 @@ import java.util.*;
 	potentially extend it in other useful ways. */
 class CgenClassTable extends SymbolTable {
 
+	public static CgenClassTable globalTable;
+
 	/** All classes in the program, represented as CgenNode */
 	private Vector nds;
 	
@@ -469,6 +471,9 @@ class CgenClassTable extends SymbolTable {
 
 	/** Constructs a new class table and invokes the code generator */
 	public CgenClassTable(Classes cls, PrintStream str) {
+	
+		globalTable = this;
+	
 		nds = new Vector();
 		nodeMap = new LinkedHashMap<AbstractSymbol, CgenNode>();
 
@@ -543,6 +548,18 @@ class CgenClassTable extends SymbolTable {
 	/** Gets the root of the inheritance tree */
 	public CgenNode root() {
 		return (CgenNode)probe(TreeConstants.Object_);
+	}
+	
+	public static int getMethodOffset(AbstractSymbol clazz, AbstractSymbol method) {
+		return globalTable.nodeMap.get(clazz).methOffsets.get(method);
+	}
+	
+	public static int getAttrOffset(AbstractSymbol clazz, AbstractSymbol a) {
+		return globalTable.nodeMap.get(clazz).attrOffsets.get(a);
+	}
+	
+	public static String getFilename(AbstractSymbol clazz) {
+		return globalTable.nodeMap.get(clazz).filename.toString();
 	}
 }
 						  
