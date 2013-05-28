@@ -27,6 +27,53 @@ import java.io.PrintStream;
 	for the code generator; all routines are statics, so no instance of
 	this class is even created. */
 class CgenSupport {
+	// cs 143 add
+	public static AbstractSymbol currentFilename;
+    public static CgenNode currentClass;
+    private static int labelNum = 0;
+    final static String DISP_ABORT = "_dispatch_abort";
+    final static String CASE_ABORT = "_case_abort";
+   	static void emitDispatchAbort(PrintStream s) {
+        emitJal(DISP_ABORT, s);
+    }
+
+    static void emitCaseAbort(PrintStream s) {
+        emitJal(CASE_ABORT, s);
+    }
+
+    static int genLabelNum() {
+        return labelNum++;
+    }
+
+    static void emitCheckVoidCallDispAbort(int lineNumber, PrintStream s) {
+        int label = genLabelNum();
+        emitBne(ACC, ZERO, label, s);
+        emitLoadAddress(ACC, getStringRef(currentFilename.toString()), s);
+        emitLoadImm(T1, lineNumber, s);
+        emitDispatchAbort(s);
+        emitLabelDef(label, s);
+    }
+
+    static void emitCheckVoidCallCaseAbort(int lineNumber, PrintStream s) {
+        int label = genLabelNum();
+        emitBne(ACC, ZERO, label, s);
+        emitLoadAddress(ACC, getStringRef(currentFilename.toString()), s);
+        emitLoadImm(T1, lineNumber, s);
+        emitCaseAbort(s);
+        emitLabelDef(label, s);
+    }
+
+    static String getStringRef(String s) {
+        StringSymbol sym = (StringSymbol)AbstractTable.stringtable.lookup(s);
+        return STRCONST_PREFIX + sym.getIndex();
+    }
+
+    static String getIntRef(Integer n) {
+        IntSymbol sym = (IntSymbol)AbstractTable.inttable.lookup(n.toString());
+        return INTCONST_PREFIX + sym.getIndex();
+    }
+    // end cs 143 add
+
 	/** Runtime constants for controlling the garbage collector. */
 	final static String[] gcInitNames = {
 		"_NoGC_Init", "_GenGC_Init", "_ScnGC_Init"
@@ -116,6 +163,8 @@ class CgenSupport {
 	final static String BLEQ	= "\tble\t";
 	final static String BLT	 = "\tblt\t";
 	final static String BGT	 = "\tbgt\t";
+
+
 
 	/** Emits an LW instruction.
 	 * @param dest_reg the destination register
@@ -582,6 +631,65 @@ class CgenSupport {
 		byteMode(s);
 		s.println("\t.byte\t0\t");
 	}
+
+	// cs 143 add
+	static void emitStartMethod(PrintStream s) {
+        s.println("# emit start method OPEN");
+        emitPush(FP, s);
+        emitPush(SELF, s);
+        emitMove(FP, SP, s);
+        emitPush(RA, s);
+        s.println("# emit start method CLOSED");
+    }
+
+    static void emitEndMethod(int args, PrintStream s) {
+        s.println("# emit end method OPEN");
+        emitPop(RA, s);
+        emitPop(SELF, s);
+        emitPop(FP, s);
+        s.println("# pop args");
+        for (int i = 0; i < args; ++i) {
+             emitAddiu(SP, SP, 4, s);
+        }
+        emitReturn(s);
+        s.println("# emit end method CLOSED");
+    }
+
+    static void emitPop(String reg, PrintStream s) {
+        emitAddiu(SP, SP, 4, s);
+        emitLoad(reg, 0, SP, s);
+    }
+
+    static void emitArith(Expression e1, Expression e2, String action, PrintStream s) {
+        e1.code(s);
+        CgenSupport.emitFetchInt(CgenSupport.T1, CgenSupport.ACC, s);
+        CgenSupport.emitPush(CgenSupport.T1, s);
+        e2.code(s);
+        CgenSupport.emitJal("Object.copy", s);
+        CgenSupport.emitFetchInt(CgenSupport.T2, CgenSupport.ACC, s);
+        CgenSupport.emitPop(CgenSupport.T1, s);
+        s.println(action + T1 + " " + T1 + " " + T2);
+        CgenSupport.emitStoreInt(CgenSupport.T1, CgenSupport.ACC, s);
+    }
+
+    static void emitComparison(Expression e1, Expression e2, String op, PrintStream s) {
+        e1.code(s);
+        emitPush(ACC, s);
+        e2.code(s);
+        emitPop(T1, s);
+        emitMove(T2, ACC, s);
+        emitLoadBool(ACC,true,s);
+        int labelEnd = genLabelNum();
+        emitFetchInt(T1, T1, s);
+        emitFetchInt(T2, T2, s);
+        s.print(op + T1 + " " + T2 + " ");
+        emitLabelRef(labelEnd, s);
+        s.println("");
+        emitLoadBool(ACC,false,s);
+        emitLabelDef(labelEnd, s);
+    }
+    // end cs 143 add
+   
 }
 	
 	
