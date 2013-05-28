@@ -230,17 +230,6 @@ class CgenSupport {
 		s.println("");
 	}
 
-	static void emitLoadBool(String dest_reg, boolean b, PrintStream s) {
-		emitPartialLoadAddress(dest_reg, s);
-		if(b){
-		    BoolConst.truebool.codeRef(s);
-		}else{
-		    BoolConst.falsebool.codeRef(s);
-		}
-		s.println("");
-	}
-
-
 	/** Emits an instruction to load a string constant into a register.
 	 * @param dest_reg the destination register
 	 * @param str the string constant
@@ -667,6 +656,9 @@ class CgenSupport {
         s.println("# emit end method CLOSED");
     }
 
+    /** Emits a pop operation.
+	 * @reg the reg destination we want to pop to
+	 * */
     static void emitPop(String reg, PrintStream s) {
         emitAddiu(SP, SP, 4, s);
         emitLoad(reg, 0, SP, s);
@@ -710,7 +702,7 @@ class CgenSupport {
         // recover e1's result's start address into T1
         emitPop(T1, s);
         // load true's address into ACC 
-        emitLoadBool(ACC,true,s);
+        emitLoadBool(ACC,new BoolConst(true),s);
         // save T1 and T2 's true value into T1 and T2
         emitFetchInt(T1, T1, s);
         emitFetchInt(T2, T2, s);
@@ -723,7 +715,7 @@ class CgenSupport {
         // print new line
         s.println("");
         // now seems like code is still execution (no branching), load false's boolean into ACC
-        emitLoadBool(ACC,false,s);
+        emitLoadBool(ACC,new BoolConst(false),s);
         // print label for branching
         emitLabelDef(dummy_label, s);
     }

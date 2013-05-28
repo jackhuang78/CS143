@@ -1458,10 +1458,10 @@ class eq extends Expression {
         e2.code(s);
         CgenSupport.emitPop(CgenSupport.T1, s);
         CgenSupport.emitMove(CgenSupport.T2, CgenSupport.ACC, s);
-        CgenSupport.emitLoadBool(CgenSupport.ACC, true,s);
+        CgenSupport.emitLoadBool(CgenSupport.ACC, new BoolConst(true),s);
         int labelEnd = CgenSupport.genNextLabel();
         CgenSupport.emitBeq(CgenSupport.T1, CgenSupport.T2, labelEnd, s);
-        CgenSupport.emitLoadBool(CgenSupport.A1, false,s);
+        CgenSupport.emitLoadBool(CgenSupport.A1, new BoolConst(false),s);
         CgenSupport.emitJal("equality_test", s);
         CgenSupport.emitLabelDef(labelEnd, s);
         s.println("# end of eq");
@@ -1556,10 +1556,10 @@ class comp extends Expression {
 		s.println("# start of comp");
         e1.code(s);
         CgenSupport.emitFetchInt(CgenSupport.T1, CgenSupport.ACC, s);
-        CgenSupport.emitLoadBool(CgenSupport.ACC, true,s);
+        CgenSupport.emitLoadBool(CgenSupport.ACC, new BoolConst(true),s);
         int labelEnd = CgenSupport.genNextLabel();
         CgenSupport.emitBeqz(CgenSupport.T1, labelEnd, s);
-        CgenSupport.emitLoadBool(CgenSupport.ACC, false,s);
+        CgenSupport.emitLoadBool(CgenSupport.ACC, new BoolConst(false),s);
         CgenSupport.emitLabelDef(labelEnd, s);
         s.println("# end of comp");
 	}
@@ -1792,11 +1792,11 @@ class isvoid extends Expression {
         int labelEnd = CgenSupport.genNextLabel();
         CgenSupport.emitBeqz(CgenSupport.ACC, labelVoid, s);
         // is not void
-        CgenSupport.emitLoadBool(CgenSupport.ACC, false, s);
+        CgenSupport.emitLoadBool(CgenSupport.ACC, new BoolConst(false), s);
         CgenSupport.emitBranch(labelEnd, s);
         // is void
         CgenSupport.emitLabelDef(labelVoid, s);
-        CgenSupport.emitLoadBool(CgenSupport.ACC, true,s);
+        CgenSupport.emitLoadBool(CgenSupport.ACC, new BoolConst(true),s);
         // end
         CgenSupport.emitLabelDef(labelEnd, s);
         s.println("# end of isvoid");
