@@ -976,7 +976,7 @@ class typcase extends Expression {
 	public void code(PrintStream s) {
 		s.println("# start of case");
         expr.code(s);
-        CgenSupport.emitCheckVoidCallCaseAbort(lineNumber, s);
+        CgenSupport.emitCheckVoidCallCaseAbort(lineNumber, CgenClassTable.getFilename(null),s);
         int labelEnd = CgenSupport.genNextLabel();
         List<branch> branches = new ArrayList<branch>();
         for (Enumeration e = cases.getElements(); e.hasMoreElements();) {
