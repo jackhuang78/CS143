@@ -65,12 +65,12 @@ class CgenSupport {
 
     static String getStringRef(String s) {
         StringSymbol sym = (StringSymbol)AbstractTable.stringtable.lookup(s);
-        return STRCONST_PREFIX + sym.getIndex();
+        return STRCONST_PREFIX; //+ sym.getIndex(); need to get index
     }
 
     static String getIntRef(Integer n) {
         IntSymbol sym = (IntSymbol)AbstractTable.inttable.lookup(n.toString());
-        return INTCONST_PREFIX + sym.getIndex();
+        return INTCONST_PREFIX; // + sym.getIndex(); need to get index
     }
     // end cs 143 add
 
@@ -228,6 +228,17 @@ class CgenSupport {
 		b.codeRef(s);
 		s.println("");
 	}
+
+	static void emitLoadBool(String dest_reg, boolean b, PrintStream s) {
+		emitPartialLoadAddress(dest_reg, s);
+		if(b){
+		    BoolConst.truebool.codeRef(s);
+		}else{
+		    BoolConst.falsebool.codeRef(s);
+		}
+		s.println("");
+	}
+
 
 	/** Emits an instruction to load a string constant into a register.
 	 * @param dest_reg the destination register
@@ -660,15 +671,26 @@ class CgenSupport {
         emitLoad(reg, 0, SP, s);
     }
 
-    static void emitArith(Expression e1, Expression e2, String action, PrintStream s) {
+    /** Emits an arith operation.
+	 * @e1 param 1
+	 * @e2 param 2
+	 * @opcode operation
+	 * */
+    static void emitArith(Expression e1, Expression e2, String opcode, PrintStream s) {
         e1.code(s);
+        // fetch first arg value from ACC + 12 and store in T1
         CgenSupport.emitFetchInt(CgenSupport.T1, CgenSupport.ACC, s);
+        // store T1's value on stack
         CgenSupport.emitPush(CgenSupport.T1, s);
         e2.code(s);
-        CgenSupport.emitJal("Object.copy", s);
+        // CgenSupport.emitJal("Object.copy", s); // need object copy?
+        // fetch 2nd arg value from ACC + 12 and store in T2
         CgenSupport.emitFetchInt(CgenSupport.T2, CgenSupport.ACC, s);
+        // recover T1's original value
         CgenSupport.emitPop(CgenSupport.T1, s);
-        s.println(action + T1 + " " + T1 + " " + T2);
+        // print MIPS code
+        s.println(opcode + T1 + " " + T1 + " " + T2);
+        // store operation result of T1 into ACC address + 12
         CgenSupport.emitStoreInt(CgenSupport.T1, CgenSupport.ACC, s);
     }
 
