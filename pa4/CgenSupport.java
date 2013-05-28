@@ -65,12 +65,12 @@ class CgenSupport {
 
     static String getStringRef(String s) {
         StringSymbol sym = (StringSymbol)AbstractTable.stringtable.lookup(s);
-        return STRCONST_PREFIX;// + sym.getIndex();
+        return STRCONST_PREFIX; //+ sym.getIndex(); need to get index
     }
 
     static String getIntRef(Integer n) {
         IntSymbol sym = (IntSymbol)AbstractTable.inttable.lookup(n.toString());
-        return INTCONST_PREFIX;// + sym.getIndex();
+        return INTCONST_PREFIX; // + sym.getIndex(); need to get index
     }
     // end cs 143 add
 
@@ -228,6 +228,17 @@ class CgenSupport {
 		b.codeRef(s);
 		s.println("");
 	}
+
+	static void emitLoadBool(String dest_reg, boolean b, PrintStream s) {
+		emitPartialLoadAddress(dest_reg, s);
+		if(b){
+		    BoolConst.truebool.codeRef(s);
+		}else{
+		    BoolConst.falsebool.codeRef(s);
+		}
+		s.println("");
+	}
+
 
 	/** Emits an instruction to load a string constant into a register.
 	 * @param dest_reg the destination register
