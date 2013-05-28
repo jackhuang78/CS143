@@ -184,6 +184,15 @@ class Expressions extends ListNode {
 	public TreeNode copy() {
 		return new Expressions(lineNumber, copyElements());
 	}
+
+	
+    public List<AbstractSymbol> getTypes() {
+        List<AbstractSymbol> types = new ArrayList<AbstractSymbol>();
+        for (Enumeration e = this.getElements(); e.hasMoreElements();) {
+            types.add(((Expression) e.nextElement()).get_type());
+        }
+        return types;
+    }
 }
 
 
@@ -352,6 +361,17 @@ class class_ extends Class_ {
 	public AbstractSymbol getFilename() { return filename; }
 	public Features getFeatures()	   { return features; }
 
+	
+    public List<method> getMethods() {
+        List<method> methods = new ArrayList<method>();
+        for (Enumeration e = features.getElements(); e.hasMoreElements();) {
+            Feature feature = (Feature)e.nextElement();
+            if (feature instanceof method) {
+                methods.add((method)feature);
+            }
+        }
+        return methods;
+    }
 }
 
 
@@ -401,6 +421,30 @@ class method extends Feature {
 		expr.dump_with_types(out, n + 2);
 	}
 
+	
+    public void code(PrintStream s) {
+        AbstractTable.offset = 1;
+        //AbstractTable.varTable.enterScope();
+        for (int i = 0; i < formals.getLength(); ++i) {
+            formal formal = (formal)formals.getNth(i);
+            int offset = 2 + formals.getLength() - i;
+            //AbstractTable.varTable.addId(formal.getName(), new FormalVariable(-offset));
+        }
+        CgenSupport.emitStartMethod(s);
+        CgenSupport.emitMove(CgenSupport.SELF, CgenSupport.ACC, s);
+        expr.code(s);
+        CgenSupport.emitEndMethod(formals.getLength(), s);
+        //AbstractTable.varTable.exitScope();
+    }
+
+    
+    public List<AbstractSymbol> getParamTypes() {
+        List<AbstractSymbol> paramTypes = new ArrayList<AbstractSymbol>();
+        for (Enumeration e = formals.getElements(); e.hasMoreElements();) {
+            paramTypes.add((formal)e.nextElement().getType());
+        }
+        return paramTypes;
+    }
 }
 
 
@@ -443,6 +487,22 @@ class attr extends Feature {
 		init.dump_with_types(out, n + 2);
 	}
 
+	
+    public void codeProtoObject(PrintStream s) {
+        //CgenNode typeNode = (CgenNode)AbstractTable.classTable.lookup(type_decl);
+        s.print(CgenSupport.WORD);
+        //typeNode.emitProtoObjectRef(s);
+    }
+
+    
+    public void codeInit(PrintStream s) {
+        System.err.println("init " + name + " with type " + init.get_type());
+        if (init.get_type() != null) {
+            init.code(s);
+            //Variable var = (Variable)AbstractTable.varTable.lookup(name);
+            //var.emitAssign(s);
+        }
+    }
 }
 
 
@@ -522,6 +582,29 @@ class branch extends Case {
 		expr.dump_with_types(out, n + 2);
 	}
 
+	
+    public void code(int labelEnd, PrintStream s) {
+        s.println("# start of branch for " + name + ":" + type_decl);
+        CgenSupport.emitLoad(CgenSupport.T1, 0, CgenSupport.ACC, s);
+        List<Integer> childrenTags = AbstractTable.classTable.getChildrenTags(type_decl);
+        int minTag = Collections.min(childrenTags);
+        int maxTag = Collections.max(childrenTags);
+        int labelNext = CgenSupport.genLabelNum();
+        CgenSupport.emitBlti(CgenSupport.T1, minTag, labelNext, s);
+        CgenSupport.emitBgti(CgenSupport.T1, maxTag, labelNext, s);
+        int offset = AbstractTable.offset++;
+        CgenSupport.emitPush(CgenSupport.ACC, s);
+        //AbstractTable.varTable.enterScope();
+        //AbstractTable.varTable.addId(name, new BranchVariable(offset));
+        expr.code(s);
+        //AbstractTable.varTable.exitScope();
+        CgenSupport.emitPop(s);
+        --AbstractTable.offset;
+        CgenSupport.emitBranch(labelEnd, s);
+        CgenSupport.emitLabelDef(labelNext, s);
+        s.println("# end of branch for " + name + ":" + type_decl);
+    }
+
 }
 
 
@@ -564,7 +647,13 @@ class assign extends Expression {
 	  * you wish.)
 	  * @param s the output stream 
 	  * */
+	
 	public void code(PrintStream s) {
+		s.println("# start of assign to " + name);
+        expr.code(s);
+        //Variable var = (Variable)AbstractTable.varTable.lookup(name);
+        //var.emitAssign(s);
+        s.println("# end of assign to " + name);
 	}
 
 
@@ -624,7 +713,21 @@ class static_dispatch extends Expression {
 	  * you wish.)
 	  * @param s the output stream 
 	  * */
+	
 	public void code(PrintStream s) {
+		s.println("# static_dispatch " + type_name + "." + name + "()");
+		// code actuals
+        for (Enumeration e = actuals.getElements(); e.hasMoreElements();) {
+            Expression actual = (Expression)e.nextElement();
+            actual.code(s);
+            CgenSupport.emitPush(CgenSupport.ACC, s);
+        }
+        expr.code(s);
+        CgenSupport.emitCheckVoidCallDispAbort(lineNumber, s);
+        CgenSupport.emitLoadAddress(CgenSupport.T1, type_name + CgenSupport.DISPTAB_SUFFIX, s);
+        CgenSupport.emitLoad(CgenSupport.T1, AbstractTable.classTable.getMethodOffset(type_name, name, actual), CgenSupport.T1, s);
+        CgenSupport.emitJalr(CgenSupport.T1, s);
+        s.println("# end of static_dispatch " + type_name + "." + name + "()");
 	}
 
 
@@ -680,6 +783,21 @@ class dispatch extends Expression {
 	  * @param s the output stream 
 	  * */
 	public void code(PrintStream s) {
+		s.println("# dispatch " + name + "()");
+        // code actuals
+        for (Enumeration e = actuals.getElements(); e.hasMoreElements();) {
+            Expression actual = (Expression)e.nextElement();
+            actual.code(s);
+            CgenSupport.emitPush(CgenSupport.ACC, s);
+        }
+        expr.code(s);
+        CgenSupport.emitCheckVoidCallDispAbort(lineNumber, s);
+        CgenSupport.emitLoad(CgenSupport.T1, CgenSupport.DISPTABLE_OFFSET, CgenSupport.ACC, s);
+        AbstractSymbol exprType = expr.get_type();
+        System.err.println("dispatch: " + exprType + "::" + name);
+        CgenSupport.emitLoad(CgenSupport.T1, AbstractTable.classTable.getMethodOffset(exprType, name, actual), CgenSupport.T1, s);
+        CgenSupport.emitJalr(CgenSupport.T1, s);
+        s.println("# end of dispatch " + name + "()");
 	}
 
 
@@ -731,6 +849,21 @@ class cond extends Expression {
 	  * @param s the output stream 
 	  * */
 	public void code(PrintStream s) {
+		s.println("# start of cond");
+        pred.code(s);
+        CgenSupport.emitFetchInt(CgenSupport.T1, CgenSupport.ACC, s);
+        int labelFalse = CgenSupport.genLabelNum();
+        int labelEnd = CgenSupport.genLabelNum();
+        CgenSupport.emitBeqz(CgenSupport.T1, labelFalse, s);
+        // true branch
+        then_exp.code(s);
+        CgenSupport.emitBranch(labelEnd, s);
+        // false branch
+        CgenSupport.emitLabelDef(labelFalse, s);
+        else_exp.code(s);
+        // end
+        CgenSupport.emitLabelDef(labelEnd, s);
+        s.println("# end of cond");
 	}
 
 
@@ -777,6 +910,18 @@ class loop extends Expression {
 	  * @param s the output stream 
 	  * */
 	public void code(PrintStream s) {
+        s.println("# start of loop");
+        int labelLoop = CgenSupport.genLabelNum();
+        int labelEnd = CgenSupport.genLabelNum();
+        CgenSupport.emitLabelDef(labelLoop, s);
+        pred.code(s);
+        CgenSupport.emitFetchInt(CgenSupport.T1, CgenSupport.ACC, s);
+        CgenSupport.emitBeqz(CgenSupport.T1, labelEnd, s);
+        body.code(s);
+        CgenSupport.emitBranch(labelLoop, s);
+        CgenSupport.emitLabelDef(labelEnd, s);
+        CgenSupport.emitMove(CgenSupport.ACC, CgenSupport.ZERO, s);
+        s.println("# end of loop");
 	}
 
 
@@ -819,12 +964,32 @@ class typcase extends Expression {
 		}
 		dump_type(out, n);
 	}
+
 	/** Generates code for this expression.  This method is to be completed 
 	  * in programming assignment 5.  (You may add or remove parameters as
 	  * you wish.)
 	  * @param s the output stream 
 	  * */
 	public void code(PrintStream s) {
+		s.println("# start of case");
+        expr.code(s);
+        CgenSupport.emitCheckVoidCallCaseAbort(lineNumber, s);
+        int labelEnd = CgenSupport.genLabelNum();
+        List<branch> branches = new ArrayList<branch>();
+        for (Enumeration e = cases.getElements(); e.hasMoreElements();) {
+            branches.add((branch)e.nextElement());
+        }
+        Collections.sort(branches, new Comparator<branch>() {
+            public int compare(branch first, branch second) {
+                return AbstractTable.classTable.depth(second.getType()) - AbstractTable.classTable.depth(first.getType());
+            }
+        });
+        for(branch br: branches) {
+            br.code(labelEnd, s);
+        }
+        CgenSupport.emitCaseAbort(s);
+        CgenSupport.emitLabelDef(labelEnd, s);
+        s.println("# end of case");
 	}
 
 
@@ -868,6 +1033,10 @@ class block extends Expression {
 	  * @param s the output stream 
 	  * */
 	public void code(PrintStream s) {
+		for (Enumeration e = body.getElements(); e.hasMoreElements();) {
+            Expression expr = (Expression)e.nextElement();
+            expr.code(s);
+        }
 	}
 
 
@@ -924,6 +1093,32 @@ class let extends Expression {
 	  * @param s the output stream 
 	  * */
 	public void code(PrintStream s) {
+		s.println("# start of let for " + identifier);
+        if (init.get_type() == null) {
+            if (type_decl == TreeConstants.Bool) {
+                s.print(CgenSupport.LA + CgenSupport.ACC + " ");
+                BoolConst.falsebool.codeRef(s);
+                s.println("");
+            } else if (type_decl == TreeConstants.Int) {
+                s.println(CgenSupport.LA + CgenSupport.ACC + " " +  CgenSupport.getIntRef(0));
+            } else if (type_decl == TreeConstants.Str) {
+                s.println(CgenSupport.LA + CgenSupport.ACC + " " +  CgenSupport.getStringRef(""));
+            } else {
+                CgenSupport.emitMove(CgenSupport.ACC, CgenSupport.ZERO, s);
+            }
+        } else {
+            init.code(s);
+        }
+        int offset = AbstractTable.offset++;
+        //int offset = AbstractTable.offset;
+        CgenSupport.emitPush(CgenSupport.ACC, s);
+        //AbstractTable.varTable.enterScope();
+        //AbstractTable.varTable.addId(identifier, new LetVariable(offset));
+        body.code(s);
+        //AbstractTable.varTable.exitScope();
+        CgenSupport.emitPop(s);
+        --AbstractTable.offset;
+        s.println("# end of let for " + identifier);
 	}
 
 
@@ -970,6 +1165,7 @@ class plus extends Expression {
 	  * @param s the output stream 
 	  * */
 	public void code(PrintStream s) {
+		CgenSupport.emitArith(e1, e2, CgenSupport.ADD, s);
 	}
 
 
@@ -1016,6 +1212,7 @@ class sub extends Expression {
 	  * @param s the output stream 
 	  * */
 	public void code(PrintStream s) {
+        CgenSupport.emitArith(e1, e2, CgenSupport.SUB, s);
 	}
 
 
@@ -1062,6 +1259,7 @@ class mul extends Expression {
 	  * @param s the output stream 
 	  * */
 	public void code(PrintStream s) {
+		CgenSupport.emitArith(e1, e2, CgenSupport.MUL, s);
 	}
 
 
@@ -1108,6 +1306,7 @@ class divide extends Expression {
 	  * @param s the output stream 
 	  * */
 	public void code(PrintStream s) {
+        CgenSupport.emitArith(e1, e2, CgenSupport.DIV, s);
 	}
 
 
@@ -1149,6 +1348,13 @@ class neg extends Expression {
 	  * @param s the output stream 
 	  * */
 	public void code(PrintStream s) {
+        s.println("# start of neg");
+        e1.code(s);
+        CgenSupport.emitJal("Object.copy", s);
+        CgenSupport.emitFetchInt(CgenSupport.T1, CgenSupport.ACC, s);
+        CgenSupport.emitNeg(CgenSupport.T1, CgenSupport.T1, s);
+        CgenSupport.emitStoreInt(CgenSupport.T1, CgenSupport.ACC, s);
+        s.println("# end of neg");
 	}
 
 
@@ -1195,6 +1401,7 @@ class lt extends Expression {
 	  * @param s the output stream 
 	  * */
 	public void code(PrintStream s) {
+        CgenSupport.emitComparison(e1, e2, CgenSupport.BLT, s);
 	}
 
 
@@ -1241,6 +1448,19 @@ class eq extends Expression {
 	  * @param s the output stream 
 	  * */
 	public void code(PrintStream s) {
+		s.println("# start of eq");
+        e1.code(s);
+        CgenSupport.emitPush(CgenSupport.ACC, s);
+        e2.code(s);
+        CgenSupport.emitPop(CgenSupport.T1, s);
+        CgenSupport.emitMove(CgenSupport.T2, CgenSupport.ACC, s);
+        CgenSupport.emitLoadBool(CgenSupport.ACC, true,s);
+        int labelEnd = CgenSupport.genLabelNum();
+        CgenSupport.emitBeq(CgenSupport.T1, CgenSupport.T2, labelEnd, s);
+        CgenSupport.emitLoadBool(CgenSupport.A1, false,s);
+        CgenSupport.emitJal("equality_test", s);
+        CgenSupport.emitLabelDef(labelEnd, s);
+        s.println("# end of eq");
 	}
 
 
@@ -1287,6 +1507,7 @@ class leq extends Expression {
 	  * @param s the output stream 
 	  * */
 	public void code(PrintStream s) {
+		CgenSupport.emitComparison(e1, e2, CgenSupport.BLEQ, s);
 	}
 
 
@@ -1328,6 +1549,15 @@ class comp extends Expression {
 	  * @param s the output stream 
 	  * */
 	public void code(PrintStream s) {
+		s.println("# start of comp");
+        e1.code(s);
+        CgenSupport.emitFetchInt(CgenSupport.T1, CgenSupport.ACC, s);
+        CgenSupport.emitLoadBool(CgenSupport.ACC, true,s);
+        int labelEnd = CgenSupport.genLabelNum();
+        CgenSupport.emitBeqz(CgenSupport.T1, labelEnd, s);
+        CgenSupport.emitLoadBool(CgenSupport.ACC, false,s);
+        CgenSupport.emitLabelDef(labelEnd, s);
+        s.println("# end of comp");
 	}
 
 
@@ -1493,6 +1723,24 @@ class new_ extends Expression {
 	  * @param s the output stream 
 	  * */
 	public void code(PrintStream s) {
+		s.println("# start of 'new " + type_name + "'");
+        if (type_name == TreeConstants.SELF_TYPE) {
+            CgenSupport.emitLoadAddress(CgenSupport.T1, CgenSupport.CLASSOBJTAB, s);
+            CgenSupport.emitLoad(CgenSupport.T2, 0, CgenSupport.SELF, s);
+            CgenSupport.emitSll(CgenSupport.T2, CgenSupport.T2, 3, s);
+            CgenSupport.emitAddu(CgenSupport.T1, CgenSupport.T1, CgenSupport.T2, s);
+            CgenSupport.emitLoad(CgenSupport.ACC, 0, CgenSupport.T1, s);
+            CgenSupport.emitPush(CgenSupport.T1, s);
+            CgenSupport.emitJal("Object.copy", s);
+            CgenSupport.emitPop(CgenSupport.T1, s);
+            CgenSupport.emitLoad(CgenSupport.T1, 1, CgenSupport.T1, s);
+            CgenSupport.emitJalr(CgenSupport.T1, s);
+        } else {
+            CgenSupport.emitLoadAddress(CgenSupport.ACC, type_name.toString() + CgenSupport.PROTOBJ_SUFFIX, s);
+            CgenSupport.emitJal("Object.copy", s);
+            CgenSupport.emitJal(type_name.toString() + CgenSupport.CLASSINIT_SUFFIX, s);
+        }
+        s.println("# end of 'new " + type_name + "'");
 	}
 
 
@@ -1534,6 +1782,20 @@ class isvoid extends Expression {
 	  * @param s the output stream 
 	  * */
 	public void code(PrintStream s) {
+		s.println("# start of isvoid");
+        e1.code(s);
+        int labelVoid = CgenSupport.genLabelNum();
+        int labelEnd = CgenSupport.genLabelNum();
+        CgenSupport.emitBeqz(CgenSupport.ACC, labelVoid, s);
+        // is not void
+        CgenSupport.emitLoadBool(CgenSupport.ACC, false, s);
+        CgenSupport.emitBranch(labelEnd, s);
+        // is void
+        CgenSupport.emitLabelDef(labelVoid, s);
+        CgenSupport.emitLoadBool(CgenSupport.ACC, true,s);
+        // end
+        CgenSupport.emitLabelDef(labelEnd, s);
+        s.println("# end of isvoid");
 	}
 
 
@@ -1570,6 +1832,7 @@ class no_expr extends Expression {
 	  * @param s the output stream 
 	  * */
 	public void code(PrintStream s) {
+		// do not need to code
 	}
 
 
@@ -1611,6 +1874,12 @@ class object extends Expression {
 	  * @param s the output stream 
 	  * */
 	public void code(PrintStream s) {
+		if (name == TreeConstants.self) {
+            CgenSupport.emitMove(CgenSupport.ACC, CgenSupport.SELF, s);
+        } else {
+            //Variable var = (Variable)AbstractTable.varTable.lookup(name);
+            //var.emitRef(s);
+        }
 	}
 
 
