@@ -193,10 +193,27 @@ class CgenClassTable extends SymbolTable {
 
 			CgenSupport.emitDispTableRef(nd.getName(), str);
 			str.print(CgenSupport.LABEL);
-			
 			nd.codeDispTab(str);
+			
 		}
 	}
+	
+	
+	
+	private void codeProtObjs() {
+		str.println("\n# Prototype Objects");
+		for (Object obj : nds) {
+			CgenNode nd = (CgenNode)obj;
+
+			str.println(CgenSupport.WORD + "-1");
+			CgenSupport.emitProtObjRef(nd.getName(), str);
+			str.print(CgenSupport.LABEL);
+			nd.codeProtObj(str);
+		}
+	}
+	
+
+
 
 
 	/** Creates data structures representing basic Cool classes (Object,
@@ -421,6 +438,8 @@ class CgenClassTable extends SymbolTable {
 				System.out.println(e.nextElement());
 		}
 	}
+	
+	
 
 	private void setRelations(CgenNode nd) {
 		CgenNode parent = (CgenNode)probe(nd.getParent());
@@ -441,6 +460,7 @@ class CgenClassTable extends SymbolTable {
 		installBasicClasses();
 		installClasses(cls);
 		buildInheritanceTree();
+		root().buildFeatures();
 		
 		stringclasstag = nodeMap.get(TreeConstants.Str).getTag();
 		intclasstag = nodeMap.get(TreeConstants.Int).getTag();
@@ -450,6 +470,7 @@ class CgenClassTable extends SymbolTable {
 
 		exitScope();
 	}
+	
 
 	/** This method is the meat of the code generator.  It is to be
 		filled in programming assignment 5 */
@@ -477,6 +498,9 @@ class CgenClassTable extends SymbolTable {
 
 		if (Flags.cgen_debug) System.out.println("coding dispatch tables");
 		codeDispTables();		
+
+		if (Flags.cgen_debug) System.out.println("coding prototype objects");
+		codeProtObjs();		
 
 
 

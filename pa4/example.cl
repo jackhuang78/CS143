@@ -8,13 +8,15 @@ class Main {
 };
 
 class A {
-	a1:A;
+	a1:A <- new A;
+	x:Int <- 99 + 1;
+	s:String <- "abc";
 	
 	func(a2:A):A {
 		{
-			new A;
-			a1 <- new A;
-			a2 <- new A;
+			new B;
+			a1 <- new B;
+			a2 <- new B;
 			
 
 			a1 <- func(a2);
@@ -28,5 +30,9 @@ class A {
 			
 		}
 	};	
+};
+
+class B inherits A {
+	
 };
 

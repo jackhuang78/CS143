@@ -8,6 +8,7 @@ import os, argparse
 parser = argparse.ArgumentParser(description='CS143 PA4 Testing Script')
 parser.add_argument('-c', action='store_true', help='cgen debug enable')
 parser.add_argument('-d', action='store_true', help='run diff')
+parser.add_argument('-r', action='store_true', help='run reference only')
 parser.add_argument('files', metavar='file', type=str, nargs='+'
 	, help='cl testing files')
 
@@ -17,11 +18,13 @@ print args
 
 # begin testing script
 print '\n>>>>> CS143 PA4 Testing Script <<<<<'
-os.system('mkdir -p out')
-ret = os.system('make cgen')
-if ret != 0:
-	print 'Exit due to compilation error.'
-	exit(0)
+
+if not args.r:
+	os.system('mkdir -p out')
+	ret = os.system('make cgen')
+	if ret != 0:
+		print 'Exit due to compilation error.'
+		exit(0)
 
 for f in args.files:
 	print 'File: %s' % f
@@ -33,13 +36,13 @@ for f in args.files:
 	os.system('/usr/class/cs143/bin/coolc %s' % f)
 	os.system('mv %s.s %s_ref.s' % (name, name))
 	
-	if args.c:
-		os.system('./mycoolc -c %s' % f)
-	else:
-		os.system('./mycoolc %s' % f)
-	
-	if args.d:
-		os.system('diff %s.s %s_ref.s' % (name, name))
+	if not args.r:
+		if args.c:
+			os.system('./mycoolc -c %s' % f)
+		else:
+			os.system('./mycoolc %s' % f)
+		if args.d:
+			os.system('diff %s.s %s_ref.s' % (name, name))
 	
 
 print '====================================\n'
