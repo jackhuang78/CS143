@@ -8,9 +8,8 @@
 
 
 
-import java.util.Enumeration;
+import java.util.*;
 import java.io.PrintStream;
-import java.util.Vector;
 
 
 /** Defines simple phylum Program */
@@ -518,6 +517,10 @@ class formal extends Formal {
 	  * @param a0 initial value for name
 	  * @param a1 initial value for type_decl
 	  */
+	public AbstractSymbol getType() {
+        return type_decl;
+    }
+
 	public formal(int lineNumber, AbstractSymbol a1, AbstractSymbol a2) {
 		super(lineNumber);
 		name = a1;
@@ -598,8 +601,8 @@ class branch extends Case {
         //AbstractTable.varTable.addId(name, new BranchVariable(offset));
         expr.code(s);
         //AbstractTable.varTable.exitScope();
-        CgenSupport.emitPop(s);
-        --AbstractTable.offset;
+        //CgenSupport.emitPop(s);
+        //--AbstractTable.offset;
         CgenSupport.emitBranch(labelEnd, s);
         CgenSupport.emitLabelDef(labelNext, s);
         s.println("# end of branch for " + name + ":" + type_decl);
@@ -1116,8 +1119,8 @@ class let extends Expression {
         //AbstractTable.varTable.addId(identifier, new LetVariable(offset));
         body.code(s);
         //AbstractTable.varTable.exitScope();
-        CgenSupport.emitPop(s);
-        --AbstractTable.offset;
+        //CgenSupport.emitPop(s);
+        //--AbstractTable.offset;
         s.println("# end of let for " + identifier);
 	}
 
