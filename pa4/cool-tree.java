@@ -9,8 +9,14 @@
 import java.util.*;
 import java.io.PrintStream;
 
+/** class for variables **/
+abstract class Variable {
+    public abstract void emitRef(PrintStream s);
+    public abstract void emitAssign(PrintStream s);
+}
+
 /** class for formal variables **/
-class FormalVar{
+class FormalVar extends Variable{
     private int offset;
     public FormalVar(int offset) {
         this.offset = offset;
