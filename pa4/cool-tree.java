@@ -796,7 +796,12 @@ class dispatch extends Expression {
             CgenSupport.emitPush(CgenSupport.ACC, s);
         }
         expr.code(s);
+        
+        // get the expression type, and convert to current class if it is SELF_TYPE
         AbstractSymbol exprType = expr.get_type();
+        if(exprType == TreeConstants.SELF_TYPE)
+        	exprType = (AbstractSymbol)CgenClassTable.ct.lookup(exprType);
+        	
         CgenSupport.emitDispAbort(lineNumber, CgenClassTable.ct.getFilename(exprType),s);
         // load dispatch table's address into T1
         CgenSupport.emitLoad(CgenSupport.T1, CgenSupport.DISPTABLE_OFFSET, CgenSupport.ACC, s);

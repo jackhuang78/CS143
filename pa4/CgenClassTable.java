@@ -551,18 +551,30 @@ class CgenClassTable extends SymbolTable {
 	}
 	
 	public int getMethodOffset(AbstractSymbol clazz, AbstractSymbol method) {
-		return nodeMap.get(clazz).methOffsets.get(method);
+		CgenNode nd = nodeMap.get(clazz);
+		
+		if (Flags.cgen_debug) 
+			System.out.printf("getMethodOffset %s %s\n", clazz, method);
+		
+		if(!nd.methOffsets.containsKey(method))
+			return getMethodOffset(nd.getParent(), method);
+		else
+			return nd.methOffsets.get(method);
 	}
 	
 	public int getAttrOffset(AbstractSymbol clazz, AbstractSymbol a) {
-		return nodeMap.get(clazz).attrOffsets.get(a);
+		CgenNode nd = nodeMap.get(clazz);
+		if(!nd.attrOffsets.containsKey(a))
+			return getAttrOffset(nd.getParent(), a);
+		else
+			return nd.attrOffsets.get(a);
 	}
 	
 	public int getDepth(AbstractSymbol clazz) {
 		int depth = 0;
 		CgenNode nd = nodeMap.get(clazz);
-		while(nd != TreeConstants.Object_) {
-			nd = nd.getParent();
+		while(nd.name != TreeConstants.Object_) {
+			nd = nd.getParentNode();
 			depth++;
 		}
 		return depth;

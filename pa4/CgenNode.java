@@ -127,6 +127,10 @@ class CgenNode extends class_ {
 			tag, getName(), getParent());
 	}
 	
+	CgenNode getParentNode() {
+		return parent;
+	}
+	
 	void setTag(int tag) {
 		this.tag = tag;
 	}
@@ -276,6 +280,8 @@ class CgenNode extends class_ {
 	}
 	
 	void codeClassMethod(PrintStream s) {
+	
+		// if the class is one of the basic classes, don't code its method
 		if(name == TreeConstants.Object_ ||
 			name == TreeConstants.IO ||
 			name == TreeConstants.Int ||
@@ -287,21 +293,26 @@ class CgenNode extends class_ {
 		
 		if(Flags.cgen_debug)	System.out.println("codeClassMethod " + name);		
 		
+		// set class table for convenience
 		CgenClassTable ct = CgenClassTable.ct;
 		
+		// enter new scope
 		ct.enterScope();
+		// add class attributes to the scope
 		for(AbstractSymbol a : attrOffsets.keySet()) {
 			ct.addId(a, new ClassVar(attrOffsets.get(a)));
 		}
+		// set SELF_TYPE to current class
+		ct.addId(TreeConstants.SELF_TYPE, name);
 		
+		// code the class methods
 		for(method m : methMap.values()) {
 			CgenSupport.emitMethodRef(name, m.name, s);
 			s.print(CgenSupport.LABEL);
-			
 			m.code(s);
-			
 		}
 		
+		// exit scope
 		ct.exitScope();
 	}
 }
