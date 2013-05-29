@@ -529,6 +529,10 @@ class formal extends Formal {
         return type_decl;
     }
 
+    public AbstractSymbol getName() {
+        return name;
+    }
+
 	public formal(int lineNumber, AbstractSymbol a1, AbstractSymbol a2) {
 		super(lineNumber);
 		name = a1;
