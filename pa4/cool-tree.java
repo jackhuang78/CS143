@@ -670,9 +670,10 @@ class assign extends Expression {
 	
 	public void code(PrintStream s) {
 		s.println("# start of assign to " + name);
+		// code expr
         expr.code(s);
-        Variable var = (Variable)CgenClassTable.ct.lookup(name);
-        var.emitStore(s);
+        // emit assign 
+        ((Variable)CgenClassTable.ct.lookup(name)).emitStore(s);
         s.println("# end of assign to " + name);
 	}
 
@@ -941,15 +942,25 @@ class loop extends Expression {
 	  * */
 	public void code(PrintStream s) {
         s.println("# start loop");
+        // generate label for loop
         int labelLoop = CgenSupport.genNextLabel();
-        int labelEnd = CgenSupport.genNextLabel();
+        // emit label definition for loop
         CgenSupport.emitLabelDef(labelLoop, s);
+        // code predicate for loop
         pred.code(s);
+        // fetch predicate result as int in T1
         CgenSupport.emitFetchInt(CgenSupport.T1, CgenSupport.ACC, s);
-        CgenSupport.emitBeqz(CgenSupport.T1, labelEnd, s);
+        // create label for continue
+        int labelContinue = CgenSupport.genNextLabel();
+        // emit beqz to test if we want to jump out of loop
+        CgenSupport.emitBeqz(CgenSupport.T1, labelContinue, s);
+        // code body of loop
         body.code(s);
+        // return to the head of loop
         CgenSupport.emitBranch(labelLoop, s);
-        CgenSupport.emitLabelDef(labelEnd, s);
+        // emit label for continue
+        CgenSupport.emitLabelDef(labelContinue, s);
+        // clear ACC
         CgenSupport.emitMove(CgenSupport.ACC, CgenSupport.ZERO, s);
         s.println("# end loop");
 	}
@@ -1362,7 +1373,6 @@ class neg extends Expression {
 		out.print(Utilities.pad(n) + "neg\n");
 		e1.dump(out, n+2);
 	}
-
 	
 	public void dump_with_types(PrintStream out, int n) {
 		dump_line(out, n);
@@ -1752,8 +1762,11 @@ class new_ extends Expression {
 	public void code(PrintStream s) {
 		s.println("# start of 'new " + type_name + "'");
         if (type_name != TreeConstants.SELF_TYPE) {
+        	//find prototype's addres and load to ACC
             CgenSupport.emitLoadAddress(CgenSupport.ACC, type_name.toString() + CgenSupport.PROTOBJ_SUFFIX, s);
+            // copy protoype
             CgenSupport.emitJal("Object.copy", s);
+            // jump to init method
             CgenSupport.emitJal(type_name.toString() + CgenSupport.CLASSINIT_SUFFIX, s);
         }else{
         	CgenSupport.emitLoadAddress(CgenSupport.T1, CgenSupport.CLASSOBJTAB, s);
