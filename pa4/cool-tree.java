@@ -12,30 +12,33 @@ import java.io.PrintStream;
 /** class for variables **/
 abstract class Variable {
 	private int offset;
-    public abstract void emitRef(PrintStream s);
-    public abstract void emitAssign(PrintStream s);
-    public ClassVariable(int offset) {
-        this.offset = offset;
-    }
+    public abstract void emitLoad(PrintStream s);
+    public abstract void emitStore(PrintStream s);
 }
 
 /** class for formal variables **/
-class FormalVar extends Variable{
-    public void emitRef(PrintStream s) {
+class FieldVar extends Variable{
+    public FieldVar(int offset) {
+        this.offset = offset;
+    }
+    public void emitLoad(PrintStream s) {
         CgenSupport.emitLoad(CgenSupport.ACC, -offset, CgenSupport.FP, s);
     }
-    public void emitAssign(PrintStream s) {
+    public void emitStore(PrintStream s) {
         CgenSupport.emitStore(CgenSupport.ACC, -offset, CgenSupport.FP, s);
     }
 }
 
 /** class for class variables **/
-class ClassVariable extends Variable {
-    public void emitRef(PrintStream s) {
-        CgenSupport.emitLoad(CgenSupport.ACC, CgenSupport.DEFAULT_OBJFIELDS+offset, CgenSupport.SELF, s);
+class ClassVar extends Variable {
+    public ClassVar(int offset) {
+        this.offset = CgenSupport.DEFAULT_OBJFIELDS+offset;
     }
-    public void emitAssign(PrintStream s) {
-        CgenSupport.emitStore(CgenSupport.ACC, CgenSupport.DEFAULT_OBJFIELDS+offset, CgenSupport.SELF, s);
+    public void emitLoad(PrintStream s) {
+        CgenSupport.emitLoad(CgenSupport.ACC, offset, CgenSupport.SELF, s);
+    }
+    public void emitStore(PrintStream s) {
+        CgenSupport.emitStore(CgenSupport.ACC, offset, CgenSupport.SELF, s);
     }
 }
 
@@ -452,7 +455,7 @@ class method extends Feature {
         CgenClassTable.ct.enterScope();
         for (int i = 0; i < formals.getLength(); ++i) {
             int offset = 2 + formals.getLength() - i;
-            CgenClassTable.ct.addId(((formal)formals.getNth(i)).getName(), new FormalVar(-offset));
+            CgenClassTable.ct.addId(((formal)formals.getNth(i)).getName(), new FieldVar(-offset));
         }
         CgenSupport.emitStartMethod(s);
         CgenSupport.emitMove(CgenSupport.SELF, CgenSupport.ACC, s);
@@ -524,7 +527,7 @@ class attr extends Feature {
         if (init.get_type() != null) {
             init.code(s);
             //Variable var = (Variable)AbstractTable.varTable.lookup(name);
-            //var.emitAssign(s);
+            //var.emitStore(s);
         }
     }
 }
@@ -687,7 +690,7 @@ class assign extends Expression {
 		s.println("# start of assign to " + name);
         expr.code(s);
         Variable var = (Variable)CgenClassTable.ct.lookup(name);
-        var.emitAssign(s);
+        var.emitStore(s);
         s.println("# end of assign to " + name);
 	}
 
@@ -1917,7 +1920,7 @@ class object extends Expression {
 		if (name == TreeConstants.self) {
             CgenSupport.emitMove(CgenSupport.ACC, CgenSupport.SELF, s);
         } else {
-            ((Variable)CgenClassTable.ct.lookup(name)).emitRef(s);
+            ((Variable)CgenClassTable.ct.lookup(name)).emitLoad(s);
         }
 	}
 }
