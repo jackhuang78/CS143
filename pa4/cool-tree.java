@@ -22,10 +22,10 @@ class FieldVar extends Variable{
         this.offset = offset;
     }
     public void emitLoad(PrintStream s) {
-        CgenSupport.emitLoad(CgenSupport.ACC, -offset, CgenSupport.FP, s);
+        CgenSupport.emitLoad(CgenSupport.ACC, -offset*CgenSupport.WORD_SIZE, CgenSupport.FP, s);
     }
     public void emitStore(PrintStream s) {
-        CgenSupport.emitStore(CgenSupport.ACC, -offset, CgenSupport.FP, s);
+        CgenSupport.emitStore(CgenSupport.ACC, -offset*CgenSupport.WORD_SIZE, CgenSupport.FP, s);
     }
 }
 
@@ -36,10 +36,10 @@ class ClassVar extends Variable{
         this.offset = CgenSupport.DEFAULT_OBJFIELDS+offset;
     }
     public void emitLoad(PrintStream s) {
-        CgenSupport.emitLoad(CgenSupport.ACC, offset, CgenSupport.SELF, s);
+        CgenSupport.emitLoad(CgenSupport.ACC, offset*CgenSupport.WORD_SIZE, CgenSupport.SELF, s);
     }
     public void emitStore(PrintStream s) {
-        CgenSupport.emitStore(CgenSupport.ACC, offset, CgenSupport.SELF, s);
+        CgenSupport.emitStore(CgenSupport.ACC, offset*CgenSupport.WORD_SIZE, CgenSupport.SELF, s);
     }
 }
 
@@ -896,18 +896,20 @@ class cond extends Expression {
 	  * */
 	public void code(PrintStream s) {
 		s.println("# start of cond");
+		// first code predicate
         pred.code(s);
+        // store result into T1
         CgenSupport.emitFetchInt(CgenSupport.T1, CgenSupport.ACC, s);
+        // generate labels
         int labelFalse = CgenSupport.genNextLabel();
         int labelEnd = CgenSupport.genNextLabel();
         CgenSupport.emitBeqz(CgenSupport.T1, labelFalse, s);
-        // true branch
+        // coding true branch
         then_exp.code(s);
         CgenSupport.emitBranch(labelEnd, s);
-        // false branch
+        // coding false branch
         CgenSupport.emitLabelDef(labelFalse, s);
         else_exp.code(s);
-        // end
         CgenSupport.emitLabelDef(labelEnd, s);
         s.println("# end of cond");
 	}
