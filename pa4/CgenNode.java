@@ -145,7 +145,7 @@ class CgenNode extends class_ {
 		methOffsets = new LinkedHashMap<AbstractSymbol, Integer>();
 		attrOffsets = new LinkedHashMap<AbstractSymbol, Integer>();
 		methOff = 0;
-		attrOff = 3;
+		attrOff = 0;
 		
 		if(getName() != TreeConstants.Object_) {
 			//attrMap.putAll(parent.attrMap);
@@ -284,6 +284,13 @@ class CgenNode extends class_ {
 		
 		if(Flags.cgen_debug)	System.out.println("codeClassMethod " + name);		
 		
+		CgenClassTable ct = CgenClassTable.ct;
+		
+		ct.enterScope();
+		for(AbstractSymbol a : attrOffsets.keySet()) {
+			ct.addId(a, new ClassVar(attrOffsets.get(a)));
+		}
+		
 		for(method m : methMap.values()) {
 			CgenSupport.emitMethodRef(name, m.name, s);
 			s.print(CgenSupport.LABEL);
@@ -291,6 +298,8 @@ class CgenNode extends class_ {
 			m.code(s);
 			
 		}
+		
+		ct.exitScope();
 	}
 }
 	
