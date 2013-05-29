@@ -589,7 +589,7 @@ class branch extends Case {
   //       int maxTag = Collections.max(childrenTags);
   //       int labelNextBranch = CgenSupport.genLabelNum();
   //       CgenSupport.emitBlti(CgenSupport.T1, minTag, labelNextBranch, s);
-  //       CgenSupport.emitBgti(CgenSupport.T1, maxTag, labelNextBranch, s);
+  //       CgenSupport.emitBgti(CgenSupport.T1, maxTag, labelNextBranch, s); 
   //       int offset = AbstractTable.offset++;
   //       //int offset = AbstractTable.offset;
   //       CgenSupport.emitPush(CgenSupport.ACC, s);
