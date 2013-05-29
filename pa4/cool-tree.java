@@ -22,10 +22,10 @@ class FieldVar extends Variable{
         this.offset = offset;
     }
     public void emitLoad(PrintStream s) {
-        CgenSupport.emitLoad(CgenSupport.ACC, -offset*CgenSupport.WORD_SIZE, CgenSupport.FP, s);
+        CgenSupport.emitLoad(CgenSupport.ACC, -offset, CgenSupport.FP, s);
     }
     public void emitStore(PrintStream s) {
-        CgenSupport.emitStore(CgenSupport.ACC, -offset*CgenSupport.WORD_SIZE, CgenSupport.FP, s);
+        CgenSupport.emitStore(CgenSupport.ACC, -offset, CgenSupport.FP, s);
     }
 }
 
@@ -36,10 +36,10 @@ class ClassVar extends Variable{
         this.offset = CgenSupport.DEFAULT_OBJFIELDS+offset;
     }
     public void emitLoad(PrintStream s) {
-        CgenSupport.emitLoad(CgenSupport.ACC, offset*CgenSupport.WORD_SIZE, CgenSupport.SELF, s);
+        CgenSupport.emitLoad(CgenSupport.ACC, offset, CgenSupport.SELF, s);
     }
     public void emitStore(PrintStream s) {
-        CgenSupport.emitStore(CgenSupport.ACC, offset*CgenSupport.WORD_SIZE, CgenSupport.SELF, s);
+        CgenSupport.emitStore(CgenSupport.ACC, offset, CgenSupport.SELF, s);
     }
 }
 
@@ -505,8 +505,6 @@ class attr extends Feature {
 		dump_AbstractSymbol(out, n+2, type_decl);
 		init.dump(out, n+2);
 	}
-
-	
 	public void dump_with_types(PrintStream out, int n) {
 		dump_line(out, n);
 		out.println(Utilities.pad(n) + "_attr");
@@ -514,14 +512,6 @@ class attr extends Feature {
 		dump_AbstractSymbol(out, n + 2, type_decl);
 		init.dump_with_types(out, n + 2);
 	}
-
-    public void codeInit(PrintStream s) {
-        System.err.println("init " + name + " with type " + init.get_type());
-        if (init.get_type() != null) {
-            init.code(s);
-            ((Variable)CgenClassTable.ct.lookup(name)).emitStore(s);
-        }
-    }
 }
 
 
