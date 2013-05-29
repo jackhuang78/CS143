@@ -51,7 +51,7 @@ class CgenSupport {
         return INTCONST_PREFIX + ((IntSymbol)AbstractTable.inttable.lookup(num.toString())).getIndex(); 
     }
 
-    static void emitCheckVoidCallDispAbort(int lineNumber, String fileName, PrintStream s) {
+    static void emitDispAbort(int lineNumber, String fileName, PrintStream s) {
     	s.println("# emit check voild call start");
         int label = genNextLabel();
         emitBne(ACC, ZERO, label, s);
@@ -62,7 +62,7 @@ class CgenSupport {
         s.println("# emit check voild call end");
     }
 
-    static void emitCheckVoidCallCaseAbort(int lineNumber,String fileName, PrintStream s) {
+    static void emitCaseAbort(int lineNumber,String fileName, PrintStream s) {
         int label = genNextLabel();
         emitBne(ACC, ZERO, label, s);
         emitLoadAddress(ACC, getStrLabel(fileName), s);
