@@ -436,7 +436,7 @@ class method extends Feature {
         CgenClassTable.ct.enterScope();
         for (int i = 0; i < formals.getLength(); ++i) {
             int offset = 2 + formals.getLength() - i;
-            CgenClassTable.ct.addId((formal)formals.getNth(i).getName(), new FormalVar(-offset));
+            CgenClassTable.ct.addId(((formal)formals.getNth(i)).getName(), new FormalVar(-offset));
         }
         CgenSupport.emitStartMethod(s);
         CgenSupport.emitMove(CgenSupport.SELF, CgenSupport.ACC, s);
