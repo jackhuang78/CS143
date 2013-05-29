@@ -179,7 +179,12 @@ class CgenNode extends class_ {
 			System.out.println("codeDispTab " + name + " " + methOffsets.size());		
 		}
 		
+		if(name != TreeConstants.Object_)
+			parent.codeDispTab(s);
+		
 		for(AbstractSymbol method : methOffsets.keySet()) {
+			if(Flags.cgen_debug)
+				System.out.println("\t" + method + " " + methOffsets.get(method));
 			s.print(CgenSupport.WORD);
 			CgenSupport.emitMethodRef(name, method, s);
 			s.println();
@@ -190,7 +195,6 @@ class CgenNode extends class_ {
 		if(Flags.cgen_debug) {
 			System.out.println("codeProtObj " + name + " " + attrOffsets.size());		
 		}
-		
 		
 		// class tag
 		s.println(CgenSupport.WORD + getTag());				
@@ -203,6 +207,18 @@ class CgenNode extends class_ {
 		CgenSupport.emitDispTableRef(name, s);	
 		s.println();					
 		
+		codeProtObjRecur(s);
+	}
+	
+	void codeProtObjRecur(PrintStream s) {
+		if(Flags.cgen_debug) {
+			System.out.println("recur at " + name);		
+		}
+		
+	
+		if(name != TreeConstants.Object_)
+			parent.codeProtObjRecur(s);
+	
 		// attributes
 		for(AbstractSymbol name : attrMap.keySet()) {
 			
