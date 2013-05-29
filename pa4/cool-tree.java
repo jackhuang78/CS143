@@ -1014,7 +1014,7 @@ class typcase extends Expression {
         for(branch br: branches) {
             br.code(labelEnd, s);
         }
-        CgenSupport.emitCaseAbort(s);
+        CgenSupport.emitJal(CASE_ABORT, s);
         CgenSupport.emitLabelDef(labelEnd, s);
         s.println("# end of case");
 	}
