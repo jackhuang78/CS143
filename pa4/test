@@ -31,10 +31,11 @@ for f in args.files:
 	
 	os.system('rm -f out/%s.s' % name)
 	os.system('rm -f out/%s_ref.s' % name)
+	os.system('rm -f spim.out spim_ref.out')
 	
 	os.system('/usr/class/cs143/bin/coolc %s' % f)
 	os.system('mv %s.s %s_ref.s' % (name, name))
-	os.system('/usr/class/cs143/bin/spim -file %s_ref.s > ref.out 2&>1' % name );
+	os.system('/usr/class/cs143/bin/spim -file %s_ref.s > spim_ref.out 2>&1' % name );
 	
 	if not args.r:
 		if args.c:
@@ -43,10 +44,10 @@ for f in args.files:
 			ret = os.system('./mycoolc %s' % f)
 		
 		if not ret:
-			os.system('/usr/class/cs143/bin/spim -file %s.s > my.out 2&>1' % name );	
+			os.system('/usr/class/cs143/bin/spim -file %s.s > spim.out 2>&1' % name );	
+			if args.d:
+				os.system('diff spim_ref.out spim.out')
 		
-		#if args.d:
-		#	os.system('diff %s.s %s_ref.s' % (name, name))
 	
 
 print '====================================\n'
