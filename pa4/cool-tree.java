@@ -8,7 +8,7 @@
 
 import java.util.*;
 import java.io.PrintStream;
-import static CgenClassTable.*;
+
 
 /** Defines simple phylum Program */
 abstract class Program extends TreeNode {
@@ -726,14 +726,12 @@ class static_dispatch extends Expression {
             CgenSupport.emitPush(CgenSupport.ACC, s);
         }
         expr.code(s);
-        CgenSupport.emitCheckVoidCallDispAbort(lineNumber, ct.getFilename(type_name), s);
+        CgenSupport.emitCheckVoidCallDispAbort(lineNumber, CgenClassTable.ct.getFilename(type_name), s);
         CgenSupport.emitLoadAddress(CgenSupport.T1, type_name + CgenSupport.DISPTAB_SUFFIX, s);
-        CgenSupport.emitLoad(CgenSupport.T1, ct.getMethodOffset(type_name, name), CgenSupport.T1, s);
+        CgenSupport.emitLoad(CgenSupport.T1, CgenClassTable.ct.getMethodOffset(type_name, name), CgenSupport.T1, s);
         CgenSupport.emitJalr(CgenSupport.T1, s);
         s.println("# end of static_dispatch " + type_name + "." + name + "()");
 	}
-
-
 }
 
 
@@ -795,9 +793,9 @@ class dispatch extends Expression {
         }
         expr.code(s);
         AbstractSymbol exprType = expr.get_type();
-        CgenSupport.emitCheckVoidCallDispAbort(lineNumber, ct.getFilename(exprType),s);
+        CgenSupport.emitCheckVoidCallDispAbort(lineNumber, CgenClassTable.ct.getFilename(exprType),s);
         CgenSupport.emitLoad(CgenSupport.T1, CgenSupport.DISPTABLE_OFFSET, CgenSupport.ACC, s);
-        CgenSupport.emitLoad(CgenSupport.T1, ct.getMethodOffset(exprType, name), CgenSupport.T1, s);
+        CgenSupport.emitLoad(CgenSupport.T1, CgenClassTable.ct.getMethodOffset(exprType, name), CgenSupport.T1, s);
         CgenSupport.emitJalr(CgenSupport.T1, s);
         s.println("# end of dispatch " + name + "()");
 	}
@@ -975,7 +973,7 @@ class typcase extends Expression {
 	public void code(PrintStream s) {
 		s.println("# start of case");
         expr.code(s);
-        CgenSupport.emitCheckVoidCallCaseAbort(lineNumber, ct.getFilename(null),s);
+        CgenSupport.emitCheckVoidCallCaseAbort(lineNumber, CgenClassTable.ct.getFilename(null),s);
         int labelEnd = CgenSupport.genNextLabel();
         List<branch> branches = new ArrayList<branch>();
         for (Enumeration e = cases.getElements(); e.hasMoreElements();) {
