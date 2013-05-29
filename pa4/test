@@ -33,7 +33,11 @@ for f in args.files:
 	os.system('rm -f out/%s_ref.s' % name)
 	os.system('rm -f spim.out spim_ref.out')
 	
-	os.system('/usr/class/cs143/bin/coolc %s' % f)
+	ret = os.system('/usr/class/cs143/bin/coolc %s' % f)
+	if ret != 0:
+		print 'Compilation error. Exit,'
+		exit(0)
+		
 	os.system('mv %s.s %s_ref.s' % (name, name))
 	os.system('/usr/class/cs143/bin/spim -file %s_ref.s > spim_ref.out 2>&1' % name );
 	

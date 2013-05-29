@@ -145,7 +145,7 @@ class CgenNode extends class_ {
 		methOffsets = new LinkedHashMap<AbstractSymbol, Integer>();
 		attrOffsets = new LinkedHashMap<AbstractSymbol, Integer>();
 		methOff = 0;
-		attrOff = 3;
+		attrOff = 0;
 		
 		if(getName() != TreeConstants.Object_) {
 			//attrMap.putAll(parent.attrMap);
@@ -200,7 +200,7 @@ class CgenNode extends class_ {
 		s.println(CgenSupport.WORD + getTag());				
 		
 		// size
-		s.println(CgenSupport.WORD + (attrOff));	
+		s.println(CgenSupport.WORD + (attrOff) + CgenSupport.DEFAULT_OBJFIELDS);	
 		
 		// disp table
 		s.print(CgenSupport.WORD);	
@@ -225,7 +225,7 @@ class CgenNode extends class_ {
 			AbstractSymbol type = attrMap.get(name).type_decl;
 			
 			if(Flags.cgen_debug)
-				System.out.println("\tattr: " + name + ":" + type);
+				System.out.println("\tattr: " + name + ":" + type + "["+attrOffsets.get(name) + "]");
 			
 			s.print(CgenSupport.WORD);
 						
@@ -253,13 +253,16 @@ class CgenNode extends class_ {
 		for(AbstractSymbol name : attrMap.keySet()) {
 			attr a = attrMap.get(name);
 			if(Flags.cgen_debug)	
-				System.out.printf("\t%s:%s<-%s\n", a.name, a.type_decl, a.init);	
+				System.out.printf("\t%s:%s<-%s[%d]\n", a.name, a.type_decl, a.init, attrOffsets.get(name));	
 			
 			if(!(a.init instanceof no_expr)) {
 				a.init.code(s);
 				CgenSupport.emitStore(
-					CgenSupport.ACC, attrOffsets.get(name), 
+					CgenSupport.ACC, 
+					attrOffsets.get(name) + CgenSupport.DEFAULT_OBJFIELDS, 
 					CgenSupport.SELF, s);
+				
+				
 			}
 		}
 		
@@ -284,6 +287,13 @@ class CgenNode extends class_ {
 		
 		if(Flags.cgen_debug)	System.out.println("codeClassMethod " + name);		
 		
+		CgenClassTable ct = CgenClassTable.ct;
+		
+		ct.enterScope();
+		for(AbstractSymbol a : attrOffsets.keySet()) {
+			ct.addId(a, new ClassVar(attrOffsets.get(a)));
+		}
+		
 		for(method m : methMap.values()) {
 			CgenSupport.emitMethodRef(name, m.name, s);
 			s.print(CgenSupport.LABEL);
@@ -291,6 +301,8 @@ class CgenNode extends class_ {
 			m.code(s);
 			
 		}
+		
+		ct.exitScope();
 	}
 }
 	

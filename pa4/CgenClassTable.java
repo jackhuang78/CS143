@@ -558,11 +558,22 @@ class CgenClassTable extends SymbolTable {
 		return nodeMap.get(clazz).attrOffsets.get(a);
 	}
 	
+	public int getDepth(AbstractSymbol clazz) {
+		int depth = 0;
+		CgenNode nd = nodeMap.get(clazz);
+		while(nd != TreeConstants.Object_) {
+			nd = nd.getParent();
+			depth++;
+		}
+		return depth;
+	}
+	
 	// HACK
 	public String getFilename(AbstractSymbol clazz) {
 		return nodeMap.get(TreeConstants.Main).filename.toString();
 //		return nodeMap.get(clazz).filename.toString();
 	}
+	
 }
 						  
 	
