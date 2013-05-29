@@ -31,7 +31,7 @@ import java.util.*;
 	potentially extend it in other useful ways. */
 class CgenClassTable extends SymbolTable {
 
-	public static CgenClassTable globalTable;
+	public static CgenClassTable ct;
 
 	/** All classes in the program, represented as CgenNode */
 	private Vector nds;
@@ -472,7 +472,7 @@ class CgenClassTable extends SymbolTable {
 	/** Constructs a new class table and invokes the code generator */
 	public CgenClassTable(Classes cls, PrintStream str) {
 	
-		globalTable = this;
+		ct = this;
 	
 		nds = new Vector();
 		nodeMap = new LinkedHashMap<AbstractSymbol, CgenNode>();
@@ -550,16 +550,18 @@ class CgenClassTable extends SymbolTable {
 		return (CgenNode)probe(TreeConstants.Object_);
 	}
 	
-	public static int getMethodOffset(AbstractSymbol clazz, AbstractSymbol method) {
-		return globalTable.nodeMap.get(clazz).methOffsets.get(method);
+	public int getMethodOffset(AbstractSymbol clazz, AbstractSymbol method) {
+		return nodeMap.get(clazz).methOffsets.get(method);
 	}
 	
-	public static int getAttrOffset(AbstractSymbol clazz, AbstractSymbol a) {
-		return globalTable.nodeMap.get(clazz).attrOffsets.get(a);
+	public int getAttrOffset(AbstractSymbol clazz, AbstractSymbol a) {
+		return nodeMap.get(clazz).attrOffsets.get(a);
 	}
 	
-	public static String getFilename(AbstractSymbol clazz) {
-		return globalTable.nodeMap.get(clazz).filename.toString();
+	// HACK
+	public String getFilename(AbstractSymbol clazz) {
+		return nodeMap.get(TreeConstants.Main).filename.toString();
+//		return nodeMap.get(clazz).filename.toString();
 	}
 }
 						  
