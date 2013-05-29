@@ -61,12 +61,14 @@ class CgenSupport {
     }
 
     static void emitCheckVoidCallDispAbort(int lineNumber, String fileName, PrintStream s) {
+    	s.println("# emit check voild call start");
         int label = genNextLabel();
         emitBne(ACC, ZERO, label, s);
         emitLoadAddress(ACC, getStrLabel(fileName), s);
         emitLoadImm(T1, lineNumber, s);
         emitDispatchAbort(s);
         emitLabelDef(label, s);
+        s.println("# emit check voild call end");
     }
 
     static void emitCheckVoidCallCaseAbort(int lineNumber,String fileName, PrintStream s) {
