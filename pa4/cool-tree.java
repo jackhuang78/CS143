@@ -9,17 +9,37 @@
 import java.util.*;
 import java.io.PrintStream;
 
+/** class for variables **/
+abstract class Variable {
+    public abstract void emitLoad(PrintStream s);
+    public abstract void emitStore(PrintStream s);
+}
 
-class FormalVar{
-    private int offset;
-    public FormalVar(int offset) {
+/** class for formal variables **/
+class FieldVar extends Variable{
+	private int offset;
+    public FieldVar(int offset) {
         this.offset = offset;
     }
-    public void emitRef(PrintStream s) {
+    public void emitLoad(PrintStream s) {
         CgenSupport.emitLoad(CgenSupport.ACC, -offset, CgenSupport.FP, s);
     }
-    public void emitAssign(PrintStream s) {
+    public void emitStore(PrintStream s) {
         CgenSupport.emitStore(CgenSupport.ACC, -offset, CgenSupport.FP, s);
+    }
+}
+
+/** class for class variables **/
+class ClassVar extends Variable{
+	private int offset;
+    public ClassVar(int offset) {
+        this.offset = CgenSupport.DEFAULT_OBJFIELDS+offset;
+    }
+    public void emitLoad(PrintStream s) {
+        CgenSupport.emitLoad(CgenSupport.ACC, offset, CgenSupport.SELF, s);
+    }
+    public void emitStore(PrintStream s) {
+        CgenSupport.emitStore(CgenSupport.ACC, offset, CgenSupport.SELF, s);
     }
 }
 
@@ -436,7 +456,7 @@ class method extends Feature {
         CgenClassTable.ct.enterScope();
         for (int i = 0; i < formals.getLength(); ++i) {
             int offset = 2 + formals.getLength() - i;
-            CgenClassTable.ct.addId(((formal)formals.getNth(i)).getName(), new FormalVar(-offset));
+            CgenClassTable.ct.addId(((formal)formals.getNth(i)).getName(), new FieldVar(-offset));
         }
         CgenSupport.emitStartMethod(s);
         CgenSupport.emitMove(CgenSupport.SELF, CgenSupport.ACC, s);
@@ -508,7 +528,7 @@ class attr extends Feature {
         if (init.get_type() != null) {
             init.code(s);
             //Variable var = (Variable)AbstractTable.varTable.lookup(name);
-            //var.emitAssign(s);
+            //var.emitStore(s);
         }
     }
 }
@@ -670,8 +690,8 @@ class assign extends Expression {
 	public void code(PrintStream s) {
 		s.println("# start of assign to " + name);
         expr.code(s);
-        //Variable var = (Variable)AbstractTable.varTable.lookup(name);
-        //var.emitAssign(s);
+        Variable var = (Variable)CgenClassTable.ct.lookup(name);
+        var.emitStore(s);
         s.println("# end of assign to " + name);
 	}
 
@@ -1014,7 +1034,7 @@ class typcase extends Expression {
         for(branch br: branches) {
             br.code(labelEnd, s);
         }
-        CgenSupport.emitCaseAbort(s);
+        CgenSupport.emitJal(CgenSupport.CASE_ABORT, s);
         CgenSupport.emitLabelDef(labelEnd, s);
         s.println("# end of case");
 	}
@@ -1750,8 +1770,12 @@ class new_ extends Expression {
 	  * */
 	public void code(PrintStream s) {
 		s.println("# start of 'new " + type_name + "'");
-        if (type_name == TreeConstants.SELF_TYPE) {
-            CgenSupport.emitLoadAddress(CgenSupport.T1, CgenSupport.CLASSOBJTAB, s);
+        if (type_name != TreeConstants.SELF_TYPE) {
+            CgenSupport.emitLoadAddress(CgenSupport.ACC, type_name.toString() + CgenSupport.PROTOBJ_SUFFIX, s);
+            CgenSupport.emitJal("Object.copy", s);
+            CgenSupport.emitJal(type_name.toString() + CgenSupport.CLASSINIT_SUFFIX, s);
+        }else{
+        	CgenSupport.emitLoadAddress(CgenSupport.T1, CgenSupport.CLASSOBJTAB, s);
             CgenSupport.emitLoad(CgenSupport.T2, 0, CgenSupport.SELF, s);
             CgenSupport.emitSll(CgenSupport.T2, CgenSupport.T2, 3, s);
             CgenSupport.emitAddu(CgenSupport.T1, CgenSupport.T1, CgenSupport.T2, s);
@@ -1761,15 +1785,9 @@ class new_ extends Expression {
             CgenSupport.emitPop(CgenSupport.T1, s);
             CgenSupport.emitLoad(CgenSupport.T1, 1, CgenSupport.T1, s);
             CgenSupport.emitJalr(CgenSupport.T1, s);
-        } else {
-            CgenSupport.emitLoadAddress(CgenSupport.ACC, type_name.toString() + CgenSupport.PROTOBJ_SUFFIX, s);
-            CgenSupport.emitJal("Object.copy", s);
-            CgenSupport.emitJal(type_name.toString() + CgenSupport.CLASSINIT_SUFFIX, s);
         }
         s.println("# end of 'new " + type_name + "'");
 	}
-
-
 }
 
 
@@ -1903,12 +1921,9 @@ class object extends Expression {
 		if (name == TreeConstants.self) {
             CgenSupport.emitMove(CgenSupport.ACC, CgenSupport.SELF, s);
         } else {
-            //Variable var = (Variable)AbstractTable.varTable.lookup(name);
-            //var.emitRef(s);
+            ((Variable)CgenClassTable.ct.lookup(name)).emitLoad(s);
         }
 	}
-
-
 }
 
 

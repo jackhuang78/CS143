@@ -27,18 +27,9 @@ import java.io.PrintStream;
 	for the code generator; all routines are statics, so no instance of
 	this class is even created. */
 class CgenSupport {
-	// cs 143 add
+	// counter for incrementing
+
     private static int labelIncrementCounter = 0;
-    final static String DISP_ABORT = "_dispatch_abort";
-    final static String CASE_ABORT = "_case_abort";
-   	static void emitDispatchAbort(PrintStream s) {
-        emitJal(DISP_ABORT, s);
-    }
-
-    static void emitCaseAbort(PrintStream s) {
-        emitJal(CASE_ABORT, s);
-    }
-
     /** generates the next label and return an int
 	 * */
     static int genNextLabel() {
@@ -66,7 +57,7 @@ class CgenSupport {
         emitBne(ACC, ZERO, label, s);
         emitLoadAddress(ACC, getStrLabel(fileName), s);
         emitLoadImm(T1, lineNumber, s);
-        emitDispatchAbort(s);
+        emitJal(DISP_ABORT, s);
         emitLabelDef(label, s);
         s.println("# emit check voild call end");
     }
@@ -76,13 +67,9 @@ class CgenSupport {
         emitBne(ACC, ZERO, label, s);
         emitLoadAddress(ACC, getStrLabel(fileName), s);
         emitLoadImm(T1, lineNumber, s);
-        emitCaseAbort(s);
+        emitJal(CASE_ABORT, s);
         emitLabelDef(label, s);
     }
-
-
-    
-    // end cs 143 add
 
 	/** Runtime constants for controlling the garbage collector. */
 	final static String[] gcInitNames = {
@@ -97,6 +84,10 @@ class CgenSupport {
 	final static int MAXINT = 100000000;
 	final static int WORD_SIZE = 4;
 	final static int LOG_WORD_SIZE = 2;	 // for logical shifts
+
+	// Abort terms
+    final static String DISP_ABORT = "_dispatch_abort";
+    final static String CASE_ABORT = "_case_abort";
 
 	// Global names
 	final static String CLASSNAMETAB = "class_nameTab";
