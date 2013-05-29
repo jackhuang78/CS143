@@ -62,15 +62,6 @@ class CgenSupport {
         s.println("# emit check voild call end");
     }
 
-    static void emitCaseAbort(int lineNumber,String fileName, PrintStream s) {
-        int label = genNextLabel();
-        emitBne(ACC, ZERO, label, s);
-        emitLoadAddress(ACC, getStrLabel(fileName), s);
-        emitLoadImm(T1, lineNumber, s);
-        emitJal(CASE_ABORT, s);
-        emitLabelDef(label, s);
-    }
-
 	/** Runtime constants for controlling the garbage collector. */
 	final static String[] gcInitNames = {
 		"_NoGC_Init", "_GenGC_Init", "_ScnGC_Init"
@@ -87,7 +78,8 @@ class CgenSupport {
 
 	// Abort terms
     final static String DISP_ABORT = "_dispatch_abort";
-    final static String CASE_ABORT = "_case_abort";
+    final static String CASE_ABORT = "_case_abort"; // for missing branch
+    final static String CASE_ABORT2 = "_case_abort2"; // for case void
 
 	// Global names
 	final static String CLASSNAMETAB = "class_nameTab";

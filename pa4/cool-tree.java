@@ -581,29 +581,28 @@ class branch extends Case {
 		expr.dump_with_types(out, n + 2);
 	}
 
-	
-    public void code(int labelEnd, PrintStream s) {
-        s.println("# start of branch for " + name + ":" + type_decl);
-        CgenSupport.emitLoad(CgenSupport.T1, 0, CgenSupport.ACC, s);
-        //List<Integer> childrenTags = AbstractTable.classTable.getChildrenTags(type_decl);
-        int minTag = 0; //Collections.min(childrenTags);
-        int maxTag = 0; //Collections.max(childrenTags);
-        int labelNext = CgenSupport.genNextLabel();
-        CgenSupport.emitBlti(CgenSupport.T1, minTag, labelNext, s);
-        CgenSupport.emitBgti(CgenSupport.T1, maxTag, labelNext, s);
-        //int offset = AbstractTable.offset++;
-        CgenSupport.emitPush(CgenSupport.ACC, s);
-        //AbstractTable.varTable.enterScope();
-        //AbstractTable.varTable.addId(name, new BranchVariable(offset));
-        expr.code(s);
-        //AbstractTable.varTable.exitScope();
-        CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, 4, s); // pop
-        //--AbstractTable.offset;
-        CgenSupport.emitBranch(labelEnd, s);
-        CgenSupport.emitLabelDef(labelNext, s);
-        s.println("# end of branch for " + name + ":" + type_decl);
+    public void code(int labelContinue, PrintStream s) {
+		// s.println("# start of branch for " + name + ":" + type_decl);
+  //       CgenSupport.emitLoad(CgenSupport.T1, 0, CgenSupport.ACC, s);
+  //       List<Integer> childrenTags = AbstractTable.classTable.getChildrenTags(type_decl);
+  //       int minTag = Collections.min(childrenTags);
+  //       int maxTag = Collections.max(childrenTags);
+  //       int labelNextBranch = CgenSupport.genLabelNum();
+  //       CgenSupport.emitBlti(CgenSupport.T1, minTag, labelNextBranch, s);
+  //       CgenSupport.emitBgti(CgenSupport.T1, maxTag, labelNextBranch, s);
+  //       int offset = AbstractTable.offset++;
+  //       //int offset = AbstractTable.offset;
+  //       CgenSupport.emitPush(CgenSupport.ACC, s);
+  //       AbstractTable.varTable.enterScope();
+  //       AbstractTable.varTable.addId(name, new BranchVariable(offset));
+  //       expr.code(s);
+  //       AbstractTable.varTable.exitScope();
+  //       CgenSupport.emitPop(s);
+  //       --AbstractTable.offset;
+  //       CgenSupport.emitBranch(labelContinue, s);
+  //       CgenSupport.emitLabelDef(labelNextBranch, s);
+  //       s.println("# end of branch for " + name + ":" + type_decl);
     }
-
 }
 
 
@@ -991,29 +990,41 @@ class typcase extends Expression {
 	  * @param s the output stream 
 	  * */
 	public void code(PrintStream s) {
-		s.println("# start of case");
-        expr.code(s);
-        CgenSupport.emitCaseAbort(lineNumber, CgenClassTable.ct.getFilename(null),s);
-        int labelEnd = CgenSupport.genNextLabel();
+		s.println("# start case");
+		// create a list of branches
         List<branch> branches = new ArrayList<branch>();
         for (Enumeration e = cases.getElements(); e.hasMoreElements();) {
             branches.add((branch)e.nextElement());
         }
-        Collections.sort(branches, new Comparator<branch>() {
+        // sort branches so that we can generate effective branching mechanism
+        Collections.sort(branches, new Comparator<branch>(){
+        	// using sort implementation
             public int compare(branch first, branch second) {
-                //return AbstractTable.classTable.depth(second.getType()) - AbstractTable.classTable.depth(first.getType());
-		return 0; // dummy
+                return CgenClassTable.ct.getDepth(second.getType()) - CgenClassTable.ct.getDepth(first.getType());
             }
         });
-        for(branch br: branches) {
-            br.code(labelEnd, s);
+		// evaluate expr
+        expr.code(s); // case void of will cause case to abort
+        // abort if case type is void (0 in accu)
+        int labelAbortVoid = CgenSupport.genNextLabel();
+        // jump to lable of ACC not equal zero
+        CgenSupport.emitBne(CgenSupport.ACC, CgenSupport.ZERO, labelAbortVoid, s);
+        // jump to case abort
+        CgenSupport.emitJal(CgenSupport.CASE_ABORT2, s);
+        // jump outof abort sequence
+        CgenSupport.emitLabelDef(labelAbortVoid, s);
+        // code continue label
+        int labelContinue = CgenSupport.genNextLabel();
+        // code all branches, passing in the label for continue execution
+        for(branch b: branches) {
+            b.code(labelContinue, s);
         }
+        // jump to case abort because there is no match, missing branch
         CgenSupport.emitJal(CgenSupport.CASE_ABORT, s);
-        CgenSupport.emitLabelDef(labelEnd, s);
-        s.println("# end of case");
+        // generate label to continue
+        CgenSupport.emitLabelDef(labelContinue, s);
+        s.println("# end case");
 	}
-
-
 }
 
 
@@ -1804,7 +1815,7 @@ class isvoid extends Expression {
         e1.code(s);
         // generate label for void
         int labelIsVoid = CgenSupport.genNextLabel();
-        // emid branch if ACC is zero, void
+        // emit branch if ACC is zero, void
         CgenSupport.emitBeqz(CgenSupport.ACC, labelIsVoid, s);
         // if ACC is not void, load false
         CgenSupport.emitLoadBool(CgenSupport.ACC, new BoolConst(false), s);
@@ -1820,8 +1831,6 @@ class isvoid extends Expression {
         CgenSupport.emitLabelDef(labelContinue, s);
         s.println("# end of isvoid");
 	}
-
-
 }
 
 
