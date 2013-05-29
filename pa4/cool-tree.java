@@ -10,6 +10,19 @@ import java.util.*;
 import java.io.PrintStream;
 
 
+class FormalVar{
+    private int offset;
+    public FormalVar(int offset) {
+        this.offset = offset;
+    }
+    public void emitRef(PrintStream s) {
+        CgenSupport.emitLoad(CgenSupport.ACC, -offset, CgenSupport.FP, s);
+    }
+    public void emitAssign(PrintStream s) {
+        CgenSupport.emitStore(CgenSupport.ACC, -offset, CgenSupport.FP, s);
+    }
+}
+
 /** Defines simple phylum Program */
 abstract class Program extends TreeNode {
 	protected Program(int lineNumber) {
@@ -420,17 +433,16 @@ class method extends Feature {
 	
     public void code(PrintStream s) {
         //AbstractTable.offset = 1;
-        //AbstractTable.varTable.enterScope();
+        CgenClassTable.ct.enterScope();
         for (int i = 0; i < formals.getLength(); ++i) {
-            formal formal = (formal)formals.getNth(i);
             int offset = 2 + formals.getLength() - i;
-            //AbstractTable.varTable.addId(formal.getName(), new FormalVariable(-offset));
+            CgenClassTable.ct.addId((formal)formals.getNth(i).getName(), new FormalVar(-offset));
         }
         CgenSupport.emitStartMethod(s);
         CgenSupport.emitMove(CgenSupport.SELF, CgenSupport.ACC, s);
         expr.code(s);
         CgenSupport.emitEndMethod(formals.getLength(), s);
-        //AbstractTable.varTable.exitScope();
+        CgenClassTable.ct.exitScope();
     }
 
     
