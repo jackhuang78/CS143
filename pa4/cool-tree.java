@@ -514,12 +514,12 @@ class attr extends Feature {
 		dump_AbstractSymbol(out, n + 2, type_decl);
 		init.dump_with_types(out, n + 2);
 	}
-	    
+
     public void codeInit(PrintStream s) {
         System.err.println("init " + name + " with type " + init.get_type());
         if (init.get_type() != null) {
             init.code(s);
-            ((Variable)CgenSupport.ct.lookup(name)).emitStore(s);
+            ((Variable)CgenClassTable.ct.lookup(name)).emitStore(s);
         }
     }
 }
