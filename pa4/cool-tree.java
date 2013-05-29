@@ -213,15 +213,6 @@ class Expressions extends ListNode {
 	public TreeNode copy() {
 		return new Expressions(lineNumber, copyElements());
 	}
-
-	
-    public List<AbstractSymbol> getTypes() {
-        List<AbstractSymbol> types = new ArrayList<AbstractSymbol>();
-        for (Enumeration e = this.getElements(); e.hasMoreElements();) {
-            types.add(((Expression) e.nextElement()).get_type());
-        }
-        return types;
-    }
 }
 
 
@@ -389,18 +380,6 @@ class class_ extends Class_ {
 	public AbstractSymbol getParent()   { return parent; }
 	public AbstractSymbol getFilename() { return filename; }
 	public Features getFeatures()	   { return features; }
-
-	
-    public List<method> getMethods() {
-        List<method> methods = new ArrayList<method>();
-        for (Enumeration e = features.getElements(); e.hasMoreElements();) {
-            Feature feature = (Feature)e.nextElement();
-            if (feature instanceof method) {
-                methods.add((method)feature);
-            }
-        }
-        return methods;
-    }
 }
 
 
@@ -1076,8 +1055,8 @@ class block extends Expression {
 	  * */
 	public void code(PrintStream s) {
 		for (Enumeration e = body.getElements(); e.hasMoreElements();) {
-            Expression expr = (Expression)e.nextElement();
-            expr.code(s);
+			// code sequence
+            ((Expression)e.nextElement()).code(s);
         }
 	}
 }
@@ -1821,18 +1800,24 @@ class isvoid extends Expression {
 	  * */
 	public void code(PrintStream s) {
 		s.println("# start of isvoid");
+		// emit code
         e1.code(s);
-        int labelVoid = CgenSupport.genNextLabel();
-        int labelEnd = CgenSupport.genNextLabel();
-        CgenSupport.emitBeqz(CgenSupport.ACC, labelVoid, s);
-        // is not void
+        // generate label for void
+        int labelIsVoid = CgenSupport.genNextLabel();
+        // emid branch if ACC is zero, void
+        CgenSupport.emitBeqz(CgenSupport.ACC, labelIsVoid, s);
+        // if ACC is not void, load false
         CgenSupport.emitLoadBool(CgenSupport.ACC, new BoolConst(false), s);
-        CgenSupport.emitBranch(labelEnd, s);
+        // generate lable for continue
+        int labelContinue = CgenSupport.genNextLabel();
+        // branch to continue
+        CgenSupport.emitBranch(labelContinue, s);
         // is void
-        CgenSupport.emitLabelDef(labelVoid, s);
+        CgenSupport.emitLabelDef(labelIsVoid, s);
+        // load true
         CgenSupport.emitLoadBool(CgenSupport.ACC, new BoolConst(true),s);
-        // end
-        CgenSupport.emitLabelDef(labelEnd, s);
+        // emit continue label
+        CgenSupport.emitLabelDef(labelContinue, s);
         s.println("# end of isvoid");
 	}
 
