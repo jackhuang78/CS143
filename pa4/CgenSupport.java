@@ -642,27 +642,40 @@ class CgenSupport {
 		s.println("\t.byte\t0\t");
 	}
 
-	// cs 143 add
+	/** This function emits code to prepare method calls.
+	 * */
 	static void emitStartMethod(PrintStream s) {
-        s.println("# emit start method OPEN");
+        s.println("#start method begin");
+        // push frame pointer onto stack
         emitPush(FP, s);
+        // push address of self onto stack
         emitPush(SELF, s);
+        // move SP into FP
         emitMove(FP, SP, s);
+        // push return address on stack
         emitPush(RA, s);
-        s.println("# emit start method CLOSED");
+        s.println("#start method end");
     }
 
-    static void emitEndMethod(int args, PrintStream s) {
-        s.println("# emit end method OPEN");
+    /** This function emits code to clean up method calls.
+	 * */
+    static void emitEndMethod(int arguments, PrintStream s) {
+        s.println("#end method begin");
+        //recover RA
         emitPop(RA, s);
+        //recover SELF
         emitPop(SELF, s);
+        //remove FP
         emitPop(FP, s);
-        s.println("# pop args");
-        for (int i = 0; i < args; ++i) {
+        //pop arguments
+        s.println("#pop arguments");
+        //move arguments
+        for (int i = 0; i < arguments; ++i) {
              emitAddiu(SP, SP, 4, s);
         }
+        // print return
         emitReturn(s);
-        s.println("# emit end method CLOSED");
+        s.println("#end method end");
     }
 
     /** Emits a pop operation.
@@ -685,7 +698,8 @@ class CgenSupport {
         // store T1's value on stack
         emitPush(T1, s);
         e2.code(s);
-        // emitJal("Object.copy", s); // need object copy?
+        // copy object
+        emitJal("Object.copy", s); 
         // fetch 2nd arg value from ACC + 12 and store in T2
         emitFetchInt(T2, ACC, s);
         // recover T1's original value
@@ -740,7 +754,6 @@ class CgenSupport {
 			addiu	$fp $sp 4
 			move	$s0 $a0
 		*/
-
 		emitAddiu(SP, SP, -12, s);
 		emitStore(FP, 3, SP, s);
 		emitStore(SELF, 2, SP, s);
