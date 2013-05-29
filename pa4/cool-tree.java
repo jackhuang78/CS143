@@ -9,7 +9,7 @@
 import java.util.*;
 import java.io.PrintStream;
 
-
+/** class for formal variables **/
 class FormalVar{
     private int offset;
     public FormalVar(int offset) {
@@ -1750,8 +1750,12 @@ class new_ extends Expression {
 	  * */
 	public void code(PrintStream s) {
 		s.println("# start of 'new " + type_name + "'");
-        if (type_name == TreeConstants.SELF_TYPE) {
-            CgenSupport.emitLoadAddress(CgenSupport.T1, CgenSupport.CLASSOBJTAB, s);
+        if (type_name != TreeConstants.SELF_TYPE) {
+            CgenSupport.emitLoadAddress(CgenSupport.ACC, type_name.toString() + CgenSupport.PROTOBJ_SUFFIX, s);
+            CgenSupport.emitJal("Object.copy", s);
+            CgenSupport.emitJal(type_name.toString() + CgenSupport.CLASSINIT_SUFFIX, s);
+        }else{
+        	CgenSupport.emitLoadAddress(CgenSupport.T1, CgenSupport.CLASSOBJTAB, s);
             CgenSupport.emitLoad(CgenSupport.T2, 0, CgenSupport.SELF, s);
             CgenSupport.emitSll(CgenSupport.T2, CgenSupport.T2, 3, s);
             CgenSupport.emitAddu(CgenSupport.T1, CgenSupport.T1, CgenSupport.T2, s);
@@ -1761,15 +1765,9 @@ class new_ extends Expression {
             CgenSupport.emitPop(CgenSupport.T1, s);
             CgenSupport.emitLoad(CgenSupport.T1, 1, CgenSupport.T1, s);
             CgenSupport.emitJalr(CgenSupport.T1, s);
-        } else {
-            CgenSupport.emitLoadAddress(CgenSupport.ACC, type_name.toString() + CgenSupport.PROTOBJ_SUFFIX, s);
-            CgenSupport.emitJal("Object.copy", s);
-            CgenSupport.emitJal(type_name.toString() + CgenSupport.CLASSINIT_SUFFIX, s);
         }
         s.println("# end of 'new " + type_name + "'");
 	}
-
-
 }
 
 
@@ -1903,12 +1901,9 @@ class object extends Expression {
 		if (name == TreeConstants.self) {
             CgenSupport.emitMove(CgenSupport.ACC, CgenSupport.SELF, s);
         } else {
-            //Variable var = (Variable)AbstractTable.varTable.lookup(name);
-            //var.emitRef(s);
+            ((Variable)CgenClassTable.ct.lookup(name)).emitRef(s);
         }
 	}
-
-
 }
 
 
