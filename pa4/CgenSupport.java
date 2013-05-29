@@ -642,9 +642,10 @@ class CgenSupport {
 		s.println("\t.byte\t0\t");
 	}
 
-	// cs 143 add
+	/** This function emits code to prepare method calls.
+	 * */
 	static void emitStartMethod(PrintStream s) {
-        s.println("# emit start method begin");
+        s.println("#start method begin");
         // push frame pointer onto stack
         emitPush(FP, s);
         // push address of self onto stack
@@ -653,20 +654,28 @@ class CgenSupport {
         emitMove(FP, SP, s);
         // push return address on stack
         emitPush(RA, s);
-        s.println("# emit start method end");
+        s.println("#start method end");
     }
 
-    static void emitEndMethod(int args, PrintStream s) {
-        s.println("# emit end method begin");
+    /** This function emits code to clean up method calls.
+	 * */
+    static void emitEndMethod(int arguments, PrintStream s) {
+        s.println("#end method begin");
+        //recover RA
         emitPop(RA, s);
+        //recover SELF
         emitPop(SELF, s);
+        //remove FP
         emitPop(FP, s);
-        s.println("# pop args");
-        for (int i = 0; i < args; ++i) {
+        //pop arguments
+        s.println("#pop arguments");
+        //move arguments
+        for (int i = 0; i < arguments; ++i) {
              emitAddiu(SP, SP, 4, s);
         }
+        // print return
         emitReturn(s);
-        s.println("# emit end method end");
+        s.println("#end method end");
     }
 
     /** Emits a pop operation.
