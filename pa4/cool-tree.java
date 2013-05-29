@@ -11,21 +11,31 @@ import java.io.PrintStream;
 
 /** class for variables **/
 abstract class Variable {
+	private int offset;
     public abstract void emitRef(PrintStream s);
     public abstract void emitAssign(PrintStream s);
+    public ClassVariable(int offset) {
+        this.offset = offset;
+    }
 }
 
 /** class for formal variables **/
 class FormalVar extends Variable{
-    private int offset;
-    public FormalVar(int offset) {
-        this.offset = offset;
-    }
     public void emitRef(PrintStream s) {
         CgenSupport.emitLoad(CgenSupport.ACC, -offset, CgenSupport.FP, s);
     }
     public void emitAssign(PrintStream s) {
         CgenSupport.emitStore(CgenSupport.ACC, -offset, CgenSupport.FP, s);
+    }
+}
+
+/** class for class variables **/
+class ClassVariable extends Variable {
+    public void emitRef(PrintStream s) {
+        CgenSupport.emitLoad(CgenSupport.ACC, CgenSupport.DEFAULT_OBJFIELDS+offset, CgenSupport.SELF, s);
+    }
+    public void emitAssign(PrintStream s) {
+        CgenSupport.emitStore(CgenSupport.ACC, CgenSupport.DEFAULT_OBJFIELDS+offset, CgenSupport.SELF, s);
     }
 }
 
@@ -676,8 +686,8 @@ class assign extends Expression {
 	public void code(PrintStream s) {
 		s.println("# start of assign to " + name);
         expr.code(s);
-        //Variable var = (Variable)AbstractTable.varTable.lookup(name);
-        //var.emitAssign(s);
+        Variable var = (Variable)CgenClassTable.ct.lookup(name);
+        var.emitAssign(s);
         s.println("# end of assign to " + name);
 	}
 
