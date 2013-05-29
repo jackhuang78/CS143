@@ -738,14 +738,14 @@ class static_dispatch extends Expression {
 		s.println("# static_dispatch " + type_name + "." + name + "()");
 		// code actuals
         for (Enumeration e = actual.getElements(); e.hasMoreElements();) {
-            Expression a = (Expression)e.nextElement();
+            Expression ne = (Expression)e.nextElement();
             // code the actual params as temporary and store result in $a0
-            a.code(s);
+            ne.code(s);
             // store the temporary on stack
             CgenSupport.emitPush(CgenSupport.ACC, s);
         }
         expr.code(s);
-        CgenSupport.emitCheckVoidCallDispAbort(lineNumber, CgenClassTable.ct.getFilename(type_name), s);
+        CgenSupport.emitDispAbort(lineNumber, CgenClassTable.ct.getFilename(type_name), s);
         // load dispatch table's address into T1
         CgenSupport.emitLoadAddress(CgenSupport.T1, type_name + CgenSupport.DISPTAB_SUFFIX, s);
         // find the offset of the method in the dispatch table, load method address into t1
@@ -809,15 +809,15 @@ class dispatch extends Expression {
 		s.println("# dispatch " + name + "()");
         // code actuals
         for (Enumeration e = actual.getElements(); e.hasMoreElements();) {
-            Expression a = (Expression)e.nextElement();
+            Expression ne = (Expression)e.nextElement();
             // code the actual params as temporary and store result in $a0
-            a.code(s);
+            ne.code(s);
             // push temporary onto stack
             CgenSupport.emitPush(CgenSupport.ACC, s);
         }
         expr.code(s);
         AbstractSymbol exprType = expr.get_type();
-        CgenSupport.emitCheckVoidCallDispAbort(lineNumber, CgenClassTable.ct.getFilename(exprType),s);
+        CgenSupport.emitDispAbort(lineNumber, CgenClassTable.ct.getFilename(exprType),s);
         // load dispatch table's address into T1
         CgenSupport.emitLoad(CgenSupport.T1, CgenSupport.DISPTABLE_OFFSET, CgenSupport.ACC, s);
         // find the offset of the method in the dispatch table, load method address into t1
@@ -860,8 +860,6 @@ class cond extends Expression {
 		then_exp.dump(out, n+2);
 		else_exp.dump(out, n+2);
 	}
-
-	
 	public void dump_with_types(PrintStream out, int n) {
 		dump_line(out, n);
 		out.println(Utilities.pad(n) + "_cond");
@@ -876,30 +874,29 @@ class cond extends Expression {
 	  * @param s the output stream 
 	  * */
 	public void code(PrintStream s) {
-		s.println("# start of cond");
+		s.println("# start cond");
 		// first code predicate
         pred.code(s);
         // store result into T1
         CgenSupport.emitFetchInt(CgenSupport.T1, CgenSupport.ACC, s);
-        // generate labels
+        // generate new label
         int falseLable = CgenSupport.genNextLabel();
-        int labelEnd = CgenSupport.genNextLabel();
         // branch to false label if needed
         CgenSupport.emitBeqz(CgenSupport.T1, falseLable, s);
         // coding true branch
         then_exp.code(s);
-        //
-        CgenSupport.emitBranch(labelEnd, s);
+        // generate new label
+        int labelContinue = CgenSupport.genNextLabel();
+        // jumpover to continue label to avoid false branch
+        CgenSupport.emitBranch(labelContinue, s);
         // coding false label
         CgenSupport.emitLabelDef(falseLable, s);
-        // coding else branch
+        // coding false branch
         else_exp.code(s);
-        // coding true branch
-        CgenSupport.emitLabelDef(labelEnd, s);
-        s.println("# end of cond");
+        // coding continue label
+        CgenSupport.emitLabelDef(labelContinue, s);
+        s.println("# end cond");
 	}
-
-
 }
 
 
@@ -943,7 +940,7 @@ class loop extends Expression {
 	  * @param s the output stream 
 	  * */
 	public void code(PrintStream s) {
-        s.println("# start of loop");
+        s.println("# start loop");
         int labelLoop = CgenSupport.genNextLabel();
         int labelEnd = CgenSupport.genNextLabel();
         CgenSupport.emitLabelDef(labelLoop, s);
@@ -954,7 +951,7 @@ class loop extends Expression {
         CgenSupport.emitBranch(labelLoop, s);
         CgenSupport.emitLabelDef(labelEnd, s);
         CgenSupport.emitMove(CgenSupport.ACC, CgenSupport.ZERO, s);
-        s.println("# end of loop");
+        s.println("# end loop");
 	}
 
 
@@ -1006,7 +1003,7 @@ class typcase extends Expression {
 	public void code(PrintStream s) {
 		s.println("# start of case");
         expr.code(s);
-        CgenSupport.emitCheckVoidCallCaseAbort(lineNumber, CgenClassTable.ct.getFilename(null),s);
+        CgenSupport.emitCaseAbort(lineNumber, CgenClassTable.ct.getFilename(null),s);
         int labelEnd = CgenSupport.genNextLabel();
         List<branch> branches = new ArrayList<branch>();
         for (Enumeration e = cases.getElements(); e.hasMoreElements();) {
@@ -1072,8 +1069,6 @@ class block extends Expression {
             expr.code(s);
         }
 	}
-
-
 }
 
 
@@ -1381,16 +1376,17 @@ class neg extends Expression {
 	  * @param s the output stream 
 	  * */
 	public void code(PrintStream s) {
-        s.println("# start of neg");
+        // code expression
         e1.code(s);
+        // copy result into accu
         CgenSupport.emitJal("Object.copy", s);
+        // fetch result value into T1
         CgenSupport.emitFetchInt(CgenSupport.T1, CgenSupport.ACC, s);
+        // emit neg code
         CgenSupport.emitNeg(CgenSupport.T1, CgenSupport.T1, s);
+        // store result into accu
         CgenSupport.emitStoreInt(CgenSupport.T1, CgenSupport.ACC, s);
-        s.println("# end of neg");
 	}
-
-
 }
 
 
@@ -1436,10 +1432,7 @@ class lt extends Expression {
 	public void code(PrintStream s) {
         CgenSupport.emitCpr(e1, e2, CgenSupport.BLT, s);
 	}
-
-
 }
-
 
 /** Defines AST constructor 'eq'.
 	<p>
@@ -1542,8 +1535,6 @@ class leq extends Expression {
 	public void code(PrintStream s) {
 		CgenSupport.emitCpr(e1, e2, CgenSupport.BLEQ, s);
 	}
-
-
 }
 
 
@@ -1581,19 +1572,22 @@ class comp extends Expression {
 	  * you wish.)
 	  * @param s the output stream 
 	  * */
-	public void code(PrintStream s) {
-		s.println("# start of comp");
+	public void code(PrintStream s){
+		// code e1
         e1.code(s);
+        // fetch int value into T1
         CgenSupport.emitFetchInt(CgenSupport.T1, CgenSupport.ACC, s);
+        // load true into ACC
         CgenSupport.emitLoadBool(CgenSupport.ACC, new BoolConst(true),s);
-        int labelEnd = CgenSupport.genNextLabel();
-        CgenSupport.emitBeqz(CgenSupport.T1, labelEnd, s);
+        // generate new label
+        int labelContinue = CgenSupport.genNextLabel();
+        // Beqz to continue label if needed, note that ACC has bool true
+        CgenSupport.emitBeqz(CgenSupport.T1, labelContinue, s);
+        // otherwise load false into ACC, this effectively reverse bool value
         CgenSupport.emitLoadBool(CgenSupport.ACC, new BoolConst(false),s);
-        CgenSupport.emitLabelDef(labelEnd, s);
-        s.println("# end of comp");
+        // emit continue label definition
+        CgenSupport.emitLabelDef(labelContinue, s);
 	}
-
-
 }
 
 
