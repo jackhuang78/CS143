@@ -515,20 +515,11 @@ class attr extends Feature {
 		init.dump_with_types(out, n + 2);
 	}
 
-	
-    public void codeProtoObject(PrintStream s) {
-        //CgenNode typeNode = (CgenNode)AbstractTable.classTable.lookup(type_decl);
-        s.print(CgenSupport.WORD);
-        //typeNode.emitProtoObjectRef(s);
-    }
-
-    
     public void codeInit(PrintStream s) {
         System.err.println("init " + name + " with type " + init.get_type());
         if (init.get_type() != null) {
             init.code(s);
-            //Variable var = (Variable)AbstractTable.varTable.lookup(name);
-            //var.emitStore(s);
+            ((Variable)CgenClassTable.ct.lookup(name)).emitStore(s);
         }
     }
 }
@@ -901,15 +892,19 @@ class cond extends Expression {
         // store result into T1
         CgenSupport.emitFetchInt(CgenSupport.T1, CgenSupport.ACC, s);
         // generate labels
-        int labelFalse = CgenSupport.genNextLabel();
+        int falseLable = CgenSupport.genNextLabel();
         int labelEnd = CgenSupport.genNextLabel();
-        CgenSupport.emitBeqz(CgenSupport.T1, labelFalse, s);
+        // branch to false label if needed
+        CgenSupport.emitBeqz(CgenSupport.T1, falseLable, s);
         // coding true branch
         then_exp.code(s);
+        //
         CgenSupport.emitBranch(labelEnd, s);
-        // coding false branch
-        CgenSupport.emitLabelDef(labelFalse, s);
+        // coding false label
+        CgenSupport.emitLabelDef(falseLable, s);
+        // coding else branch
         else_exp.code(s);
+        // coding true branch
         CgenSupport.emitLabelDef(labelEnd, s);
         s.println("# end of cond");
 	}
