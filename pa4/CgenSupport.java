@@ -644,16 +644,20 @@ class CgenSupport {
 
 	// cs 143 add
 	static void emitStartMethod(PrintStream s) {
-        s.println("# emit start method OPEN");
+        s.println("# emit start method begin");
+        // push frame pointer onto stack
         emitPush(FP, s);
+        // push address of self onto stack
         emitPush(SELF, s);
+        // move SP into FP
         emitMove(FP, SP, s);
+        // push return address on stack
         emitPush(RA, s);
-        s.println("# emit start method CLOSED");
+        s.println("# emit start method end");
     }
 
     static void emitEndMethod(int args, PrintStream s) {
-        s.println("# emit end method OPEN");
+        s.println("# emit end method begin");
         emitPop(RA, s);
         emitPop(SELF, s);
         emitPop(FP, s);
@@ -662,7 +666,7 @@ class CgenSupport {
              emitAddiu(SP, SP, 4, s);
         }
         emitReturn(s);
-        s.println("# emit end method CLOSED");
+        s.println("# emit end method end");
     }
 
     /** Emits a pop operation.
@@ -740,7 +744,6 @@ class CgenSupport {
 			addiu	$fp $sp 4
 			move	$s0 $a0
 		*/
-
 		emitAddiu(SP, SP, -12, s);
 		emitStore(FP, 3, SP, s);
 		emitStore(SELF, 2, SP, s);

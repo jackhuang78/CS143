@@ -738,13 +738,18 @@ class static_dispatch extends Expression {
 		// code actuals
         for (Enumeration e = actual.getElements(); e.hasMoreElements();) {
             Expression a = (Expression)e.nextElement();
+            // code the actual params as temporary and store result in $a0
             a.code(s);
+            // store the temporary on stack
             CgenSupport.emitPush(CgenSupport.ACC, s);
         }
         expr.code(s);
         CgenSupport.emitCheckVoidCallDispAbort(lineNumber, CgenClassTable.ct.getFilename(type_name), s);
+        // load dispatch table's address into T1
         CgenSupport.emitLoadAddress(CgenSupport.T1, type_name + CgenSupport.DISPTAB_SUFFIX, s);
+        // find the offset of the method in the dispatch table, load method address into t1
         CgenSupport.emitLoad(CgenSupport.T1, CgenClassTable.ct.getMethodOffset(type_name, name), CgenSupport.T1, s);
+        // let's jump!
         CgenSupport.emitJalr(CgenSupport.T1, s);
         s.println("# end of static_dispatch " + type_name + "." + name + "()");
 	}
@@ -804,14 +809,19 @@ class dispatch extends Expression {
         // code actuals
         for (Enumeration e = actual.getElements(); e.hasMoreElements();) {
             Expression a = (Expression)e.nextElement();
+            // code the actual params as temporary and store result in $a0
             a.code(s);
+            // push temporary onto stack
             CgenSupport.emitPush(CgenSupport.ACC, s);
         }
         expr.code(s);
         AbstractSymbol exprType = expr.get_type();
         CgenSupport.emitCheckVoidCallDispAbort(lineNumber, CgenClassTable.ct.getFilename(exprType),s);
+        // load dispatch table's address into T1
         CgenSupport.emitLoad(CgenSupport.T1, CgenSupport.DISPTABLE_OFFSET, CgenSupport.ACC, s);
+        // find the offset of the method in the dispatch table, load method address into t1
         CgenSupport.emitLoad(CgenSupport.T1, CgenClassTable.ct.getMethodOffset(exprType, name), CgenSupport.T1, s);
+        // let's jump!
         CgenSupport.emitJalr(CgenSupport.T1, s);
         s.println("# end of dispatch " + name + "()");
 	}
