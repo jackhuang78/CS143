@@ -698,7 +698,8 @@ class CgenSupport {
         // store T1's value on stack
         emitPush(T1, s);
         e2.code(s);
-        // emitJal("Object.copy", s); // need object copy?
+        // copy object
+        emitJal("Object.copy", s); 
         // fetch 2nd arg value from ACC + 12 and store in T2
         emitFetchInt(T2, ACC, s);
         // recover T1's original value
