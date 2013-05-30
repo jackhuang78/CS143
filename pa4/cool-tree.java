@@ -1135,7 +1135,13 @@ class let extends Expression {
             if (type_decl == TreeConstants.Bool) {
             	CgenSupport.emitLoadBool(CgenSupport.ACC, new BoolConst(false), s);
             } else if (type_decl == TreeConstants.Int) {
-            	CgenSupport.emitLoadInt(CgenSupport.ACC, (IntSymbol)AbstractTable.inttable.lookup(0), s);
+
+          //       s.println(CgenSupport.LA + CgenSupport.ACC + " " +  CgenSupport.getIntRef(0));
+		        // IntSymbol sym = (IntSymbol)AbstractTable.inttable.lookup(n.toString());
+		        // return INTCONST_PREFIX + sym.getIndex();
+
+
+            	CgenSupport.emitLoadInt(CgenSupport.ACC, (IntSymbol)AbstractTable.inttable.lookup("0"), s);
             } else if (type_decl == TreeConstants.Str) {
             	CgenSupport.emitLoadString(CgenSupport.ACC, (StringSymbol)AbstractTable.stringtable.lookup(""), s);
             } else {
