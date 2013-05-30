@@ -582,7 +582,7 @@ class branch extends Case {
       // push typcase expression object reference on the stack
       CgenSupport.emitPush(CgenSupport.ACC, s);
       CgenClassTable.ct.enterScope();
-      CgenClassTable.ct.addId(name, new FieldVar(0));
+      CgenClassTable.ct.addId(name, new FieldVar(1));
       expr.code(s);
       CgenClassTable.ct.exitScope();
       // pop typcase expression object

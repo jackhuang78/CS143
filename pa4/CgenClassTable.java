@@ -38,6 +38,7 @@ class CgenClassTable extends SymbolTable {
 	
 	// PA4
 	private Map<AbstractSymbol, CgenNode> nodeMap;
+	public int fpOffset;
 
 	/** This is the stream to which assembly instructions are output */
 	private PrintStream str;

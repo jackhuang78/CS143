@@ -8,11 +8,19 @@ class Main {
 	bc:BC;
 	m:Main;
 	s:String;
+	x:Int;
+	o:Object;
+	
 	
 	main():Int {
 		{
-			a <- new A;
-			s <- case a of
+			out.out_string("letcase.cl\n");
+
+			
+			
+			
+			o <- new A;
+			s <- case o of
 				o:A		=>	o.type_name();
 				o:AB	=>	o.type_name();
 				o:AC	=>	o.type_name();
@@ -20,9 +28,9 @@ class Main {
 				o:BC	=>	o.type_name();
 			esac;
 			out.out_string(s.concat("\n"));
-			(*
-			a <- new AB;
-			s <- case a of
+			
+			o <- new AB;
+			s <- case o of
 				o:A		=>	o.type_name();
 				o:AB	=>	o.type_name();
 				o:AC	=>	o.type_name();
@@ -31,8 +39,8 @@ class Main {
 			esac;
 			out.out_string(s.concat("\n"));
 					
-			a <- new AC;
-			s <- case a of
+			o <- new AC;
+			s <- case o of
 				o:A		=>	o.type_name();
 				o:AB	=>	o.type_name();
 				o:AC	=>	o.type_name();
@@ -42,8 +50,8 @@ class Main {
 			out.out_string(s.concat("\n"));
 
 			
-			a <- new ACD;
-			s <- case a of
+			o <- new ACD;
+			s <- case o of
 				o:A		=>	o.type_name();
 				o:AB	=>	o.type_name();
 				o:AC	=>	o.type_name();
@@ -52,9 +60,53 @@ class Main {
 			esac;
 			out.out_string(s.concat("\n"));
 				
+			o <- new BD;
+			s <- case o of
+				o:A		=>	o.type_name();
+				o:AB	=>	o.type_name();
+				o:AC	=>	o.type_name();
+				o:B		=>	o.type_name();
+				o:BC	=>	o.type_name();
+				o:Object => o.type_name();
+			esac;
+			out.out_string(s.concat("\n"));
+
+			o <- new IO;
+			s <- case o of
+				o:A		=>	o.type_name();
+				o:AB	=>	o.type_name();
+				o:AC	=>	o.type_name();
+				o:B		=>	o.type_name();
+				o:BC	=>	o.type_name();
+				o:Object => o.type_name();
+			esac;
+			out.out_string(s.concat("\n"));
 			
-			*)
-		
+			x <- 10;
+			out.out_int(x);
+			out.out_string("\ncase0\n");
+			case x of
+				x:Int	=>	
+				{	
+					x <- x + 2;
+					out.out_int(x);
+					out.out_string("\ncase1\n");
+					case x of
+						x:Int =>
+						{
+							x <- x + 2;
+							out.out_int(x);
+							out.out_string("\ncase2\n");							
+						};
+					esac;
+					out.out_int(x);
+					out.out_string("\ncase1\n");					
+				};
+			esac;
+			out.out_int(x);
+			out.out_string("\ncase0\n");
+
+					
 			0;
 		}
 	};
@@ -66,4 +118,5 @@ class AC inherits A {};
 class ACD inherits AC{};
 class B inherits Main {};
 class BC inherits B {};
+class BD inherits B {};
 
