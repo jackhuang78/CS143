@@ -41,8 +41,9 @@ class CgenSupport {
     	s.println("# emit check voild call start");
         int label = genNextLabel();
         emitBne(ACC, ZERO, label, s);
-        //emitLoadAddress(ACC, getStrLabel(fileName), s);
-        //emitLoadImm(T1, lineNumber, s);
+        StringSymbol filename = (StringSymbol)AbstractTable.stringtable.lookup(fileName);
+        emitLoadAddress(ACC, STRCONST_PREFIX + filename.getIndex() , s);
+        emitLoadImm(T1, lineNumber, s);
         emitJal(DISP_ABORT, s);
         emitLabelDef(label, s);
         s.println("# emit check voild call end");
