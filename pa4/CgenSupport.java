@@ -36,18 +36,6 @@ class CgenSupport {
         return labelIncrementCounter;
     }
 
-    static void emitDispAbort(int lineNumber, String fileName, PrintStream s) {
-    	s.println("# emit check voild call start");
-        int label = genNextLabel();
-        emitBne(ACC, ZERO, label, s);
-        StringSymbol filename = (StringSymbol)AbstractTable.stringtable.lookup(fileName);
-        emitLoadAddress(ACC, STRCONST_PREFIX + filename.getIndex() , s);
-        emitLoadImm(T1, lineNumber, s);
-        emitJal(DISP_ABORT, s);
-        emitLabelDef(label, s);
-        s.println("# emit check voild call end");
-    }
-
 	/** Runtime constants for controlling the garbage collector. */
 	final static String[] gcInitNames = {
 		"_NoGC_Init", "_GenGC_Init", "_ScnGC_Init"
@@ -61,6 +49,9 @@ class CgenSupport {
 	final static int MAXINT = 100000000;
 	final static int WORD_SIZE = 4;
 	final static int LOG_WORD_SIZE = 2;	 // for logical shifts
+
+	// prim calls
+	final static String EQ_TEST = "equality_test"; // for case void
 
 	// Abort terms
     final static String DISP_ABORT = "_dispatch_abort";
@@ -142,8 +133,6 @@ class CgenSupport {
 	final static String BLEQ	= "\tble\t";
 	final static String BLT	 = "\tblt\t";
 	final static String BGT	 = "\tbgt\t";
-
-
 
 	/** Emits an LW instruction.
 	 * @param dest_reg the destination register
@@ -611,42 +600,7 @@ class CgenSupport {
 		s.println("\t.byte\t0\t");
 	}
 
-	/** This function emits code to prepare method calls.
-	 * */
-	static void emitStartMethod(PrintStream s) {
-        s.println("#start method begin");
-        // push frame pointer onto stack
-        emitPush(FP, s);
-        // push address of self onto stack
-        emitPush(SELF, s);
-        // move SP into FP
-        emitMove(FP, SP, s);
-        // push return address on stack
-        emitPush(RA, s);
-        s.println("#start method end");
-    }
-
-    /** This function emits code to clean up method calls.
-	 * */
-    static void emitEndMethod(int arguments, PrintStream s) {
-        s.println("#end method begin");
-        //recover RA
-        emitPop(RA, s);
-        //recover SELF
-        emitPop(SELF, s);
-        //remove FP
-        emitPop(FP, s);
-        //pop arguments
-        s.println("#pop arguments");
-        //move arguments
-        for (int i = 0; i < arguments; ++i) {
-             emitAddiu(SP, SP, 4, s);
-        }
-        // print return
-        emitReturn(s);
-        s.println("#end method end");
-    }
-
+	
     /** Emits a pop operation.
 	 * @reg the reg destination we want to pop to
 	 * */
@@ -712,8 +666,9 @@ class CgenSupport {
         emitLabelDef(dummy_label, s);
     }
     // end cs 143 add
-   
-	
+  
+  	/** Emits code to generate method for prototype
+  	*/
 	static void emitEnteringMethod(PrintStream s) {
 		/*
 			addiu	$sp $sp -12
@@ -731,6 +686,8 @@ class CgenSupport {
 		emitMove(SELF, ACC, s);
 	}
 	
+	/** Emits code to generate method for prototype
+  	*/
 	static void emitExitingMethod(PrintStream s) {
 		/*
 			lw	$fp 12($sp)

@@ -431,16 +431,42 @@ class method extends Feature {
 
 	
     public void code(PrintStream s) {
+    	// enter all formal parameter into scope
         CgenClassTable.ct.enterScope();
-        for (int i = 0; i < formals.getLength(); ++i) {
+        for (int i = 0; i < formals.getLength(); i++) {
             int offset = 2 + formals.getLength() - i;
             CgenClassTable.ct.addId(((formal)formals.getNth(i)).getName(), new FieldVar(-offset));
         }
-        CgenSupport.emitStartMethod(s);
+        s.println("#start method begin");
+        // push frame pointer onto stack
+        CgenSupport.emitPush(CgenSupport.FP, s);
+        // push address of self onto stack
+        CgenSupport.emitPush(CgenSupport.SELF, s);
+        // move SP into FP
+        CgenSupport.emitMove(CgenSupport.FP, CgenSupport.SP, s);
+        // push return address on stack
+        CgenSupport.emitPush(RA, s);
+        s.println("#start method end");
+        // ready to print code
         CgenSupport.emitMove(CgenSupport.SELF, CgenSupport.ACC, s);
         CgenClassTable.ct.fpOffset = 1;
         expr.code(s);
-        CgenSupport.emitEndMethod(formals.getLength(), s);
+        s.println("#end method begin");
+        //recover RA
+        CgenSupport.emitPop(CgenSupport.RA, s);
+        //recover SELF
+        CgenSupport.emitPop(CgenSupport.SELF, s);
+        //remove FP
+        CgenSupport.emitPop(CgenSupport.FP, s);
+        //pop arguments
+        s.println("#pop arguments");
+        //move arguments
+        for (int i = 0; i < formals.getLength(); i++) {
+             CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, 4, s);
+        }
+        // print return
+        CgenSupport.emitReturn(s);
+        s.println("#end method end");
         CgenClassTable.ct.exitScope();
     }
 }
@@ -720,7 +746,18 @@ class static_dispatch extends Expression {
         expr.code(s);
         if(type_name == TreeConstants.SELF_TYPE)
         	type_name = (AbstractSymbol)CgenClassTable.ct.lookup(type_name);
-        CgenSupport.emitDispAbort(lineNumber, CgenClassTable.ct.getFilename(type_name), s);
+
+        // generate abort testing for void
+    	s.println("# emit check voild call start");
+        int labelNotAbort = genNextLabel();
+        CgenSupport.emitBne(CgenSupport.ACC, CgenSupport.ZERO, labelNotAbort, s);
+        StringSymbol filename = (StringSymbol)AbstractTable.stringtable.lookup(CgenClassTable.ct.getFilename(type_name));
+        CgenSupport.emitLoadAddress(CgenSupport.ACC, CgenSupport.STRCONST_PREFIX + filename.getIndex() , s);
+        CgenSupport.emitLoadImm(CgenSupport.CgenSupport.T1, lineNumber, s);
+        CgenSupport.emitJal(CgenSupport.DISP_ABORT, s);
+        CgenSupport.emitLabelDef(CgenSupport.labelNotAbort, s);
+        s.println("# emit check voild call end");
+
         // load dispatch table's address into T1
         CgenSupport.emitLoadAddress(CgenSupport.T1, type_name + CgenSupport.DISPTAB_SUFFIX, s);
         // find the offset of the method in the dispatch table, load method address into t1
@@ -791,13 +828,22 @@ class dispatch extends Expression {
             CgenSupport.emitPush(CgenSupport.ACC, s);
         }
         expr.code(s);
-        
         // get the expression type, and convert to current class if it is SELF_TYPE
         AbstractSymbol exprType = expr.get_type();
         if(exprType == TreeConstants.SELF_TYPE)
         	exprType = (AbstractSymbol)CgenClassTable.ct.lookup(exprType);
-        	
-        CgenSupport.emitDispAbort(lineNumber, CgenClassTable.ct.getFilename(exprType),s);
+        
+        // generate abort testing for void
+    	s.println("# emit check voild call start");
+        int labelNotAbort = genNextLabel();
+        CgenSupport.emitBne(CgenSupport.ACC, CgenSupport.ZERO, labelNotAbort, s);
+        StringSymbol filename = (StringSymbol)AbstractTable.stringtable.lookup(CgenClassTable.ct.getFilename(type_name));
+        CgenSupport.emitLoadAddress(CgenSupport.ACC, CgenSupport.STRCONST_PREFIX + filename.getIndex() , s);
+        CgenSupport.emitLoadImm(CgenSupport.CgenSupport.T1, lineNumber, s);
+        CgenSupport.emitJal(CgenSupport.DISP_ABORT, s);
+        CgenSupport.emitLabelDef(CgenSupport.labelNotAbort, s);
+        s.println("# emit check voild call end");
+        
         // load dispatch table's address into T1
         CgenSupport.emitLoad(CgenSupport.T1, CgenSupport.DISPTABLE_OFFSET, CgenSupport.ACC, s);
         // find the offset of the method in the dispatch table, load method address into t1
@@ -1497,7 +1543,7 @@ class eq extends Expression {
         // else load false into A1 and ready for prom function call
         CgenSupport.emitLoadBool(CgenSupport.A1, new BoolConst(false),s);
         // jump to equality test
-        CgenSupport.emitJal("equality_test", s);
+        CgenSupport.emitJal(CgenSupport.EQ_TEST, s);
         // code continue label
         CgenSupport.emitLabelDef(labelContinue, s);
         s.println("# end of eq");
