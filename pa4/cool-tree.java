@@ -445,7 +445,7 @@ class method extends Feature {
         // move SP into FP
         CgenSupport.emitMove(CgenSupport.FP, CgenSupport.SP, s);
         // push return address on stack
-        CgenSupport.emitPush(RA, s);
+        CgenSupport.emitPush(CgenSupport.RA, s);
         s.println("#start method end");
         // ready to print code
         CgenSupport.emitMove(CgenSupport.SELF, CgenSupport.ACC, s);
@@ -749,13 +749,13 @@ class static_dispatch extends Expression {
 
         // generate abort testing for void
     	s.println("# emit check voild call start");
-        int labelNotAbort = genNextLabel();
+        int labelNotAbort = CgenSupport.genNextLabel();
         CgenSupport.emitBne(CgenSupport.ACC, CgenSupport.ZERO, labelNotAbort, s);
-        StringSymbol filename = (StringSymbol)AbstractTable.stringtable.lookup(CgenClassTable.ct.getFilename(type_name));
+        StringSymbol filename = (StringSymbol)AbstractTable.stringtable.lookup(CgenClassTable.ct.getFilename(null));
         CgenSupport.emitLoadAddress(CgenSupport.ACC, CgenSupport.STRCONST_PREFIX + filename.getIndex() , s);
-        CgenSupport.emitLoadImm(CgenSupport.CgenSupport.T1, lineNumber, s);
+        CgenSupport.emitLoadImm(CgenSupport.T1, lineNumber, s);
         CgenSupport.emitJal(CgenSupport.DISP_ABORT, s);
-        CgenSupport.emitLabelDef(CgenSupport.labelNotAbort, s);
+        CgenSupport.emitLabelDef(labelNotAbort, s);
         s.println("# emit check voild call end");
 
         // load dispatch table's address into T1
@@ -835,15 +835,15 @@ class dispatch extends Expression {
         
         // generate abort testing for void
     	s.println("# emit check voild call start");
-        int labelNotAbort = genNextLabel();
+        int labelNotAbort = CgenSupport.genNextLabel();
         CgenSupport.emitBne(CgenSupport.ACC, CgenSupport.ZERO, labelNotAbort, s);
-        StringSymbol filename = (StringSymbol)AbstractTable.stringtable.lookup(CgenClassTable.ct.getFilename(type_name));
+        StringSymbol filename = (StringSymbol)AbstractTable.stringtable.lookup(CgenClassTable.ct.getFilename(null));
         CgenSupport.emitLoadAddress(CgenSupport.ACC, CgenSupport.STRCONST_PREFIX + filename.getIndex() , s);
-        CgenSupport.emitLoadImm(CgenSupport.CgenSupport.T1, lineNumber, s);
+        CgenSupport.emitLoadImm(CgenSupport.T1, lineNumber, s);
         CgenSupport.emitJal(CgenSupport.DISP_ABORT, s);
-        CgenSupport.emitLabelDef(CgenSupport.labelNotAbort, s);
+        CgenSupport.emitLabelDef(labelNotAbort, s);
         s.println("# emit check voild call end");
-        
+
         // load dispatch table's address into T1
         CgenSupport.emitLoad(CgenSupport.T1, CgenSupport.DISPTABLE_OFFSET, CgenSupport.ACC, s);
         // find the offset of the method in the dispatch table, load method address into t1
