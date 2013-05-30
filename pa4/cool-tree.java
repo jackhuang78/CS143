@@ -1014,7 +1014,7 @@ class typcase extends Expression {
         // store file name into ACC as also done in the reference
         CgenSupport.emitLoadAddress(ACC, getStrLabel(CgenClassTable.ct.getFilename()), s);
         // load line number into t1
-        CgenSupport.emitLoadImm(T1, lineNumber, s);
+        CgenSupport.emitLoadImm(CgenSupport.T1, lineNumber, s);
         CgenSupport.emitJal(CgenSupport.CASE_ABORT2, s);
         // print label with no jump
         CgenSupport.emitLabelDef(labelNotVoid, s);
