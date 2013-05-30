@@ -438,6 +438,7 @@ class method extends Feature {
         }
         CgenSupport.emitStartMethod(s);
         CgenSupport.emitMove(CgenSupport.SELF, CgenSupport.ACC, s);
+        CgenClassTable.ct.fpOffset = 1;
         expr.code(s);
         CgenSupport.emitEndMethod(formals.getLength(), s);
         CgenClassTable.ct.exitScope();
@@ -582,8 +583,13 @@ class branch extends Case {
       // push typcase expression object reference on the stack
       CgenSupport.emitPush(CgenSupport.ACC, s);
       CgenClassTable.ct.enterScope();
-      CgenClassTable.ct.addId(name, new FieldVar(1));
+
+      // add id to appropriate offset
+      CgenClassTable.ct.addId(name, new FieldVar(CgenClassTable.ct.fpOffset));
+      CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset + 1;
+
       expr.code(s);
+      CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset - 1;
       CgenClassTable.ct.exitScope();
       // pop typcase expression object
       CgenSupport.emitPop(CgenSupport.T1,s);
@@ -1136,8 +1142,10 @@ class let extends Expression {
         // save ACC value as temporary variable on stack
         CgenSupport.emitPush(CgenSupport.ACC, s);
         CgenClassTable.ct.enterScope();
-        CgenClassTable.ct.addId(identifier, new FieldVar(0));
+        CgenClassTable.ct.addId(identifier, new FieldVar(CgenClassTable.ct.fpOffset));
+        CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset + 1;
         body.code(s);
+        CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset - 1;
         CgenClassTable.ct.exitScope();
         // pop previous ACC value out of stack
         CgenSupport.emitPop(CgenSupport.T1,s);
