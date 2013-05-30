@@ -431,7 +431,6 @@ class method extends Feature {
 
 	
     public void code(PrintStream s) {
-        //AbstractTable.offset = 1;
         CgenClassTable.ct.enterScope();
         for (int i = 0; i < formals.getLength(); ++i) {
             int offset = 2 + formals.getLength() - i;
@@ -443,7 +442,6 @@ class method extends Feature {
         CgenSupport.emitEndMethod(formals.getLength(), s);
         CgenClassTable.ct.exitScope();
     }
-
     
     public List<AbstractSymbol> getParamTypes() {
         List<AbstractSymbol> paramTypes = new ArrayList<AbstractSymbol>();
@@ -582,26 +580,29 @@ class branch extends Case {
 	}
 
     public void code(int labelContinue, PrintStream s) {
-		// s.println("# start of branch for " + name + ":" + type_decl);
-  //       CgenSupport.emitLoad(CgenSupport.T1, 0, CgenSupport.ACC, s);
-  //       List<Integer> childrenTags = AbstractTable.classTable.getChildrenTags(type_decl);
-  //       int minTag = Collections.min(childrenTags);
-  //       int maxTag = Collections.max(childrenTags);
-  //       int labelNextBranch = CgenSupport.genLabelNum();
-  //       CgenSupport.emitBlti(CgenSupport.T1, minTag, labelNextBranch, s);
-  //       CgenSupport.emitBgti(CgenSupport.T1, maxTag, labelNextBranch, s); 
-  //       int offset = AbstractTable.offset++;
-  //       //int offset = AbstractTable.offset;
-  //       CgenSupport.emitPush(CgenSupport.ACC, s);
-  //       AbstractTable.varTable.enterScope();
-  //       AbstractTable.varTable.addId(name, new BranchVariable(offset));
-  //       expr.code(s);
-  //       AbstractTable.varTable.exitScope();
-  //       CgenSupport.emitPop(s);
-  //       --AbstractTable.offset;
-  //       CgenSupport.emitBranch(labelContinue, s);
-  //       CgenSupport.emitLabelDef(labelNextBranch, s);
-  //       s.println("# end of branch for " + name + ":" + type_decl);
+	  s.println("# start of branch for " + name + ":" + type_decl);
+	  // store typcase expression into T1 (object reference)
+      CgenSupport.emitLoad(CgenSupport.T1, 0, CgenSupport.ACC, s);
+
+      //List<Integer> childrenTags = AbstractTable.classTable.getChildrenTags(type_decl);
+      int minTag = Collections.min(childrenTags);
+      int maxTag = Collections.max(childrenTags);
+      // create label for next branch
+      int labelNextBranch = CgenSupport.genLabelNum();
+      //CgenSupport.emitBlti(CgenSupport.T1, minTag, labelNextBranch, s);
+      //CgenSupport.emitBgti(CgenSupport.T1, maxTag, labelNextBranch, s); 
+      // push typcase expression object reference on the stack
+      CgenSupport.emitPush(CgenSupport.ACC, s);
+      CgenClassTable.ct.enterScope();
+      CgenClassTable.ct.addId(name, new FieldVar(0));
+      expr.code(s);
+      CgenClassTable.ct.exitScope();
+      // pop typcase expression object
+      CgenSupport.emitPop(CgenSupport.T1,s);
+      CgenSupport.emitBranch(labelContinue, s);
+      // print next branch label
+      CgenSupport.emitLabelDef(labelNextBranch, s);
+      s.println("# end of branch for " + name + ":" + type_decl);
     }
 }
 
@@ -1005,20 +1006,20 @@ class typcase extends Expression {
         Collections.sort(branches, new Comparator<branch>(){
         	// using sort implementation
             public int compare(branch first, branch second) {
+            	// Return a positive value if object1 is larger than object2. put the more specific type first
                 return CgenClassTable.ct.getDepth(second.getType()) - CgenClassTable.ct.getDepth(first.getType());
             }
         });
 		// evaluate expr
-        expr.code(s); // case void of will cause case to abort
-        // abort if case type is void (0 in accu)
-        int labelAbortVoid = CgenSupport.genNextLabel();
-        // jump to lable of ACC not equal zero
-        CgenSupport.emitBne(CgenSupport.ACC, CgenSupport.ZERO, labelAbortVoid, s);
+        expr.code(s); // case void of will cause case to abort CASE_ABORT2
+        // do not abort if case type is not void (0 in accu)
+        int labelNotVoid = CgenSupport.genNextLabel();
+        CgenSupport.emitBne(CgenSupport.ACC, CgenSupport.ZERO, labelNotVoid, s);
         // jump to case abort
         CgenSupport.emitJal(CgenSupport.CASE_ABORT2, s);
-        // jump outof abort sequence
-        CgenSupport.emitLabelDef(labelAbortVoid, s);
-        // code continue label
+        // print label with no jump
+        CgenSupport.emitLabelDef(labelNotVoid, s);
+        // generate continue label
         int labelContinue = CgenSupport.genNextLabel();
         // code all branches, passing in the label for continue execution
         for(branch b: branches) {
@@ -1130,32 +1131,29 @@ class let extends Expression {
 	public void code(PrintStream s) {
 		s.println("# start of let for " + identifier);
         if (init.get_type() == null) {
+        	// load default value into ACC if init's type is null
             if (type_decl == TreeConstants.Bool) {
-                s.print(CgenSupport.LA + CgenSupport.ACC + " ");
-                BoolConst.falsebool.codeRef(s);
-                s.println("");
+            	emitLoadBool(CgenSupport.ACC, new Boolean(false), s);
             } else if (type_decl == TreeConstants.Int) {
-                s.println(CgenSupport.LA + CgenSupport.ACC + " " +  CgenSupport.getIntLabel(0));
+            	emitLoadInt(CgenSupport.ACC, (IntSymbol)AbstractTable.inttable.lookup(0), s);
             } else if (type_decl == TreeConstants.Str) {
-                s.println(CgenSupport.LA + CgenSupport.ACC + " " +  CgenSupport.getStrLabel(""));
+            	emitLoadString(CgenSupport.ACC, (StringSymbol)AbstractTable.stringtable.lookup(""), s);
             } else {
                 CgenSupport.emitMove(CgenSupport.ACC, CgenSupport.ZERO, s);
             }
         } else {
             init.code(s);
         }
-        //int offset = AbstractTable.offset++;
+        // save ACC value as temporary variable on stack
         CgenSupport.emitPush(CgenSupport.ACC, s);
-        //AbstractTable.varTable.enterScope();
-        //AbstractTable.varTable.addId(identifier, new LetVariable(offset));
+        CgenClassTable.ct.enterScope();
+        CgenClassTable.ct.addId(identifier, new LetVariable(0));
         body.code(s);
-        //AbstractTable.varTable.exitScope();
-        CgenSupport.emitAddiu(CgenSupport.SP, CgenSupport.SP, 4, s); // pop
-        //--AbstractTable.offset;
+        CgenClassTable.ct.exitScope();
+        // pop previous ACC value out of stack
+        CgenSupport.emitPop(CgenSupport.T1,s);
         s.println("# end of let for " + identifier);
 	}
-
-
 }
 
 

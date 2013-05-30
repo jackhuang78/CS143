@@ -37,26 +37,12 @@ class CgenSupport {
         return labelIncrementCounter;
     }
 
-    /** return the label of a string object
-     * @str string to lookup
-	 * */
-    static String getStrLabel(String str) {
-        return STRCONST_PREFIX + ((StringSymbol)AbstractTable.stringtable.lookup(str)).getIndex();
-    }
-
-    /** return the label of a integer object
-     * @num int to loopup
-	 * */
-    static String getIntLabel(Integer num) {
-        return INTCONST_PREFIX + ((IntSymbol)AbstractTable.inttable.lookup(num.toString())).getIndex(); 
-    }
-
     static void emitDispAbort(int lineNumber, String fileName, PrintStream s) {
     	s.println("# emit check voild call start");
         int label = genNextLabel();
         emitBne(ACC, ZERO, label, s);
-        emitLoadAddress(ACC, getStrLabel(fileName), s);
-        emitLoadImm(T1, lineNumber, s);
+        //emitLoadAddress(ACC, getStrLabel(fileName), s);
+        //emitLoadImm(T1, lineNumber, s);
         emitJal(DISP_ABORT, s);
         emitLabelDef(label, s);
         s.println("# emit check voild call end");
