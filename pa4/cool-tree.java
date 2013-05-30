@@ -1764,7 +1764,10 @@ class new_ extends Expression {
 	public void code(PrintStream s) {
 		s.println("# start of 'new " + type_name + "'");
         if (type_name == TreeConstants.SELF_TYPE) {
+        	s.println("# typename is SELF_TYPE , now lookup type name");
         	type_name = (AbstractSymbol)CgenClassTable.ct.lookup(type_name);
+        	s.println("# returned typename is "+ type_name.toString());
+
         }
         //find prototype's addres and load to ACC
         CgenSupport.emitLoadAddress(CgenSupport.ACC, type_name.toString() + CgenSupport.PROTOBJ_SUFFIX, s);
