@@ -9,6 +9,7 @@ class Main {
 	m:Main;
 	s:String;
 	x:Int;
+	y:Int;
 	o:Object;
 	
 	
@@ -83,26 +84,43 @@ class Main {
 			out.out_string(s.concat("\n"));
 			
 			x <- 10;
+			y <- 100;
 			out.out_int(x);
-			out.out_string("\ncase0\n");
-			case x of
-				x:Int	=>	
-				{	
+			out.out_string("\ncase0x\n");
+			out.out_int(y);
+			out.out_string("\ncase0y\n");
+			case x of x:Int =>	{	
+				x <- x + 1;
+				y <- y + 1;
+				out.out_int(x);
+				out.out_string("\ncase1x\n");
+				out.out_int(y);
+				out.out_string("\ncase1y\n");
+				
+				case y of y:Int => {
 					x <- x + 2;
+					y <- y + 2;
 					out.out_int(x);
-					out.out_string("\ncase1\n");
-					case x of
-						x:Int =>
-						{
-							x <- x + 2;
-							out.out_int(x);
-							out.out_string("\ncase2\n");							
-						};
-					esac;
-					out.out_int(x);
-					out.out_string("\ncase1\n");					
-				};
-			esac;
+					out.out_string("\ncase2x\n");
+					out.out_int(y);
+					out.out_string("\ncase2y\n");							
+					
+					case x of y:Int => 	{
+						x <- x + 3;
+						y <- y + 3;
+						out.out_int(x);
+						out.out_string("\ncase3x\n");
+						out.out_int(y);
+						out.out_string("\ncase3y\n");							
+					};esac;	
+				}; esac;
+				
+				out.out_int(x);
+				out.out_string("\ncase1x\n");
+				out.out_int(y);
+				out.out_string("\ncase1y\n");				
+				
+			}; esac;
 			out.out_int(x);
 			out.out_string("\ncase0\n");
 
