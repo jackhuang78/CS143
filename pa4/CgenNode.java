@@ -318,15 +318,23 @@ class CgenNode extends class_ {
 		
 		// enter new scope
 		ct.enterScope();
+		
 		// add class attributes to the scope
-		for(AbstractSymbol a : attrOffsets.keySet()) {
-			ct.addId(a, new ClassVar(attrOffsets.get(a)));
+		CgenNode nd = this;
+		while(nd.getName() != TreeConstants.Object_) {
+			for(AbstractSymbol a : nd.attrOffsets.keySet()) {
+				ct.addId(a, new ClassVar(nd.attrOffsets.get(a)));
+			}
+			nd = nd.parent;
 		}
 		// set SELF_TYPE to current class
 		ct.addId(TreeConstants.SELF_TYPE, name);
 		
 		// code the class methods
 		for(method m : methMap.values()) {
+			if(Flags.cgen_debug)	
+				System.out.println("\tcodeClassMethod " + m.name);		
+				
 			CgenSupport.emitMethodRef(name, m.name, s);
 			s.print(CgenSupport.LABEL);
 			m.code(s);

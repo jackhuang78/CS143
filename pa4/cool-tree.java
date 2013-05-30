@@ -1929,6 +1929,10 @@ class object extends Expression {
 		if (name == TreeConstants.self) {
             CgenSupport.emitMove(CgenSupport.ACC, CgenSupport.SELF, s);
         } else {
+        	if(Flags.cgen_debug) {
+        		System.out.println("Lookup " + name);
+        		//System.out.println(CgenClassTable.ct);
+        	}
             ((Variable)CgenClassTable.ct.lookup(name)).emitLoad(s);
         }
 	}

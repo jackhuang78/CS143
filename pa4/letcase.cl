@@ -112,7 +112,26 @@ class Main {
 						out.out_string("\ncase3x\n");
 						out.out_int(y);
 						out.out_string("\ncase3y\n");							
+												
+						case y of x:Int => 	{
+							x <- x + 3;
+							y <- y + 3;
+							out.out_int(x);
+							out.out_string("\ncase4x\n");
+							out.out_int(y);
+							out.out_string("\ncase4y\n");							
+						};esac;
+					
+						out.out_int(x);
+						out.out_string("\ncase3x\n");
+						out.out_int(y);
+						out.out_string("\ncase3y\n");
 					};esac;	
+					
+					out.out_int(x);
+					out.out_string("\ncase2x\n");
+					out.out_int(y);
+					out.out_string("\ncase2y\n");
 				}; esac;
 				
 				out.out_int(x);
@@ -122,7 +141,9 @@ class Main {
 				
 			}; esac;
 			out.out_int(x);
-			out.out_string("\ncase0\n");
+			out.out_string("\ncase0x\n");
+			out.out_int(y);
+			out.out_string("\ncase0y\n");
 
 					
 			0;
