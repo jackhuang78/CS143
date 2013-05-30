@@ -442,14 +442,6 @@ class method extends Feature {
         CgenSupport.emitEndMethod(formals.getLength(), s);
         CgenClassTable.ct.exitScope();
     }
-    
-    public List<AbstractSymbol> getParamTypes() {
-        List<AbstractSymbol> paramTypes = new ArrayList<AbstractSymbol>();
-        for (Enumeration e = formals.getElements(); e.hasMoreElements();) {
-            paramTypes.add(((formal)e.nextElement()).getType());
-        }
-        return paramTypes;
-    }
 }
 
 
@@ -1133,7 +1125,7 @@ class let extends Expression {
         if (init.get_type() == null) {
         	// load default value into ACC if init's type is null
             if (type_decl == TreeConstants.Bool) {
-            	CgenSupport.emitLoadBool(CgenSupport.ACC, new Boolean(false), s);
+            	CgenSupport.emitLoadBool(CgenSupport.ACC, new BoolConst(false), s);
             } else if (type_decl == TreeConstants.Int) {
             	CgenSupport.emitLoadInt(CgenSupport.ACC, (IntSymbol)AbstractTable.inttable.lookup(0), s);
             } else if (type_decl == TreeConstants.Str) {
