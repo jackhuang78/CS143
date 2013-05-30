@@ -1133,11 +1133,11 @@ class let extends Expression {
         if (init.get_type() == null) {
         	// load default value into ACC if init's type is null
             if (type_decl == TreeConstants.Bool) {
-            	CgenClassTable.emitLoadBool(CgenSupport.ACC, new Boolean(false), s);
+            	CgenSupport.emitLoadBool(CgenSupport.ACC, new Boolean(false), s);
             } else if (type_decl == TreeConstants.Int) {
-            	CgenClassTable.emitLoadInt(CgenSupport.ACC, (IntSymbol)AbstractTable.inttable.lookup(0), s);
+            	CgenSupport.emitLoadInt(CgenSupport.ACC, (IntSymbol)AbstractTable.inttable.lookup(0), s);
             } else if (type_decl == TreeConstants.Str) {
-            	CgenClassTable.emitLoadString(CgenSupport.ACC, (StringSymbol)AbstractTable.stringtable.lookup(""), s);
+            	CgenSupport.emitLoadString(CgenSupport.ACC, (StringSymbol)AbstractTable.stringtable.lookup(""), s);
             } else {
                 CgenSupport.emitMove(CgenSupport.ACC, CgenSupport.ZERO, s);
             }
