@@ -1010,7 +1010,8 @@ class typcase extends Expression {
         CgenSupport.emitBne(CgenSupport.ACC, CgenSupport.ZERO, labelNotVoid, s);
         // jump to case abort
         // store file name into ACC as also done in the reference
-        CgenSupport.emitLoadAddress(CgenSupport.ACC, getStrLabel(CgenClassTable.ct.getFilename()), s);
+        StringSymbol filename = (StringSymbol)AbstractTable.stringtable.lookup(CgenClassTable.ct.getFilename(null));
+        CgenSupport.emitLoadAddress(CgenSupport.ACC, TRCONST_PREFIX + sym.getIndex() , s);
         // load line number into t1
         CgenSupport.emitLoadImm(CgenSupport.T1, lineNumber, s);
         CgenSupport.emitJal(CgenSupport.CASE_ABORT2, s);
