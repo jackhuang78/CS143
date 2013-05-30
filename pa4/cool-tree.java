@@ -573,16 +573,12 @@ class branch extends Case {
 
     public void code(int labelContinue, PrintStream s) {
 	  s.println("# start of branch for " + name + ":" + type_decl);
-	  // store typcase expression into T1 (object reference)
+	  // store typcase expression's tag into T1 (object reference)
       CgenSupport.emitLoad(CgenSupport.T1, 0, CgenSupport.ACC, s);
-
-      //List<Integer> childrenTags = AbstractTable.classTable.getChildrenTags(type_decl);
-      //int minTag = Collections.min(childrenTags);
-      //int maxTag = Collections.max(childrenTags);
       // create label for next branch
       int labelNextBranch = CgenSupport.genNextLabel();
-      //CgenSupport.emitBlti(CgenSupport.T1, minTag, labelNextBranch, s);
-      //CgenSupport.emitBgti(CgenSupport.T1, maxTag, labelNextBranch, s); 
+      CgenSupport.emitBlti(CgenSupport.T1, CgenClassTable.ct.getMinTag(type_decl), labelNextBranch, s);
+      CgenSupport.emitBgti(CgenSupport.T1, CgenClassTable.ct.getMaxTag(type_decl), labelNextBranch, s); 
       // push typcase expression object reference on the stack
       CgenSupport.emitPush(CgenSupport.ACC, s);
       CgenClassTable.ct.enterScope();
@@ -591,6 +587,7 @@ class branch extends Case {
       CgenClassTable.ct.exitScope();
       // pop typcase expression object
       CgenSupport.emitPop(CgenSupport.T1,s);
+      // jump out of branch
       CgenSupport.emitBranch(labelContinue, s);
       // print next branch label
       CgenSupport.emitLabelDef(labelNextBranch, s);
