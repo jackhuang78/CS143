@@ -583,11 +583,9 @@ class branch extends Case {
       // push typcase expression object reference on the stack
       CgenSupport.emitPush(CgenSupport.ACC, s);
       CgenClassTable.ct.enterScope();
-
       // add id to appropriate offset
       CgenClassTable.ct.addId(name, new FieldVar(CgenClassTable.ct.fpOffset));
       CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset + 1;
-
       expr.code(s);
       CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset - 1;
       CgenClassTable.ct.exitScope();
@@ -720,6 +718,8 @@ class static_dispatch extends Expression {
             CgenSupport.emitPush(CgenSupport.ACC, s);
         }
         expr.code(s);
+        if(type_name == TreeConstants.SELF_TYPE)
+        	type_name = (AbstractSymbol)CgenClassTable.ct.lookup(type_name);
         CgenSupport.emitDispAbort(lineNumber, CgenClassTable.ct.getFilename(type_name), s);
         // load dispatch table's address into T1
         CgenSupport.emitLoadAddress(CgenSupport.T1, type_name + CgenSupport.DISPTAB_SUFFIX, s);
@@ -1478,21 +1478,30 @@ class eq extends Expression {
 	  * */
 	public void code(PrintStream s) {
 		s.println("# start of eq");
+		// code e1
         e1.code(s);
+        // push ACC onto stack
         CgenSupport.emitPush(CgenSupport.ACC, s);
+        // code e2
         e2.code(s);
-        CgenSupport.emitPop(CgenSupport.T1, s);
+        // move result into T2
         CgenSupport.emitMove(CgenSupport.T2, CgenSupport.ACC, s);
+        // pop previous e1 into T1 from stack
+        CgenSupport.emitPop(CgenSupport.T1, s);
+        // load true into ACC default value is true
         CgenSupport.emitLoadBool(CgenSupport.ACC, new BoolConst(true),s);
-        int labelEnd = CgenSupport.genNextLabel();
-        CgenSupport.emitBeq(CgenSupport.T1, CgenSupport.T2, labelEnd, s);
+        // create continue label
+        int labelContinue = CgenSupport.genNextLabel();
+        // if value equal, branch to continue label
+        CgenSupport.emitBeq(CgenSupport.T1, CgenSupport.T2, labelContinue, s);
+        // else load false into A1 and ready for prom function call
         CgenSupport.emitLoadBool(CgenSupport.A1, new BoolConst(false),s);
+        // jump to equality test
         CgenSupport.emitJal("equality_test", s);
-        CgenSupport.emitLabelDef(labelEnd, s);
+        // code continue label
+        CgenSupport.emitLabelDef(labelContinue, s);
         s.println("# end of eq");
 	}
-
-
 }
 
 
