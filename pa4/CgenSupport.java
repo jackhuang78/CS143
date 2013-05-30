@@ -20,7 +20,6 @@ PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 */
 
 // This is a project skeleton file
-
 import java.io.PrintStream;
 
 /** This class aggregates all kinds of support routines and constants
