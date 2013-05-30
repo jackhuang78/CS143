@@ -585,10 +585,10 @@ class branch extends Case {
       CgenSupport.emitLoad(CgenSupport.T1, 0, CgenSupport.ACC, s);
 
       //List<Integer> childrenTags = AbstractTable.classTable.getChildrenTags(type_decl);
-      int minTag = Collections.min(childrenTags);
-      int maxTag = Collections.max(childrenTags);
+      //int minTag = Collections.min(childrenTags);
+      //int maxTag = Collections.max(childrenTags);
       // create label for next branch
-      int labelNextBranch = CgenSupport.genLabelNum();
+      int labelNextBranch = CgenSupport.genNextLabel();
       //CgenSupport.emitBlti(CgenSupport.T1, minTag, labelNextBranch, s);
       //CgenSupport.emitBgti(CgenSupport.T1, maxTag, labelNextBranch, s); 
       // push typcase expression object reference on the stack
@@ -1133,11 +1133,11 @@ class let extends Expression {
         if (init.get_type() == null) {
         	// load default value into ACC if init's type is null
             if (type_decl == TreeConstants.Bool) {
-            	emitLoadBool(CgenSupport.ACC, new Boolean(false), s);
+            	CgenClassTable.emitLoadBool(CgenSupport.ACC, new Boolean(false), s);
             } else if (type_decl == TreeConstants.Int) {
-            	emitLoadInt(CgenSupport.ACC, (IntSymbol)AbstractTable.inttable.lookup(0), s);
+            	CgenClassTable.emitLoadInt(CgenSupport.ACC, (IntSymbol)AbstractTable.inttable.lookup(0), s);
             } else if (type_decl == TreeConstants.Str) {
-            	emitLoadString(CgenSupport.ACC, (StringSymbol)AbstractTable.stringtable.lookup(""), s);
+            	CgenClassTable.emitLoadString(CgenSupport.ACC, (StringSymbol)AbstractTable.stringtable.lookup(""), s);
             } else {
                 CgenSupport.emitMove(CgenSupport.ACC, CgenSupport.ZERO, s);
             }
@@ -1147,7 +1147,7 @@ class let extends Expression {
         // save ACC value as temporary variable on stack
         CgenSupport.emitPush(CgenSupport.ACC, s);
         CgenClassTable.ct.enterScope();
-        CgenClassTable.ct.addId(identifier, new LetVariable(0));
+        CgenClassTable.ct.addId(identifier, new FieldVar(0));
         body.code(s);
         CgenClassTable.ct.exitScope();
         // pop previous ACC value out of stack
