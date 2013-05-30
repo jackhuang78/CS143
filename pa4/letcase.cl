@@ -20,7 +20,7 @@ class Main {
 				o:BC	=>	o.type_name();
 			esac;
 			out.out_string(s.concat("\n"));
-			
+			(*
 			a <- new AB;
 			s <- case a of
 				o:A		=>	o.type_name();
@@ -53,7 +53,7 @@ class Main {
 			out.out_string(s.concat("\n"));
 				
 			
-
+			*)
 		
 			0;
 		}

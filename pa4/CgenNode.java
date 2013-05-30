@@ -44,6 +44,7 @@ class CgenNode extends class_ {
 	
 	private StringSymbol nameStrSym;
 	private int tag;
+	private int maxChildTag;
 	
 	private int methOff;
 	private int attrOff;
@@ -66,7 +67,7 @@ class CgenNode extends class_ {
 		this.children = new Vector();
 		this.basic_status = basic_status;
 		this.nameStrSym = (StringSymbol)AbstractTable.stringtable.addString(name.getString());
-		this.tag = -1;
+
 		
 		/*this.methMap = new LinkedHashMap<AbstractSymbol, List<AbstractSymbol>>();
 		for(Enumeration e = features.getElements(); e.hasMoreElements();) {
@@ -131,12 +132,13 @@ class CgenNode extends class_ {
 		return parent;
 	}
 	
-	void setTag(int tag) {
-		this.tag = tag;
-	}
 	
 	int getTag() {
 		return tag;
+	}
+	
+	int getMaxChildTag() {
+		return maxChildTag;
 	}
 	
 	StringSymbol getNameStrSym() {
@@ -177,6 +179,24 @@ class CgenNode extends class_ {
 			((CgenNode)e.nextElement()).buildFeatures();
 		}
 	}	
+	
+	static int classTag = 0;
+	void assignTags() {
+		tag = classTag;
+		maxChildTag = classTag;
+		classTag++;
+		
+
+		for(Enumeration e = getChildren(); e.hasMoreElements();) {
+			CgenNode child = (CgenNode)e.nextElement();
+			child.assignTags();
+			maxChildTag = child.maxChildTag;
+		}
+		
+		if(Flags.cgen_debug) {
+			System.out.printf("tag for %s:[%d, %d]\n", name, tag, maxChildTag);
+		}
+	}
 	
 	void codeDispTab(PrintStream s) {	
 		if(Flags.cgen_debug) {

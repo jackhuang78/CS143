@@ -439,7 +439,7 @@ class CgenClassTable extends SymbolTable {
 		if (probe(name) != null) return;
 		nds.addElement(nd);
 		nodeMap.put(nd.getName(), nd);	// PA4
-		nd.setTag(nextClassTag++);
+		//nd.setTag(nextClassTag++);
 		addId(name, nd);
 	}
 
@@ -486,6 +486,7 @@ class CgenClassTable extends SymbolTable {
 		installClasses(cls);
 		buildInheritanceTree();
 		root().buildFeatures();
+		root().assignTags();
 		
 		stringclasstag = nodeMap.get(TreeConstants.Str).getTag();
 		intclasstag = nodeMap.get(TreeConstants.Int).getTag();
@@ -578,6 +579,14 @@ class CgenClassTable extends SymbolTable {
 			depth++;
 		}
 		return depth;
+	}
+	
+	public int getMinTag(AbstractSymbol clazz) {
+		return nodeMap.get(clazz).getTag();
+	}
+	
+	public int getMaxTag(AbstractSymbol clazz) {
+		return nodeMap.get(clazz).getMaxChildTag();
 	}
 	
 	// HACK
