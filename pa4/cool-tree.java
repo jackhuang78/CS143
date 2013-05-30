@@ -1009,6 +1009,10 @@ class typcase extends Expression {
         int labelNotVoid = CgenSupport.genNextLabel();
         CgenSupport.emitBne(CgenSupport.ACC, CgenSupport.ZERO, labelNotVoid, s);
         // jump to case abort
+        // store file name into ACC as also done in the reference
+        CgenSupport.emitLoadAddress(ACC, getStrLabel(CgenClassTable.ct.getFilename()), s);
+        // load line number into t1
+        CgenSupport.emitLoadImm(T1, lineNumber, s);
         CgenSupport.emitJal(CgenSupport.CASE_ABORT2, s);
         // print label with no jump
         CgenSupport.emitLabelDef(labelNotVoid, s);
