@@ -1754,34 +1754,15 @@ class new_ extends Expression {
 	  * */
 	public void code(PrintStream s) {
 		s.println("# start of 'new " + type_name + "'");
-        if (type_name != TreeConstants.SELF_TYPE) {
-        	//find prototype's addres and load to ACC
-            CgenSupport.emitLoadAddress(CgenSupport.ACC, type_name.toString() + CgenSupport.PROTOBJ_SUFFIX, s);
-            // copy protoype
-            CgenSupport.emitJal("Object.copy", s);
-            // jump to init method
-            CgenSupport.emitJal(type_name.toString() + CgenSupport.CLASSINIT_SUFFIX, s);
-        }else{
-        	// load address of class object tab into T1
-        	CgenSupport.emitLoadAddress(CgenSupport.T1, CgenSupport.CLASSOBJTAB, s);
-        	// load tag number of SELF on T2
-            CgenSupport.emitLoad(CgenSupport.T2, 0, CgenSupport.SELF, s);
-            // shift tag number to get the address of SELF object
-            CgenSupport.emitSll(CgenSupport.T2, CgenSupport.T2, 3, s);
-            // find the address of SELF object
-            CgenSupport.emitAddu(CgenSupport.T1, CgenSupport.T1, CgenSupport.T2, s);
-            // load object's adress into ACC
-            CgenSupport.emitLoad(CgenSupport.ACC, 0, CgenSupport.T1, s);
-            // push content the address of SELF object (address os self object) on to stack, as temporary
-            CgenSupport.emitPush(CgenSupport.T1, s);
-            // copy SELF object
-            CgenSupport.emitJal("Object.copy", s);
-            // pop content of stack (address self object) back back to T1
-            CgenSupport.emitPop(CgenSupport.T1, s);
-            // load
-            CgenSupport.emitLoad(CgenSupport.T1, 1, CgenSupport.T1, s);
-            CgenSupport.emitJalr(CgenSupport.T1, s);
+        if (type_name == TreeConstants.SELF_TYPE) {
+        	type_name = (AbstractSymbol)CgenClassTable.ct.lookup(type_name);
         }
+        //find prototype's addres and load to ACC
+        CgenSupport.emitLoadAddress(CgenSupport.ACC, type_name.toString() + CgenSupport.PROTOBJ_SUFFIX, s);
+        // copy protoype
+        CgenSupport.emitJal("Object.copy", s);
+        // jump to init method
+        CgenSupport.emitJal(type_name.toString() + CgenSupport.CLASSINIT_SUFFIX, s);
         s.println("# end of 'new " + type_name + "'");
 	}
 }
