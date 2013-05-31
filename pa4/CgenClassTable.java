@@ -31,13 +31,16 @@ import java.util.*;
 	potentially extend it in other useful ways. */
 class CgenClassTable extends SymbolTable {
 
+	// Global class table for cool-tree's code()
 	public static CgenClassTable ct;
 
 	/** All classes in the program, represented as CgenNode */
 	private Vector nds;
 	
-	// PA4
+	// mapping from class name to CgenNode
 	private Map<AbstractSymbol, CgenNode> nodeMap;
+	
+	// global frame point offset (from SP)
 	public int fpOffset;
 
 	/** This is the stream to which assembly instructions are output */
@@ -169,6 +172,8 @@ class CgenClassTable extends SymbolTable {
 	private void codeClassNameTable() {
 		str.println("\n# Class Name Table");
 		str.print(CgenSupport.CLASSNAMETAB + CgenSupport.LABEL);
+		
+		// code the name of each class
 		for (Object obj : nds) {
 			str.print(CgenSupport.WORD); 
 			((CgenNode)obj).getNameStrSym().codeRef(str);
@@ -182,10 +187,12 @@ class CgenClassTable extends SymbolTable {
 		for (Object obj : nds) {
 			AbstractSymbol className = ((CgenNode)obj).getName();
 			
+			// code prototype object reference
 			str.print(CgenSupport.WORD);
 			CgenSupport.emitProtObjRef(className, str);
 			str.println();
 			
+			// code initializer reference
 			str.print(CgenSupport.WORD); 
 			CgenSupport.emitInitRef(className, str);
 			str.println();
@@ -197,6 +204,7 @@ class CgenClassTable extends SymbolTable {
 		for (Object obj : nds) {
 			CgenNode nd = (CgenNode)obj;
 
+			// code class method reference
 			CgenSupport.emitDispTableRef(nd.getName(), str);
 			str.print(CgenSupport.LABEL);
 			nd.codeDispTab(str);
@@ -211,7 +219,8 @@ class CgenClassTable extends SymbolTable {
 		for (Object obj : nds) {
 			CgenNode nd = (CgenNode)obj;
 
-			str.println(CgenSupport.WORD + "-1");
+			// code class attributes
+			str.println(CgenSupport.WORD + "-1");	// GC tag
 			CgenSupport.emitProtObjRef(nd.getName(), str);
 			str.print(CgenSupport.LABEL);
 			nd.codeProtObj(str);
@@ -223,6 +232,7 @@ class CgenClassTable extends SymbolTable {
 		for(Object obj : nds) {
 			CgenNode nd = (CgenNode)obj;
 
+			// code object initailzers (constructor method)
 			CgenSupport.emitInitRef(nd.getName(), str);
 			str.print(CgenSupport.LABEL);
 			nd.codeObjInit(str);
@@ -232,6 +242,8 @@ class CgenClassTable extends SymbolTable {
 	private void codeClassMethods() {
 		str.println("\n# Class Methods");
 		for(Object obj : nds) {
+		
+			// code each of the class method
 			CgenNode nd = (CgenNode)obj;
 			nd.codeClassMethod(str);
 			
@@ -442,8 +454,7 @@ class CgenClassTable extends SymbolTable {
 		AbstractSymbol name = nd.getName();
 		if (probe(name) != null) return;
 		nds.addElement(nd);
-		nodeMap.put(nd.getName(), nd);	// PA4
-		//nd.setTag(nextClassTag++);
+		nodeMap.put(nd.getName(), nd);	
 		addId(name, nd);
 	}
 
@@ -489,9 +500,9 @@ class CgenClassTable extends SymbolTable {
 		installBasicClasses();
 		installClasses(cls);
 		buildInheritanceTree();
-		root().buildFeatures();
-		root().assignTags();
-		Collections.sort(nds);
+		root().buildFeatures();	// extract attribute/method info for each class
+		root().assignTags();	// set the tags for class (needed by case statement)
+		Collections.sort(nds);	// need to sort the class in order of their tag
 		
 		stringclasstag = nodeMap.get(TreeConstants.Str).getTag();
 		intclasstag = nodeMap.get(TreeConstants.Int).getTag();
@@ -556,6 +567,7 @@ class CgenClassTable extends SymbolTable {
 		return (CgenNode)probe(TreeConstants.Object_);
 	}
 	
+	/* given a class and a method, return the offset to the class's dispatch table */
 	public int getMethodOffset(AbstractSymbol clazz, AbstractSymbol method) {
 		CgenNode nd = nodeMap.get(clazz);
 		
@@ -568,6 +580,7 @@ class CgenClassTable extends SymbolTable {
 			return nd.methOffsets.get(method);
 	}
 	
+	/* given a class and an attribute, return the offset to the object reference */
 	public int getAttrOffset(AbstractSymbol clazz, AbstractSymbol a) {
 		CgenNode nd = nodeMap.get(clazz);
 		if(!nd.attrOffsets.containsKey(a))
@@ -576,6 +589,7 @@ class CgenClassTable extends SymbolTable {
 			return nd.attrOffsets.get(a);
 	}
 	
+	/* get the depth of the class in the inheritance tree */
 	public int getDepth(AbstractSymbol clazz) {
 		int depth = 0;
 		CgenNode nd = nodeMap.get(clazz);
@@ -586,18 +600,20 @@ class CgenClassTable extends SymbolTable {
 		return depth;
 	}
 	
+	/* get the tag of a class */
 	public int getMinTag(AbstractSymbol clazz) {
 		return nodeMap.get(clazz).getTag();
 	}
 	
+	/* get the maximum tag among this class's children */
 	public int getMaxTag(AbstractSymbol clazz) {
 		return nodeMap.get(clazz).getMaxChildTag();
 	}
 	
-	// HACK
+	/* get the current file name, given a class ;
+		NOTE: now since there is only one class, return where Main is */
 	public String getFilename(AbstractSymbol clazz) {
 		return nodeMap.get(TreeConstants.Main).filename.toString();
-//		return nodeMap.get(clazz).filename.toString();
 	}
 	
 }

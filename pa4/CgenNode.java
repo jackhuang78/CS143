@@ -42,18 +42,29 @@ class CgenNode extends class_ implements Comparable<CgenNode>{
 	/** Does this node correspond to a basic class? */
 	private int basic_status;
 	
+	// the StringSymbol of the class name; need by class name table
 	private StringSymbol nameStrSym;
+	// the class tag of this class
 	private int tag;
+	// the maximum class tag among this class's children; need for 'case' statement
 	private int maxChildTag;
 	
+	// record the method/attribute offsets; needed while building class features
 	private int methOff;
 	private int attrOff;
-	public Map<AbstractSymbol, Integer> methOffsets;
-	public Map<AbstractSymbol, AbstractSymbol> methClass;
-	public Map<AbstractSymbol, Integer> attrOffsets;
 	
+	// mapping from method/attribute to their respective offsets
+	public Map<AbstractSymbol, Integer> methOffsets;
+	public Map<AbstractSymbol, Integer> attrOffsets;
+
+	// mapping from method/attribute to their respective AST node
 	private Map<AbstractSymbol, attr> attrMap;
 	private Map<AbstractSymbol, method> methMap;
+	
+	// mapping from method to the class containing it
+	// needed for identifying which parent class an inherited method belongs to
+	public Map<AbstractSymbol, AbstractSymbol> methClass;
+	
 	
 	
 
@@ -69,16 +80,6 @@ class CgenNode extends class_ implements Comparable<CgenNode>{
 		this.basic_status = basic_status;
 		this.nameStrSym = (StringSymbol)AbstractTable.stringtable.addString(name.getString());
 
-		
-		/*this.methMap = new LinkedHashMap<AbstractSymbol, List<AbstractSymbol>>();
-		for(Enumeration e = features.getElements(); e.hasMoreElements();) {
-			Feature feat = (Feature)e.nextElement();
-			if(feat instanceof method) {
-				method meth = (method)feat;
-				List<AbstractSymbol> formList = new LinkedList<AbstractSymbol>();
-				methMap.put(meth.name, formList);
-			}
-		}*/
 	}
 	
 
@@ -122,7 +123,7 @@ class CgenNode extends class_ implements Comparable<CgenNode>{
 		return basic_status == Basic; 
 	}
 	
-	// PA4
+	// for debugging
 	public String toString() {
 		return String.format(
 			"<[%d]class %s inherits %s>", 
@@ -133,11 +134,12 @@ class CgenNode extends class_ implements Comparable<CgenNode>{
 		return parent;
 	}
 	
-	
+	// return the class's tag
 	int getTag() {
 		return tag;
 	}
 	
+	// return the max tag among this class's children
 	int getMaxChildTag() {
 		return maxChildTag;
 	}
@@ -146,6 +148,7 @@ class CgenNode extends class_ implements Comparable<CgenNode>{
 		return nameStrSym;
 	}
 
+	// collects method/attribute offsets from the inheritance tree
 	void buildFeatures() {
 		attrMap = new LinkedHashMap<AbstractSymbol, attr>();
 		methMap = new LinkedHashMap<AbstractSymbol, method>();
@@ -155,24 +158,26 @@ class CgenNode extends class_ implements Comparable<CgenNode>{
 		methOff = 0;
 		attrOff = 0;
 		
+		
+		// add the parent's method/attribute, if this class is not Object
 		if(getName() != TreeConstants.Object_) {
-			//attrMap.putAll(parent.attrMap);
 			methOffsets.putAll(parent.methOffsets);
 			methClass.putAll(parent.methClass);
-			//attrOffsets.putAll(parent.attrOffsets);
 			methOff = parent.methOff;
 			attrOff = parent.attrOff;
 		}
 		
+		// iterate through the features, add as either method or attribute
 		for(Enumeration e = features.getElements(); e.hasMoreElements();) {
 			Feature feat = (Feature)e.nextElement();
 			if(feat instanceof method) {
-				method m = (method)feat;
 			
+				// record the method
+				method m = (method)feat;
 				methMap.put(m.name, m);
-				
 				methClass.put(m.name, getName());
-				
+		
+				// if not already exist, add to the offset mapping
 				if(!methOffsets.containsKey(m.name)) {
 					methOffsets.put(m.name, methOff);
 					methOff += 1;
@@ -180,6 +185,8 @@ class CgenNode extends class_ implements Comparable<CgenNode>{
 
 					
 			} else {
+			
+				// record the attribute and add to the offset mapping
 				attrMap.put( ((attr)feat).name, (attr)feat );
 				attrOffsets.put( ((attr)feat).name, attrOff );
 				attrOff += 1;
@@ -193,7 +200,7 @@ class CgenNode extends class_ implements Comparable<CgenNode>{
 					methClass.get(m), m, methOffsets.get(m));
 		
 		
-		
+		// build children's features
 		for(Enumeration e = getChildren(); e.hasMoreElements();) {
 			((CgenNode)e.nextElement()).buildFeatures();
 		}
@@ -203,11 +210,14 @@ class CgenNode extends class_ implements Comparable<CgenNode>{
 	
 	static int classTag = 0;
 	void assignTags() {
+	
+		// assign a tag to self
 		tag = classTag;
 		maxChildTag = classTag;
 		classTag++;
 		
-
+		// assign a tag to each of the child
+		// record the tag of the last (also the max) child
 		for(Enumeration e = getChildren(); e.hasMoreElements();) {
 			CgenNode child = (CgenNode)e.nextElement();
 			child.assignTags();
@@ -219,6 +229,7 @@ class CgenNode extends class_ implements Comparable<CgenNode>{
 		}
 	}
 	
+	// for sorting the CgenNode
 	public int compareTo(CgenNode another) {
 		return tag - another.tag;
 	}
@@ -228,9 +239,8 @@ class CgenNode extends class_ implements Comparable<CgenNode>{
 			System.out.println("codeDispTab " + name + " " + methOffsets.size());		
 		}
 		
-		//if(name != TreeConstants.Object_)
-		//	parent.codeDispTab(s);
-		
+		// for each of the method, code the reference
+		// including class name, method name, and offset
 		for(AbstractSymbol method : methOffsets.keySet()) {
 			if(Flags.cgen_debug)
 				System.out.println("\t" + method + " " + methOffsets.get(method));
@@ -256,6 +266,7 @@ class CgenNode extends class_ implements Comparable<CgenNode>{
 		CgenSupport.emitDispTableRef(name, s);	
 		s.println();					
 		
+		// recursively code the prototype
 		codeProtObjRecur(s);
 	}
 	
@@ -264,11 +275,11 @@ class CgenNode extends class_ implements Comparable<CgenNode>{
 			System.out.println("recur at " + name);		
 		}
 		
-	
+		// if not Object, code the parent's prototype first
 		if(name != TreeConstants.Object_)
 			parent.codeProtObjRecur(s);
 	
-		// attributes
+		// for each of the attribute, code the default value/reference
 		for(AbstractSymbol name : attrMap.keySet()) {
 			
 			AbstractSymbol type = attrMap.get(name).type_decl;
@@ -278,14 +289,19 @@ class CgenNode extends class_ implements Comparable<CgenNode>{
 			
 			s.print(CgenSupport.WORD);
 						
+			
 			if(type == TreeConstants.Int)
 				((IntSymbol)AbstractTable.inttable.addInt(0)).codeRef(s);
+				
 			else if(type == TreeConstants.Bool)
 				s.print(CgenSupport.BOOLCONST_PREFIX + "0");
+				
 			else if(type == TreeConstants.Str)
 				((StringSymbol)AbstractTable.stringtable.addString("")).codeRef(s);
-			else
+				
+			else	// other class (default to void)
 				s.print("0");
+				
 			s.println();
 		}	
 	}
@@ -315,9 +331,10 @@ class CgenNode extends class_ implements Comparable<CgenNode>{
 		}
 		
 		
-		
+		// entering routine for initializer
 		CgenSupport.emitEnteringMethod(s);
 		
+		// call parent's initailizer this class is not Object
 		if(name != TreeConstants.Object_) {
 			CgenSupport.emitJal(parent.name + CgenSupport.CLASSINIT_SUFFIX, s);
 		}
@@ -327,6 +344,7 @@ class CgenNode extends class_ implements Comparable<CgenNode>{
 			if(Flags.cgen_debug)	
 				System.out.printf("\t%s:%s<-%s[%d]\n", a.name, a.type_decl, a.init, attrOffsets.get(name));	
 			
+			// initailze an attribute if it has an initilized value
 			if(!(a.init instanceof no_expr)) {
 				a.init.code(s);
 				CgenSupport.emitStore(
@@ -339,10 +357,13 @@ class CgenNode extends class_ implements Comparable<CgenNode>{
 		}
 		
 		
-		
+		// return the self pointer
 		CgenSupport.emitMove(CgenSupport.ACC, CgenSupport.SELF, s);
+		
+		// exiting method routine
 		CgenSupport.emitExitingMethod(s);
 		
+		// exit scope
 		ct.exitScope();
 		
 	}

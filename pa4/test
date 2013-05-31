@@ -9,6 +9,9 @@ parser = argparse.ArgumentParser(description='CS143 PA4 Testing Script')
 parser.add_argument('-c', action='store_true', help='cgen debug enable')
 parser.add_argument('-d', action='store_true', help='run diff')
 parser.add_argument('-r', action='store_true', help='run reference only')
+parser.add_argument('-g', action='store_true', help='garbage collector')
+parser.add_argument('-t', action='store_true', help='gc test')
+parser.add_argument('-T', action='store_true', help='additional gc test')
 parser.add_argument('files', metavar='file', type=str, nargs='+'
 	, help='cl testing files')
 
@@ -33,7 +36,17 @@ for f in args.files:
 	os.system('rm -f out/%s_ref.s' % name)
 	os.system('rm -f spim.out spim_ref.out')
 	
-	ret = os.system('/usr/class/cs143/bin/coolc %s' % f)
+	flags = '';
+	if args.c:
+		flags += '-c '
+	if args.g:
+		flags += '-g '
+	if args.t:
+		flags += '-t '
+	if args.T:
+		flags += '-T '
+	
+	ret = os.system('/usr/class/cs143/bin/coolc %s %s' % (flags, f))
 	if ret != 0:
 		print 'Compilation error. Exit,'
 		exit(0)
@@ -42,10 +55,8 @@ for f in args.files:
 	os.system('/usr/class/cs143/bin/spim -file %s_ref.s > spim_ref.out 2>&1' % name );
 	
 	if not args.r:
-		if args.c:
-			ret = os.system('./mycoolc -c %s' % f)
-		else:
-			ret = os.system('./mycoolc %s' % f)
+		
+		ret = os.system('./mycoolc %s %s' % (flags, f))
 		
 		if not ret:
 			os.system('/usr/class/cs143/bin/spim -file %s.s > spim.out 2>&1' % name );	
