@@ -13,13 +13,17 @@ import java.io.PrintStream;
 abstract class Variable {
     public abstract void emitLoad(PrintStream s);
     public abstract void emitStore(PrintStream s);
+    public abstract int getOffset();
 }
 
 /** class for formal variables **/
 class FieldVar extends Variable{
-	public int offset;
+	private int offset;
     public FieldVar(int offset) {
         this.offset = offset;
+    }
+    public int getOffset(){
+    	return offset;
     }
     public void emitLoad(PrintStream s) {
         CgenSupport.emitLoad(CgenSupport.ACC, -offset, CgenSupport.FP, s);
@@ -31,9 +35,12 @@ class FieldVar extends Variable{
 
 /** class for class variables **/
 class ClassVar extends Variable{
-	public int offset;
+	private int offset;
     public ClassVar(int offset) {
         this.offset = CgenSupport.DEFAULT_OBJFIELDS+offset;
+    }
+    public int getOffset(){
+    	return offset;
     }
     public void emitLoad(PrintStream s) {
         CgenSupport.emitLoad(CgenSupport.ACC, offset, CgenSupport.SELF, s);
