@@ -1,0 +1,194 @@
+make: `cgen' is up to date.
+25,26c25,26
+< Stats -- #instructions : 5235
+<          #reads : 1057  #writes 755  #branches 1146  #other 2277
+---
+> Stats -- #instructions : 5344
+>          #reads : 1083  #writes 781  #branches 1146  #other 2334
+15,16c15,16
+< Stats -- #instructions : 1373
+<          #reads : 296  #writes 237  #branches 267  #other 573
+---
+> Stats -- #instructions : 1451
+>          #reads : 301  #writes 237  #branches 267  #other 646
+8,9c8,9
+< Stats -- #instructions : 172
+<          #reads : 23  #writes 30  #branches 29  #other 90
+---
+> Stats -- #instructions : 174
+>          #reads : 24  #writes 29  #branches 29  #other 92
+8,9c8,9
+< Stats -- #instructions : 168
+<          #reads : 21  #writes 31  #branches 27  #other 89
+---
+> Stats -- #instructions : 169
+>          #reads : 21  #writes 30  #branches 27  #other 91
+9,10c9,10
+< Stats -- #instructions : 737
+<          #reads : 161  #writes 102  #branches 170  #other 304
+---
+> Stats -- #instructions : 772
+>          #reads : 165  #writes 104  #branches 170  #other 333
+33,34c33,34
+< Stats -- #instructions : 1823
+<          #reads : 435  #writes 224  #branches 400  #other 764
+---
+> Stats -- #instructions : 1914
+>          #reads : 457  #writes 244  #branches 395  #other 818
+9,10c9,10
+< Stats -- #instructions : 737
+<          #reads : 138  #writes 110  #branches 140  #other 349
+---
+> Stats -- #instructions : 739
+>          #reads : 138  #writes 110  #branches 141  #other 350
+17,18c17,18
+< Stats -- #instructions : 1628
+<          #reads : 365  #writes 252  #branches 309  #other 702
+---
+> Stats -- #instructions : 1646
+>          #reads : 365  #writes 249  #branches 300  #other 732
+24,25c24,25
+< Stats -- #instructions : 1704
+<          #reads : 375  #writes 282  #branches 346  #other 701
+---
+> Stats -- #instructions : 1737
+>          #reads : 375  #writes 277  #branches 331  #other 754
+9,10c9,10
+< Stats -- #instructions : 396
+<          #reads : 69  #writes 64  #branches 76  #other 187
+---
+> Stats -- #instructions : 403
+>          #reads : 74  #writes 65  #branches 73  #other 191
+8c8
+< Exception occurred at PC=0x004014a8
+---
+> Exception occurred at PC=0x004014bc
+10,11c10,11
+< Stats -- #instructions : 322
+<          #reads : 50  #writes 52  #branches 61  #other 159
+---
+> Stats -- #instructions : 327
+>          #reads : 51  #writes 52  #branches 61  #other 163
+90,91c90,91
+< Stats -- #instructions : 20478
+<          #reads : 4915  #writes 2525  #branches 4019  #other 9019
+---
+> Stats -- #instructions : 21293
+>          #reads : 4996  #writes 2605  #branches 4016  #other 9676
+8,9c8,9
+< Stats -- #instructions : 152
+<          #reads : 21  #writes 28  #branches 25  #other 78
+---
+> Stats -- #instructions : 156
+>          #reads : 21  #writes 28  #branches 25  #other 82
+337d336
+< Garbage collecting ...
+352a352
+> Garbage collecting ...
+390,391c390,391
+< Stats -- #instructions : 197579
+<          #reads : 36567  #writes 27471  #branches 44136  #other 89405
+---
+> Stats -- #instructions : 195176
+>          #reads : 36879  #writes 27320  #branches 42128  #other 88849
+9,10c9,10
+< Stats -- #instructions : 181
+<          #reads : 28  #writes 33  #branches 30  #other 90
+---
+> Stats -- #instructions : 185
+>          #reads : 28  #writes 33  #branches 30  #other 94
+15c15
+<          #reads : 163  #writes 133  #branches 160  #other 326
+---
+>          #reads : 163  #writes 129  #branches 148  #other 342
+13,14c13,14
+< Stats -- #instructions : 853
+<          #reads : 170  #writes 143  #branches 172  #other 368
+---
+> Stats -- #instructions : 859
+>          #reads : 170  #writes 141  #branches 166  #other 382
+540,541c540,541
+< Stats -- #instructions : 109383
+<          #reads : 27010  #writes 18171  #branches 20964  #other 43238
+---
+> Stats -- #instructions : 119929
+>          #reads : 28159  #writes 18434  #branches 21087  #other 52249
+34,35c34,35
+< Stats -- #instructions : 1574
+<          #reads : 398  #writes 212  #branches 289  #other 675
+---
+> Stats -- #instructions : 1638
+>          #reads : 431  #writes 221  #branches 286  #other 700
+34,35c34,35
+< Stats -- #instructions : 1574
+<          #reads : 398  #writes 212  #branches 289  #other 675
+---
+> Stats -- #instructions : 1638
+>          #reads : 431  #writes 221  #branches 286  #other 700
+51,52c51,52
+< Stats -- #instructions : 4065
+<          #reads : 890  #writes 597  #branches 869  #other 1709
+---
+> Stats -- #instructions : 4160
+>          #reads : 944  #writes 618  #branches 874  #other 1724
+13,14c13,14
+< Stats -- #instructions : 3205
+<          #reads : 898  #writes 539  #branches 618  #other 1150
+---
+> Stats -- #instructions : 3608
+>          #reads : 898  #writes 539  #branches 618  #other 1553
+10,11c10,11
+< Stats -- #instructions : 1106
+<          #reads : 256  #writes 147  #branches 262  #other 441
+---
+> Stats -- #instructions : 1171
+>          #reads : 264  #writes 151  #branches 262  #other 494
+110,111c110,111
+< Stats -- #instructions : 1077567
+<          #reads : 190926  #writes 154185  #branches 270668  #other 461788
+---
+> Stats -- #instructions : 1143999
+>          #reads : 207382  #writes 170599  #branches 270378  #other 495640
+10,11c10,11
+< Stats -- #instructions : 340
+<          #reads : 60  #writes 56  #branches 65  #other 159
+---
+> Stats -- #instructions : 344
+>          #reads : 60  #writes 56  #branches 65  #other 163
+20,21c20,21
+< Stats -- #instructions : 1889
+<          #reads : 375  #writes 290  #branches 404  #other 820
+---
+> Stats -- #instructions : 1864
+>          #reads : 375  #writes 286  #branches 392  #other 811
+Namespace(T=False, c=False, d=True, files=['arith_ours.cl', 'book_list.cl', 'case_no_match.cl', 'case_void.cl', 'complex.cl', 'cond.cl', 'cool.cl', 'disp.cl', 'disp2.cl', 'disp_void.cl', 'div_zero.cl', 'equal.cl', 'example.cl', 'hairyscary.cl', 'hello_world.cl', 'inherited_methods.cl', 'io.cl', 'lam.cl', 'let.cl', 'let.cl', 'letcase.cl', 'list.cl', 'new_complex.cl', 'primes.cl', 'simple.cl', 'var.cl'], g=True, r=False, t=False)
+
+>>>>> CS143 PA4 Testing Script <<<<<
+File: arith_ours.cl
+File: book_list.cl
+File: case_no_match.cl
+File: case_void.cl
+File: complex.cl
+File: cond.cl
+File: cool.cl
+File: disp.cl
+File: disp2.cl
+File: disp_void.cl
+File: div_zero.cl
+File: equal.cl
+File: example.cl
+File: hairyscary.cl
+File: hello_world.cl
+File: inherited_methods.cl
+File: io.cl
+File: lam.cl
+File: let.cl
+File: let.cl
+File: letcase.cl
+File: list.cl
+File: new_complex.cl
+File: primes.cl
+File: simple.cl
+File: var.cl
+====================================
+
