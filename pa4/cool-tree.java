@@ -17,7 +17,7 @@ abstract class Variable {
 
 /** class for formal variables **/
 class FieldVar extends Variable{
-	private int offset;
+	public int offset;
     public FieldVar(int offset) {
         this.offset = offset;
     }
@@ -31,7 +31,7 @@ class FieldVar extends Variable{
 
 /** class for class variables **/
 class ClassVar extends Variable{
-	private int offset;
+	public int offset;
     public ClassVar(int offset) {
         this.offset = CgenSupport.DEFAULT_OBJFIELDS+offset;
     }
@@ -674,7 +674,7 @@ class assign extends Expression {
         // emit assign plus garbage collection jal
         x.emitStore(s);
         CgenSupport.emitAddiu(CgenSupport.A1,CgenSupport.SELF,x.offset);
-        CgenSupport.emitGCAssign();
+        CgenSupport.emitGCAssign(s);
         s.println("# end of assign to " + name);
 	}
 
