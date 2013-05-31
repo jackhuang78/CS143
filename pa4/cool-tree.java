@@ -669,8 +669,12 @@ class assign extends Expression {
 		s.println("# start of assign to " + name);
 		// code expr
         expr.code(s);
-        // emit assign 
-        ((Variable)CgenClassTable.ct.lookup(name)).emitStore(s);
+        // lookup variable
+        Variable x = (Variable)CgenClassTable.ct.lookup(name);
+        // emit assign plus garbage collection jal
+        x.emitStore(s);
+        CgenSupport.emitAddiu(CgenSupport.A1,CgenSupport.SELF,x.offset);
+        CgenSupport.emitGCAssign();
         s.println("# end of assign to " + name);
 	}
 
@@ -1549,6 +1553,9 @@ class eq extends Expression {
         // else load false into A1 and ready for prom function call
         CgenSupport.emitLoadBool(CgenSupport.A1, new BoolConst(false),s);
         // jump to equality test
+        // Tests whether the objects passed in $t1 and $t2 have the same
+		// primitive type {Int,String,Bool} and the same value. If they do,
+		// the value in $a0 is returned, otherwise $a1 is returned
         CgenSupport.emitJal(CgenSupport.EQ_TEST, s);
         // code continue label
         CgenSupport.emitLabelDef(labelContinue, s);
