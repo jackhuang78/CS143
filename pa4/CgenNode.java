@@ -26,7 +26,7 @@ import java.util.Vector;
 import java.util.Enumeration;
 import java.util.*;
 
-class CgenNode extends class_ {
+class CgenNode extends class_ implements Comparable<CgenNode>{
 	/** The parent of this node in the inheritance tree */
 	private CgenNode parent;
 
@@ -199,6 +199,8 @@ class CgenNode extends class_ {
 		}
 	}	
 	
+	
+	
 	static int classTag = 0;
 	void assignTags() {
 		tag = classTag;
@@ -215,6 +217,10 @@ class CgenNode extends class_ {
 		if(Flags.cgen_debug) {
 			System.out.printf("tag for %s:[%d, %d]\n", name, tag, maxChildTag);
 		}
+	}
+	
+	public int compareTo(CgenNode another) {
+		return tag - another.tag;
 	}
 	
 	void codeDispTab(PrintStream s) {	

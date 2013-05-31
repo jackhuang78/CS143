@@ -488,6 +488,7 @@ class CgenClassTable extends SymbolTable {
 		buildInheritanceTree();
 		root().buildFeatures();
 		root().assignTags();
+		Collections.sort(nds);
 		
 		stringclasstag = nodeMap.get(TreeConstants.Str).getTag();
 		intclasstag = nodeMap.get(TreeConstants.Int).getTag();
