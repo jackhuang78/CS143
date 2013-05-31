@@ -830,8 +830,15 @@ class dispatch extends Expression {
         expr.code(s);
         // get the expression type, and convert to current class if it is SELF_TYPE
         AbstractSymbol exprType = expr.get_type();
-        if(exprType == TreeConstants.SELF_TYPE)
+        if(exprType == TreeConstants.SELF_TYPE) {
+        	if(Flags.cgen_debug) {
+        		System.out.printf("exprType=%s, lookup=%s\n", 
+        			exprType,
+        			CgenClassTable.ct.lookup(exprType));
+        		
+        	}	
         	exprType = (AbstractSymbol)CgenClassTable.ct.lookup(exprType);
+        }
         
         // generate abort testing for void
     	s.println("# emit check voild call start");

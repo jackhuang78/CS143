@@ -287,6 +287,29 @@ class CgenNode extends class_ {
 	void codeObjInit(PrintStream s) {
 		if(Flags.cgen_debug)	System.out.println("codeObjInit " + name);		
 		
+		// set class table for convenience
+		CgenClassTable ct = CgenClassTable.ct;
+		
+		// enter new scope
+		ct.enterScope();
+		
+		// add class attributes to the scope
+		CgenNode nd = this;
+		while(nd.getName() != TreeConstants.Object_) {
+			for(AbstractSymbol a : nd.attrOffsets.keySet()) {
+				ct.addId(a, new ClassVar(nd.attrOffsets.get(a)));
+			}
+			nd = nd.parent;
+		}
+		// set SELF_TYPE to current class
+		ct.addId(TreeConstants.SELF_TYPE, name);
+		if(Flags.cgen_debug) {
+			System.out.printf("\tadd SELF_TYPE; lookup=%s\n",
+				ct.lookup(TreeConstants.SELF_TYPE));
+		}
+		
+		
+		
 		CgenSupport.emitEnteringMethod(s);
 		
 		if(name != TreeConstants.Object_) {
@@ -314,7 +337,7 @@ class CgenNode extends class_ {
 		CgenSupport.emitMove(CgenSupport.ACC, CgenSupport.SELF, s);
 		CgenSupport.emitExitingMethod(s);
 		
-		
+		ct.exitScope();
 		
 	}
 	
@@ -330,7 +353,8 @@ class CgenNode extends class_ {
 		}
 		
 		
-		if(Flags.cgen_debug)	System.out.println("codeClassMethod " + name);		
+		if(Flags.cgen_debug)	
+			System.out.println("codeClassMethod " + name);		
 		
 		// set class table for convenience
 		CgenClassTable ct = CgenClassTable.ct;
@@ -348,6 +372,10 @@ class CgenNode extends class_ {
 		}
 		// set SELF_TYPE to current class
 		ct.addId(TreeConstants.SELF_TYPE, name);
+		if(Flags.cgen_debug) {
+			System.out.printf("\tadd SELF_TYPE; lookup=%s\n",
+				ct.lookup(TreeConstants.SELF_TYPE));
+		}
 		
 		// code the class methods
 		for(method m : methMap.values()) {
