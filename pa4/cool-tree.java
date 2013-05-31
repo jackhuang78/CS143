@@ -449,7 +449,6 @@ class method extends Feature {
         s.println("#start method end");
         // ready to print code
         CgenSupport.emitMove(CgenSupport.SELF, CgenSupport.ACC, s);
-        CgenClassTable.ct.fpOffset = 1;
         expr.code(s);
         s.println("#end method begin");
         //recover RA
