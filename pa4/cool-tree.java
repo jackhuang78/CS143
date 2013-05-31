@@ -680,7 +680,7 @@ class assign extends Expression {
         Variable x = (Variable)CgenClassTable.ct.lookup(name);
         // emit assign plus garbage collection jal
         x.emitStore(s);
-        CgenSupport.emitAddiu(CgenSupport.A1,CgenSupport.SELF,x.offset);
+        CgenSupport.emitAddiu(CgenSupport.A1,CgenSupport.SELF,x.getOffset());
         CgenSupport.emitGCAssign(s);
         s.println("# end of assign to " + name);
 	}
