@@ -162,68 +162,49 @@ Write-up for PA4
 user: yh3483
 user: borui
 
-
 **************************
 *****     Design     *****
 **************************
 
-We break the sematic analysis into three phases, class check, feature check, 
-and scope/type check. 
+We follow the design requirement in PA4. Specifically we emit prototype objects,
+class nameTabs, class objTabs, and dispatch tables in CgenClassTable and we follow
+the runtime guideline in Cool during this process.
 
-Phase 1: Class Check (ClassTable.java)
-In this phase we construct an inheritance tree from all existing classes. As we 
-build the tree, we check for the following errors:
+We emit code for the running methods, loops, assignments, branches, lets , etc.
+in cool-tree.java. Variable scopes and the stack are also managed in cool-tree.java.
+We added helpers for emitting code for comparisons and arithmetic operations in
+CgenSupport.
 
-	1.1. redefining basic or user-defined classes
-	1.2. inheriting Int, Bool, String, or undefined classes
-	1.3. cyclic inheritance
-	1.4. absense of Main class
+For branches, we utilize the tag number of classes to infer whether we should accept
+a branch by looking at the max tag number and min tag number of the children of the
+branch's type. We assign tags in a depth first manner when building the inheritance 
+tree. 
 
-We stop the sematic analysis if there is any error in this phase. 
+We handled runtime errors (dispatch on void, case on void, and missing branch) in
+our code properly and we tested error handling in our test modules (see test section).
 
-
-
-Phase 2: Feature Check (ClassTable.java)
-In this phase we construct the object and method environments for each class. 
-As we build the environments, we check for the following errors:
-
-	2.1.1	declaring undefined class for attribute
-	2.1.2	redefining attribute in superclass
-	2.1.3	redefining attribute in the current class
-	
-	2.2.1	undefined class for parameter or return type	
-	2.2.2	redefining method in the current class
-	2.2.3	redefining method in superclass with different number of parameters
-	2.2.3	redefining method in superclass with different parameter type or 
-	return type
-	2.2.4	duplicated parameter names
-	2.2.5	absense of main method in Main class
-	
-Phase 3: Scope/Type Check (cool-tree.java)
-In this phase perform scope and type check for each node in the AST. For each 
-node, we recursively check the children nodes first and use the returned 
-type information to check the current node. The type check rule is in accordance
-to the COOL manual. 
-
-For method, let statement, or case statement, we also enter/exit scope to allow
-new variable or redefined variable. We use the updated scope to check for any 
-undeclared identifier. 
-
-If the type of a node cannot be determined because of type/scope error, we set 
-the type to the type of the node to be Object.
+Our implementation complies with the garbage collection requirement specified in the
+runtime manual when Flags.cgen_Memmgr != Flags.GC_NOGC.
 
 ***************************
 *****     Testing     *****
 ***************************
 
-We perform testing by comparing the results from our implementation to that 
-from the reference solution. We construct various valid and invalid tests. 
-These tests can be found under the tests directory. The bad.cl, bad2.cl contains
-code with errors that can be recovered from the semantic analysis. good.cl,
-easy.cl, and better.cl contains code that does not have any error. These files
-are crafted to exhaustedly test the functionality of our code. The rest of
-the test cases are related to checking class inheritance relationships.
-Our implementation produces an equal amount of or more error messages than the 
-reference in each test case.We have verified that the additional error messages 
-we produce are in fact correct according to the COOL sematic rules.
+We perform testing by:
 
+1. Creating test cases for each specific language feature such as case, let, cond,
+loop, assign, comp, arith ,.etc and tested mycoolc against the reference coolc.
+
+We make sure the outputs in these test cases are the same between two code generators.
+While writing these tests, we also make sure our outputs reflect the logic of the
+code flow to make sure we pass all cases we can come up with.
+
+2. Running test cases in /usr/class/cs143/examples and compare the output of our 
+code generator with the reference and make sure they're identical. Note that for
+interactive tests, we manually played with the programs to make sure the generated
+programs have similar behaviors.
+
+For garbage collection, we created test cases that would exhaust the heap without GC
+but running fine with the GC to verify the GC works correctly. These includes massive
+allocations both on stack (references) and heap (object assignments) in loops and
+other scenarios. These test cases reside in gc.cl and gccyle.cl.
