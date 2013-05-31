@@ -49,6 +49,7 @@ class CgenNode extends class_ {
 	private int methOff;
 	private int attrOff;
 	public Map<AbstractSymbol, Integer> methOffsets;
+	public Map<AbstractSymbol, AbstractSymbol> methClass;
 	public Map<AbstractSymbol, Integer> attrOffsets;
 	
 	private Map<AbstractSymbol, attr> attrMap;
@@ -149,13 +150,15 @@ class CgenNode extends class_ {
 		attrMap = new LinkedHashMap<AbstractSymbol, attr>();
 		methMap = new LinkedHashMap<AbstractSymbol, method>();
 		methOffsets = new LinkedHashMap<AbstractSymbol, Integer>();
+		methClass = new LinkedHashMap<AbstractSymbol, AbstractSymbol>();
 		attrOffsets = new LinkedHashMap<AbstractSymbol, Integer>();
 		methOff = 0;
 		attrOff = 0;
 		
 		if(getName() != TreeConstants.Object_) {
 			//attrMap.putAll(parent.attrMap);
-			//methOffsets.putAll(parent.methOffsets);
+			methOffsets.putAll(parent.methOffsets);
+			methClass.putAll(parent.methClass);
 			//attrOffsets.putAll(parent.attrOffsets);
 			methOff = parent.methOff;
 			attrOff = parent.attrOff;
@@ -164,9 +167,18 @@ class CgenNode extends class_ {
 		for(Enumeration e = features.getElements(); e.hasMoreElements();) {
 			Feature feat = (Feature)e.nextElement();
 			if(feat instanceof method) {
-				methMap.put( ((method)feat).name, (method)feat );
-				methOffsets.put( ((method)feat).name, methOff );
-				methOff += 1;
+				method m = (method)feat;
+			
+				methMap.put(m.name, m);
+				
+				methClass.put(m.name, getName());
+				
+				if(!methOffsets.containsKey(m.name)) {
+					methOffsets.put(m.name, methOff);
+					methOff += 1;
+				}
+
+					
 			} else {
 				attrMap.put( ((attr)feat).name, (attr)feat );
 				attrOffsets.put( ((attr)feat).name, attrOff );
@@ -174,6 +186,13 @@ class CgenNode extends class_ {
 				
 			}
 		}
+		
+		if(Flags.cgen_debug)
+			for(AbstractSymbol m : methOffsets.keySet())
+				System.out.printf("\tclass %s method %s offset %d\n", 
+					methClass.get(m), m, methOffsets.get(m));
+		
+		
 		
 		for(Enumeration e = getChildren(); e.hasMoreElements();) {
 			((CgenNode)e.nextElement()).buildFeatures();
@@ -203,14 +222,14 @@ class CgenNode extends class_ {
 			System.out.println("codeDispTab " + name + " " + methOffsets.size());		
 		}
 		
-		if(name != TreeConstants.Object_)
-			parent.codeDispTab(s);
+		//if(name != TreeConstants.Object_)
+		//	parent.codeDispTab(s);
 		
 		for(AbstractSymbol method : methOffsets.keySet()) {
 			if(Flags.cgen_debug)
 				System.out.println("\t" + method + " " + methOffsets.get(method));
 			s.print(CgenSupport.WORD);
-			CgenSupport.emitMethodRef(name, method, s);
+			CgenSupport.emitMethodRef(methClass.get(method), method, s);
 			s.println();
 		}		
 	}
@@ -224,7 +243,7 @@ class CgenNode extends class_ {
 		s.println(CgenSupport.WORD + getTag());				
 		
 		// size
-		s.println(CgenSupport.WORD + (attrOff) + CgenSupport.DEFAULT_OBJFIELDS);	
+		s.println(CgenSupport.WORD + ((attrOff) + CgenSupport.DEFAULT_OBJFIELDS));	
 		
 		// disp table
 		s.print(CgenSupport.WORD);	
