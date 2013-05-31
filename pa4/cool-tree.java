@@ -30,7 +30,7 @@ class FieldVar extends Variable{
     }
     public void emitStore(PrintStream s) {
         CgenSupport.emitStore(CgenSupport.ACC, -offset, CgenSupport.FP, s);
-        CgenSupport.emitAddiu(CgenSupport.A1,CgenSupport.SELF,4*offset,s);
+        CgenSupport.emitAddiu(CgenSupport.A1,CgenSupport.FP,-4*offset,s);
         CgenSupport.emitGCAssign(s);
     }
 }
