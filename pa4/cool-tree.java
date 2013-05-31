@@ -47,7 +47,7 @@ class ClassVar extends Variable{
     }
     public void emitStore(PrintStream s) {
         CgenSupport.emitStore(CgenSupport.ACC, offset, CgenSupport.SELF, s);
-        CgenSupport.emitAddiu(CgenSupport.A1,CgenSupport.SELF,offset,s);
+        CgenSupport.emitAddiu(CgenSupport.A1,CgenSupport.SELF,4*offset,s);
         CgenSupport.emitGCAssign(s);
     }
 }
