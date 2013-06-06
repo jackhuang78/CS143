@@ -32,8 +32,8 @@ for f in args.files:
 	print 'File: %s' % f
 	name = f.split('.')[0]
 	
-	os.system('rm -f out/%s.s' % name)
-	os.system('rm -f out/%s_ref.s' % name)
+	os.system('rm -f %s.s' % name)
+	os.system('rm -f %s_ref.s' % name)
 	os.system('rm -f spim.out spim_ref.out')
 	
 	flags = '';
@@ -51,15 +51,19 @@ for f in args.files:
 		print 'Compilation error. Exit,'
 		exit(0)
 		
+	print 'Run reference solution'	
 	os.system('mv %s.s %s_ref.s' % (name, name))
-	os.system('/usr/class/cs143/bin/spim -file %s_ref.s > spim_ref.out 2>&1' % name );
+	os.system('/usr/class/cs143/bin/spim -stext 1048576 -file %s_ref.s > spim_ref.out 2>&1' % name)
+	#os.system('/usr/class/cs143/bin/spim -file %s_ref.s > spim_ref.out 2>&1' % name );
 	
 	if not args.r:
 		
 		ret = os.system('./mycoolc %s %s' % (flags, f))
 		
 		if not ret:
-			os.system('/usr/class/cs143/bin/spim -file %s.s > spim.out 2>&1' % name );	
+			print 'Run our solution'
+			os.system('/usr/class/cs143/bin/spim -stext 1048576 -file %s.s > spim.out 2>&1' % name) 
+			#os.system('/usr/class/cs143/bin/spim -file %s.s > spim.out 2>&1' % name );	
 			if args.d:
 				os.system('diff spim_ref.out spim.out')
 		
