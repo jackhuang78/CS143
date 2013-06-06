@@ -61,7 +61,7 @@ class CgenClassTable extends SymbolTable {
 		// The following global names must be defined first.
 
 		// set FP offset to be below SP by 1
-		fpOffset = 1;
+		fpOffset = 0;
 
 		str.println("\n# Global Data");
 

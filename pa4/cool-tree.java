@@ -452,6 +452,7 @@ class method extends Feature {
             int offset = 2 + formals.getLength() - i;
             CgenClassTable.ct.addId(((formal)formals.getNth(i)).getName(), new FieldVar(-offset));
         }
+        CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset + 1;
         s.println("#start method begin");
         // push frame pointer onto stack
         CgenSupport.emitPush(CgenSupport.FP, s);
@@ -481,6 +482,7 @@ class method extends Feature {
         // print return
         CgenSupport.emitReturn(s);
         s.println("#end method end");
+        CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset - 1;
         CgenClassTable.ct.exitScope();
     }
 }
