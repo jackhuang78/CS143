@@ -449,7 +449,7 @@ class method extends Feature {
     	// enter all formal parameter into scope
         CgenClassTable.ct.enterScope();
         for (int i = 0; i < formals.getLength(); i++) {
-            int offset = CgenClassTable.ct.fpOffset + 2 + formals.getLength() - i;
+            int offset = 2 + formals.getLength() - i;
             CgenClassTable.ct.addId(((formal)formals.getNth(i)).getName(), new FieldVar(-offset));
         }
         CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset + 1;

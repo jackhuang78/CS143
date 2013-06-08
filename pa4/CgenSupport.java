@@ -615,6 +615,7 @@ class CgenSupport {
 	 * @opcode operation
 	 * */
     static void emitArith(Expression e1, Expression e2, String opcode, PrintStream s) {
+    	CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset + 1;
         e1.code(s);
         // fetch first arg value from ACC + 12 and store in T1
         emitFetchInt(T1, ACC, s);
@@ -631,6 +632,7 @@ class CgenSupport {
         s.println(opcode + T1 + " " + T1 + " " + T2);
         // store operation result of T1 into ACC address + 12
         emitStoreInt(T1, ACC, s);
+        CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset - 1;
     }
 
 	/** Emits comparison among two params.
