@@ -464,9 +464,9 @@ class method extends Feature {
         s.println("#start method end");
         // ready to print code
         CgenSupport.emitMove(CgenSupport.SELF, CgenSupport.ACC, s);
-        CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset + 1;
+        //CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset + 1;
         expr.code(s);
-        CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset - 1;
+        //CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset - 1;
         s.println("#end method begin");
         //recover RA
         CgenSupport.emitPop(CgenSupport.RA, s);
@@ -627,9 +627,9 @@ class branch extends Case {
       CgenClassTable.ct.enterScope();
       // add id to appropriate offset
       CgenClassTable.ct.addId(name, new FieldVar(CgenClassTable.ct.fpOffset));
-      CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset + 1;
+      //CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset + 1;
       expr.code(s);
-      CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset - 1;
+      //CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset - 1;
       CgenClassTable.ct.exitScope();
       // pop typcase expression object
       CgenSupport.emitPop(CgenSupport.T1,s);
@@ -1217,9 +1217,9 @@ class let extends Expression {
         CgenSupport.emitPush(CgenSupport.ACC, s);
         CgenClassTable.ct.enterScope();
         CgenClassTable.ct.addId(identifier, new FieldVar(CgenClassTable.ct.fpOffset));
-        CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset + 1;
+        //CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset + 1;
         body.code(s);
-        CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset - 1;
+        //CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset - 1;
         CgenClassTable.ct.exitScope();
         // pop previous ACC value out of stack
         CgenSupport.emitPop(CgenSupport.T1,s);
@@ -1553,13 +1553,13 @@ class eq extends Expression {
         e1.code(s);
         // push ACC onto stack
         CgenSupport.emitPush(CgenSupport.ACC, s);
-        CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset + 1;
+        //CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset + 1;
         // code e2
         e2.code(s);
         // move result into T2
         CgenSupport.emitMove(CgenSupport.T2, CgenSupport.ACC, s);
         // pop previous e1 into T1 from stack
-        CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset - 1;
+        //CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset - 1;
         CgenSupport.emitPop(CgenSupport.T1, s);
         // load true into ACC default value is true
         CgenSupport.emitLoadBool(CgenSupport.ACC, new BoolConst(true),s);
@@ -1852,11 +1852,11 @@ class new_ extends Expression {
             CgenSupport.emitLoad(CgenSupport.ACC, 0, CgenSupport.T2, s);
             // push T2 onto stack
             CgenSupport.emitPush(CgenSupport.T2, s);
-            CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset + 1;
+            //CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset + 1;
             // copy object
             CgenSupport.emitJal("Object.copy", s);
             // pop stack into T2
-            CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset - 1;
+            //CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset - 1;
             CgenSupport.emitPop(CgenSupport.T2, s);
             // now load init func
             CgenSupport.emitLoad(CgenSupport.T2, 1, CgenSupport.T2, s);
