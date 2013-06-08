@@ -627,12 +627,12 @@ class CgenSupport {
         // fetch 2nd arg value from ACC + 12 and store in T2
         emitFetchInt(T2, ACC, s);
         // recover T1's original value
+        CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset - 1;
         emitPop(T1, s);
         // print MIPS code
         s.println(opcode + T1 + " " + T1 + " " + T2);
         // store operation result of T1 into ACC address + 12
         emitStoreInt(T1, ACC, s);
-        CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset - 1;
     }
 
 	/** Emits comparison among two params.
@@ -644,10 +644,12 @@ class CgenSupport {
         e1.code(s);
         // push start address of e1's result onto the stack
         emitPush(ACC, s);
+        CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset + 1;
         e2.code(s);
         // move e2's result's start address into T2
         emitMove(T2, ACC, s);
         // recover e1's result's start address into T1
+        CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset - 1;
         emitPop(T1, s);
         // load true's address into ACC 
         emitLoadBool(ACC,new BoolConst(true),s);

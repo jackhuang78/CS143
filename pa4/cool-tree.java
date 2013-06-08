@@ -452,7 +452,6 @@ class method extends Feature {
             int offset = 2 + formals.getLength() - i;
             CgenClassTable.ct.addId(((formal)formals.getNth(i)).getName(), new FieldVar(-offset));
         }
-        CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset + 1;
         s.println("#start method begin");
         // push frame pointer onto stack
         CgenSupport.emitPush(CgenSupport.FP, s);
@@ -465,7 +464,9 @@ class method extends Feature {
         s.println("#start method end");
         // ready to print code
         CgenSupport.emitMove(CgenSupport.SELF, CgenSupport.ACC, s);
+        CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset + 1;
         expr.code(s);
+        CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset - 1;
         s.println("#end method begin");
         //recover RA
         CgenSupport.emitPop(CgenSupport.RA, s);
@@ -482,7 +483,6 @@ class method extends Feature {
         // print return
         CgenSupport.emitReturn(s);
         s.println("#end method end");
-        CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset - 1;
         CgenClassTable.ct.exitScope();
     }
 }
@@ -1553,11 +1553,13 @@ class eq extends Expression {
         e1.code(s);
         // push ACC onto stack
         CgenSupport.emitPush(CgenSupport.ACC, s);
+        CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset + 1;
         // code e2
         e2.code(s);
         // move result into T2
         CgenSupport.emitMove(CgenSupport.T2, CgenSupport.ACC, s);
         // pop previous e1 into T1 from stack
+        CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset - 1;
         CgenSupport.emitPop(CgenSupport.T1, s);
         // load true into ACC default value is true
         CgenSupport.emitLoadBool(CgenSupport.ACC, new BoolConst(true),s);
@@ -1850,9 +1852,11 @@ class new_ extends Expression {
             CgenSupport.emitLoad(CgenSupport.ACC, 0, CgenSupport.T2, s);
             // push T2 onto stack
             CgenSupport.emitPush(CgenSupport.T2, s);
+            CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset + 1;
             // copy object
             CgenSupport.emitJal("Object.copy", s);
             // pop stack into T2
+            CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset - 1;
             CgenSupport.emitPop(CgenSupport.T2, s);
             // now load init func
             CgenSupport.emitLoad(CgenSupport.T2, 1, CgenSupport.T2, s);
