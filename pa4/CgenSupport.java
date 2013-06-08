@@ -615,12 +615,12 @@ class CgenSupport {
 	 * @opcode operation
 	 * */
     static void emitArith(Expression e1, Expression e2, String opcode, PrintStream s) {
-    	CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset + 1;
         e1.code(s);
         // fetch first arg value from ACC + 12 and store in T1
         emitFetchInt(T1, ACC, s);
         // store T1's value on stack
         emitPush(T1, s);
+        CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset + 1;
         e2.code(s);
         // copy object
         emitJal("Object.copy", s); 
