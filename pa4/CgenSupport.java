@@ -495,7 +495,6 @@ class CgenSupport {
 	 * @param s the output stream
 	 * */
 	static void emitPush(String reg, PrintStream s) {
-		CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset + 1;
 		emitStore(reg, 0, SP, s);
 		emitAddiu(SP, SP, -4, s);
 	}
@@ -606,7 +605,6 @@ class CgenSupport {
 	 * @reg the reg destination we want to pop to
 	 * */
     static void emitPop(String reg, PrintStream s) {
-    	CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset - 1;
         emitAddiu(SP, SP, 4, s);
         emitLoad(reg, 0, SP, s);
     }
@@ -620,16 +618,16 @@ class CgenSupport {
         e1.code(s);
         // fetch first arg value from ACC + 12 and store in T1
         emitFetchInt(T1, ACC, s);
-        // store T1's value on stack
+        // store T1's value on stack as temporary
         emitPush(T1, s);
-        //CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset + 1;
+        CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset + 1;
         e2.code(s);
+        CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset - 1;
         // copy object
         emitJal("Object.copy", s); 
         // fetch 2nd arg value from ACC + 12 and store in T2
         emitFetchInt(T2, ACC, s);
         // recover T1's original value
-        //CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset - 1;
         emitPop(T1, s);
         // print MIPS code
         s.println(opcode + T1 + " " + T1 + " " + T2);
@@ -646,12 +644,12 @@ class CgenSupport {
         e1.code(s);
         // push start address of e1's result onto the stack
         emitPush(ACC, s);
-        //CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset + 1;
+        CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset + 1;
         e2.code(s);
+        CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset - 1;
         // move e2's result's start address into T2
         emitMove(T2, ACC, s);
         // recover e1's result's start address into T1
-        //CgenClassTable.ct.fpOffset = CgenClassTable.ct.fpOffset - 1;
         emitPop(T1, s);
         // load true's address into ACC 
         emitLoadBool(ACC,new BoolConst(true),s);
